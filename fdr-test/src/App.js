@@ -21,6 +21,9 @@ export default class App extends React.Component {
       this.passwordRef = React.createRef();
       this.emaillog = React.createRef();
       this.passlog = React.createRef();
+      this.getuname = React.createRef();
+      this.getosis = React.createRef();
+      // this.getclubs 
   }
   logout() {
     const auth = getAuth();
@@ -39,7 +42,16 @@ export default class App extends React.Component {
           id: res.user.uid,
           role: "regular",
           osis: null,
-        }).then(() => console.log("written successfully"));
+          clubs: [],
+        }).then(() => console.log("written successfully")).catch((error) => {
+          switch(error) {
+            case "auth/popup-closed-by-user":
+              console.log("no error");
+              break;
+            default:
+              break;
+          }
+        });
       })
       this.setState({logged: true});
   }
@@ -55,6 +67,7 @@ export default class App extends React.Component {
           role: "regular",
           name: null,
           osis: null,
+          clubs: [],
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
   }).catch((er) => {
@@ -80,6 +93,10 @@ export default class App extends React.Component {
     })
   }
 
+  anon_login = async () => {
+    const auth = getAuth();
+    await signInAnonymously(auth);
+  }
 
   componentDidMount() {
     this.setState({loaded: true});
@@ -97,65 +114,101 @@ export default class App extends React.Component {
           email: user.email,
           id: user.uid,
           pfp: user.photoURL || Defaultpfp,
-
         });
         //rolesw update
         const current_user = doc(db, "schools/1/users", auth.currentUser.uid);
         let fill_data = getDoc(current_user).then((data) => {
-          this.setState({role: data.data.role});
-        })
+          this.setState({role: data.data().role, clubs: data.data().clubs});
+        });
       }
-    })
+    });
   }
 
 
-  render() {
-    if(!this.state.logged) {
-      
-      return (
-        <div className="register">
-          <button onClick={this.google_auth}>glogo login with google</button>
-          <input type="email" name="email" id="email" ref={this.emailInputRef} />
-          <input type="password" name="password" id="pass" ref={this.passwordRef} />
-          <button onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>register</button>
-
-          <h3>woah another login</h3>
-          <input type="email" ref={this.emaillog} />
-          <input type="password" ref={this.passlog} />
-          <button onClick={() => this.manLogin(this.emaillog.current.value,this.passlog.current.value)}>login riht now</button>
-        </div>
-      );
-    } else {
-      return (
-        <div className="landing">
-          <nav>dfajsdplfkjaspdgffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</nav>
-          <Outlet />
-          
-          <p>i am: {this.state.username}</p>
-          {/* <img src={this.state.pfp} /> */}
-          <button onClick={this.logout}>logout</button>
-          <div>BUT FIRST OSOME QUESTIONS!!</div>
-          {this.state.username === null || this.state.osis === null ? (
-            <div>
-              <p>what is name bruh</p>
-              <input type="text" placeholder="name" />
-              <p>what is your osis numbre (student id) hint : check your id card or smth</p>
-              <input type="text" placeholder="osis" />
-              <p>clubs you in???</p>
-              <select>
-                <input type="checkbox" value="math" />
-                <input type="checkbox" value="CS" />
-                <input type="checkbox" value="key" />
-                <input type="checkbox" value="robotics" />
-                <input type="checkbox" value="physics" />
-              </select>
-              <img src={Megamind} width={500} height={500} />
-            </div>
-          ) : null}
-        </div>
-      )
+  updateUserInfo = () => {
+    const checkboxes = document.querySelectorAll(".clubcheck");
+    let clubsArr = [];
+    for(let i = 0; i < checkboxes.length; i++) {
+      if(checkboxes[i].value) {
+        clubsArr.push(checkboxes[i].id.toString());
+      }
     }
-      
+    const docRef = doc(db, "schools/1/users", this.state.id);
+    updateDoc(docRef, {
+      username:( this.getuname !== null ? this.getuname.current.value : this.state.username ),
+      osis: this.getosis.current.value, //encrypted of course,
+      clubs: clubsArr,
+    });
+    this.setState({
+      username: this.getuname.current.value,
+      osis: this.getosis.current.value, //encrypted of course,
+      clubs: clubsArr,
+    })
+  }
+  
+
+
+  render() {
+    if(this.state.loaded) {
+      if(!this.state.logged) {
+        return (
+          <div className="register">
+            <button onClick={this.google_auth}>glogo login with google</button>
+            <input type="email" name="email" id="email" ref={this.emailInputRef} />
+            <input type="password" name="password" id="pass" ref={this.passwordRef} />
+            <button onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>register</button>
+            <button onClick={this.anon_login}>become anon</button>
+  
+            <h3>woah another login</h3>
+            <input type="email" ref={this.emaillog} />
+            <input type="password" ref={this.passlog} />
+            <button onClick={() => this.manLogin(this.emaillog.current.value,this.passlog.current.value)}>login riht now</button>
+          </div>
+        );
+      } else {
+        console.log(this.state.clubs);
+        return (
+          <div className="landing">
+            <nav>
+              TODO navbar
+            </nav>
+            <Outlet />
+            <p>i am: {this.state.username !== null ? this.state.username : "anon"}</p>
+            <img src={this.state.pfp} width={200} height={200} />
+            <button onClick={this.logout}>logout</button>
+        
+            {(this.state.clubs) ?
+            (this.state.clubs.length === 0) ? 
+            (
+            <div id="popup-questions">
+                <div>BUT FIRST OSOME QUESTIONS!!</div>
+                {this.state.username === null && this.state.osis === null ? (
+                <div>
+                    <p>what is name bruh</p>
+                    <input type="text" placeholder="name" />
+                </div>
+                ) : null}
+                <p>what is your osis numbre (student id) hint : check your id card or smth</p>
+                <input type="text" placeholder="osis" ref={this.getosis} />
+                <p>clubs you in???</p>
+                {/* <select> */}
+                <input type="checkbox" className="clubcheck" id="math" /><label for="math">Math</label>
+                <input type="checkbox" className="clubcheck" id="CS" /><label for="math">Computer scientce</label>
+                <input type="checkbox" className="clubcheck" id="key" /><label for="math">key club</label>
+                <input type="checkbox" className="clubcheck" id="robotics" /><label for="math">robitcs</label>
+                <input type="checkbox" className="clubcheck" id="physics" /><label for="math">physics</label>
+                {/* </select> */}
+                {/* <img src={Megamind} width={500} height={500} /> */}
+                <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
+            </div>
+            )
+            : 
+            <p>all questions have been anwered</p>
+            : null}
+          </div>
+        )
+      }
+    }  
   }
 }
 
