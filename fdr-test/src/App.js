@@ -118,10 +118,13 @@ export default class App extends React.Component {
         //rolesw update
         const current_user = doc(db, "schools/1/users", auth.currentUser.uid);
         let fill_data = getDoc(current_user).then((data) => {
-          this.setState({role: data.data().role, clubs: data.data().clubs});
+          this.setState({role: data.data().role,clubs: data.data().clubs}); // clubs: data.data().clubs
         });
       }
     });
+    this.setState({
+      clubs: []
+    })
   }
 
 
@@ -129,20 +132,20 @@ export default class App extends React.Component {
     const checkboxes = document.querySelectorAll(".clubcheck");
     let clubsArr = [];
     for(let i = 0; i < checkboxes.length; i++) {
-      if(checkboxes[i].value) {
+      if(checkboxes[i].checked) {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
     const docRef = doc(db, "schools/1/users", this.state.id);
     updateDoc(docRef, {
-      username:( this.getuname !== null ? this.getuname.current.value : this.state.username ),
+      name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
       osis: this.getosis.current.value, //encrypted of course,
       clubs: clubsArr,
     });
     this.setState({
-      username: this.getuname.current.value,
+      username: this.state.username || this.getuname.current.value,
       osis: this.getosis.current.value, //encrypted of course,
-      clubs: clubsArr,
+      clubs: clubsArr, 
     })
   }
   
@@ -166,7 +169,7 @@ export default class App extends React.Component {
           </div>
         );
       } else {
-        console.log(this.state.clubs);
+        console.log(this.state);
         return (
           <div className="landing">
             <nav>
@@ -185,7 +188,7 @@ export default class App extends React.Component {
                 {this.state.username === null && this.state.osis === null ? (
                 <div>
                     <p>what is name bruh</p>
-                    <input type="text" placeholder="name" />
+                    <input type="text" placeholder="name" ref={this.getuname} />
                 </div>
                 ) : null}
                 <p>what is your osis numbre (student id) hint : check your id card or smth</p>
