@@ -1,15 +1,20 @@
 import React from "react";
 import './App.css';
 import firebase from 'firebase/compat/app';
+import { getApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, signInAnonymously, signInWithPopup, createUserWithEmailAndPassword, GoogleAuthProvider  } from "firebase/auth";
 import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import {db} from "./firebase-config";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
 import Megamind from "./megamind.webp";
 
 const gp = new GoogleAuthProvider();
 const auth = getAuth();
+const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
+
+let current_school = 1;
 
 export default class App extends React.Component {
   constructor(props) {
@@ -23,7 +28,7 @@ export default class App extends React.Component {
       this.passlog = React.createRef();
       this.getuname = React.createRef();
       this.getosis = React.createRef();
-      // this.getclubs 
+
   }
   logout() {
     const auth = getAuth();
@@ -43,6 +48,7 @@ export default class App extends React.Component {
           role: "regular",
           osis: null,
           clubs: [],
+          pfp: res.user.photoURL || Defaultpfp,
         }).then(() => console.log("written successfully")).catch((error) => {
           switch(error) {
             case "auth/popup-closed-by-user":
@@ -59,7 +65,7 @@ export default class App extends React.Component {
 
   emailpass_auth = async (email,pass) => {
     await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
-      const docRef = doc(db, "schools/1/users", auth.currentUser.uid);
+      const docRef = doc(db, `schools/1/users`, auth.currentUser.uid);
       setDoc(docRef, {
           email: email,
           id: res.user.uid,
@@ -68,6 +74,7 @@ export default class App extends React.Component {
           name: null,
           osis: null,
           clubs: [],
+          pfp: res.user.photoURL || Defaultpfp,
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
   }).catch((er) => {
@@ -98,7 +105,29 @@ export default class App extends React.Component {
     await signInAnonymously(auth);
   }
 
-  componentDidMount() {
+
+  fetchData = async (school_current) => {
+    await getDoc(doc(db, `schools/${school_current}/users`, auth.currentUser.uid)).then((data) => {
+      if(data.exists()) {
+        console.log("executed and data collected");
+        this.setState({
+          role: data.data().role,
+          clubs: data.data().clubs,
+          username: data.data().name,
+          osis: data.data().osis,
+          email: data.data().email,
+          id: data.data().id,
+          pfp: data.data().pfp,
+          verified: data.data().verified,
+          school_select: school_current,
+        });
+      } else {
+        console.log("data not found??") 
+      }
+    });
+  }
+
+  async componentDidMount() {
     this.setState({loaded: true});
     const auth = getAuth();
     onAuthStateChanged(auth, user => {
@@ -106,27 +135,21 @@ export default class App extends React.Component {
         this.setState({
           logged: false,
         })
-      } else {
+      } else { //TODO: fix the state update and stuff
         this.setState({
           logged: true,
-          username: user.displayName || null,
-          osis: null,
-          email: user.email,
-          id: user.uid,
-          pfp: user.photoURL || Defaultpfp,
-        });
-        //rolesw update
-        const current_user = doc(db, "schools/1/users", auth.currentUser.uid);
-        let fill_data = getDoc(current_user).then((data) => {
-          this.setState({role: data.data().role,clubs: data.data().clubs}); // clubs: data.data().clubs
-        });
+          school_select: 1
+        })
+        this.fetchData(this.state.school_select);
       }
     });
-    this.setState({
-      clubs: []
-    })
   }
 
+  handleSchoolSelection(e){
+    this.setState({
+      school_select: e.target.value,
+    })
+  }
 
   updateUserInfo = () => {
     const checkboxes = document.querySelectorAll(".clubcheck");
@@ -136,20 +159,39 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
-    const docRef = doc(db, "schools/1/users", this.state.id);
-    updateDoc(docRef, {
-      name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
-      osis: this.getosis.current.value, //encrypted of course,
-      clubs: clubsArr,
-    });
-    this.setState({
-      username: this.state.username || this.getuname.current.value,
-      osis: this.getosis.current.value, //encrypted of course,
-      clubs: clubsArr, 
-    })
-  }
-  
 
+    const docRef = doc(db, `schools/${this.state.school_select}/users`, this.state.id);
+    if(this.state.school_select === 1) { //default
+      updateDoc(docRef, {
+        name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
+        osis: this.getosis.current.value, 
+        clubs: clubsArr,
+      });
+    } else {
+      //someone selected a different option
+      setDoc(docRef, {
+        name: this.state.username || this.getuname.current.value,
+        email: this.state.email,
+        id: this.state.id,
+        verified: this.state.verified,
+        role: "regular",
+        osis: this.getosis.current.value,
+        clubs: clubsArr,
+        school: current_school,
+      });
+      deleteDoc(doc(db, "schools/1/users", this.state.id));
+    }
+    console.log(this.state.school_select);
+    this.fetchData(this.state.school_select);
+  }
+  handleImage = (event) => {
+    const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
+    uploadBytes(storageRef, event.target.files[0]);
+  }
+
+
+  
+  
 
   render() {
     if(this.state.loaded) {
@@ -157,9 +199,12 @@ export default class App extends React.Component {
         return (
           <div className="register">
             <button onClick={this.google_auth}>glogo login with google</button>
+
+
             <input type="email" name="email" id="email" ref={this.emailInputRef} />
             <input type="password" name="password" id="pass" ref={this.passwordRef} />
             <button onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>register</button>
+            
             <button onClick={this.anon_login}>become anon</button>
   
             <h3>woah another login</h3>
@@ -175,16 +220,28 @@ export default class App extends React.Component {
             <nav>
               TODO navbar
             </nav>
-            <Outlet />
-            <p>i am: {this.state.username !== null ? this.state.username : "anon"}</p>
-            <img src={this.state.pfp} width={200} height={200} />
-            <button onClick={this.logout}>logout</button>
+            {this.state.clubs ? 
+            this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
+            (
+              <Outlet />
+            )
+            :
+            <div>
+              <p>i am: {this.state.username}</p>
+              <img src={this.state.pfp} width={200} height={200} />
+              <button onClick={this.logout}>logout</button>
         
             {(this.state.clubs) ?
             (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions">
                 <div>BUT FIRST OSOME QUESTIONS!!</div>
+                <p>what opp (school) u a part of??</p>
+                <select value={this.state.school} onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
+                  <option value={1}>FDR (the OG ngl)</option>
+                  <option value={2}>use api to get other school stuff ig idk</option>  
+                </select>
+                <br />
                 {this.state.username === null && this.state.osis === null ? (
                 <div>
                     <p>what is name bruh</p>
@@ -195,19 +252,25 @@ export default class App extends React.Component {
                 <input type="text" placeholder="osis" ref={this.getosis} />
                 <p>clubs you in???</p>
                 {/* <select> */}
-                <input type="checkbox" className="clubcheck" id="math" /><label for="math">Math</label>
-                <input type="checkbox" className="clubcheck" id="CS" /><label for="math">Computer scientce</label>
-                <input type="checkbox" className="clubcheck" id="key" /><label for="math">key club</label>
-                <input type="checkbox" className="clubcheck" id="robotics" /><label for="math">robitcs</label>
-                <input type="checkbox" className="clubcheck" id="physics" /><label for="math">physics</label>
-                {/* </select> */}
-                {/* <img src={Megamind} width={500} height={500} /> */}
+                <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
+                <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
+                <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
+                <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
+                <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
+
+                <p>upload image (or use default idc)</p>
+                <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
+
                 <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
             </div>
             )
             : 
             <p>all questions have been anwered</p>
-            : null}
+            : <button onClick={this.logout}>logout landing</button>}
+
+             
+            </div>
+            : <button onClick={this.logout}>logout landing</button>}
           </div>
         )
       }
@@ -228,3 +291,4 @@ TODO:
 
 posts and articles for newcomers
 */
+
