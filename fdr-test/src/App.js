@@ -5,7 +5,7 @@ import { getApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, signInAnonymously, signInWithPopup, createUserWithEmailAndPassword, GoogleAuthProvider  } from "firebase/auth";
 import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import {db} from "./firebase-config";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
 import Megamind from "./megamind.webp";
@@ -14,7 +14,7 @@ const gp = new GoogleAuthProvider();
 const auth = getAuth();
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 
-let current_school = 1;
+let avatar_fileref = "";
 
 export default class App extends React.Component {
   constructor(props) {
@@ -157,6 +157,7 @@ export default class App extends React.Component {
   }
 
   updateUserInfo = () => {
+    console.log(this.state.school_select);
     const checkboxes = document.querySelectorAll(".clubcheck");
     let clubsArr = [];
     for(let i = 0; i < checkboxes.length; i++) {
@@ -171,6 +172,7 @@ export default class App extends React.Component {
         name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
         osis: this.getosis.current.value, 
         clubs: clubsArr,
+        pfp: this.state.pfp
       });
     } else {
       //someone selected a different option
@@ -191,7 +193,21 @@ export default class App extends React.Component {
   }
   handleImage = (event) => {
     const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
-    uploadBytes(storageRef, event.target.files[0]);
+    const uploadTask = uploadBytesResumable(storageRef, event.target.files[0]);
+    uploadTask.on('state_changed', (snap) => {
+      if(snap.state === "running") {
+        console.log(snap.state);
+      }
+    }, (err) => {
+      console.log("error upload");
+    }, () => {
+      getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+        this.setState({pfp: url});
+      })
+    });
+    // updateDoc(doc(db, `schools/${this.state.school_select}/users`, this.state.id), {
+    //   pfp: this.state.pfp
+    // });
   }
 
   render() {
