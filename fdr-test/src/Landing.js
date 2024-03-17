@@ -30,6 +30,7 @@ export default class Landing extends React.Component {
         return (
             <div className="landing">
                 <button onClick={this.logout}>logout landing</button>
+                <p>you made it...</p>
             </div>
         );
     }

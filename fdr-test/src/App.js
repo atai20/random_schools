@@ -49,6 +49,7 @@ export default class App extends React.Component {
           osis: null,
           clubs: [],
           pfp: res.user.photoURL || Defaultpfp,
+          school: 1,
         }).then(() => console.log("written successfully")).catch((error) => {
           switch(error) {
             case "auth/popup-closed-by-user":
@@ -75,6 +76,7 @@ export default class App extends React.Component {
           osis: null,
           clubs: [],
           pfp: res.user.photoURL || Defaultpfp,
+          school: 1,
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
   }).catch((er) => {
@@ -119,7 +121,7 @@ export default class App extends React.Component {
           id: data.data().id,
           pfp: data.data().pfp,
           verified: data.data().verified,
-          school_select: school_current,
+          school_select: this.state.school_select || school_current,
         });
       } else {
         console.log("data not found??") 
@@ -177,7 +179,7 @@ export default class App extends React.Component {
         role: "regular",
         osis: this.getosis.current.value,
         clubs: clubsArr,
-        school: current_school,
+        school: this.state.school_select,
       });
       deleteDoc(doc(db, "schools/1/users", this.state.id));
     }
@@ -188,10 +190,6 @@ export default class App extends React.Component {
     const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
     uploadBytes(storageRef, event.target.files[0]);
   }
-
-
-  
-  
 
   render() {
     if(this.state.loaded) {
@@ -266,11 +264,11 @@ export default class App extends React.Component {
             )
             : 
             <p>all questions have been anwered</p>
-            : <button onClick={this.logout}>logout landing</button>}
+            : <button onClick={this.logout}>logout 1</button>}
 
              
             </div>
-            : <button onClick={this.logout}>logout landing</button>}
+            : <button onClick={this.logout}>logout 2</button>}
           </div>
         )
       }
