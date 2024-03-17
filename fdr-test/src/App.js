@@ -61,6 +61,7 @@ export default class App extends React.Component {
         });
       })
       this.setState({logged: true});
+      this.fetchData(1);
   }
 
 
@@ -79,6 +80,7 @@ export default class App extends React.Component {
           school: 1,
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
+      this.fetchData(1);
   }).catch((er) => {
       console.log(er);
       switch(er.code) {
@@ -109,6 +111,7 @@ export default class App extends React.Component {
 
 
   fetchData = async (school_current) => {
+    console.log(school_current);
     await getDoc(doc(db, `schools/${school_current}/users`, auth.currentUser.uid)).then((data) => {
       if(data.exists()) {
         console.log("executed and data collected");
@@ -142,7 +145,7 @@ export default class App extends React.Component {
           logged: true,
           school_select: 1
         })
-        this.fetchData(this.state.school_select);
+        this.fetchData(1); // the state dont update that fast
       }
     });
   }
