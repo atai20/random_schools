@@ -55,9 +55,10 @@ export default class App extends React.Component {
               school: 0
             });
             this.setState({logged: true});
-          } else {
             this.fetchData();
+          } else {
             this.setState({logged: true});
+            this.fetchData();
           }
         })
       })
