@@ -2,7 +2,7 @@ import React from "react";
 import './App.css';
 import firebase from 'firebase/compat/app';
 import { getApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, signInAnonymously, signInWithPopup, createUserWithEmailAndPassword, GoogleAuthProvider  } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, signInAnonymously, signInWithPopup, createUserWithEmailAndPassword, GoogleAuthProvider, sendEmailVerification  } from "firebase/auth";
 import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import {db} from "./firebase-config";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -15,6 +15,7 @@ const auth = getAuth();
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 
 let avatar_fileref = "";
+const schools_ref = collection(db, "schools");
 
 export default class App extends React.Component {
   constructor(props) {
@@ -39,35 +40,33 @@ export default class App extends React.Component {
   }
   google_auth = async () => {
       await signInWithPopup(auth, gp).then((res) => {
-        const user = doc(db, `schools/1/users`, auth.currentUser.uid);
-        setDoc(user, {
-          name: res.user.displayName,
-          email: res.user.email,
-          verified: res.user.emailVerified,
-          id: res.user.uid,
-          role: "regular",
-          osis: null,
-          clubs: [],
-          pfp: res.user.photoURL || Defaultpfp,
-          school: 1,
-        }).then(() => console.log("written successfully")).catch((error) => {
-          switch(error) {
-            case "auth/popup-closed-by-user":
-              console.log("no error");
-              break;
-            default:
-              break;
+        const user = doc(db, `users`, auth.currentUser.uid);
+        getDoc(user).then((docsnap) => {
+          if(!docsnap.exists()) {
+            setDoc(user, {
+              name: res.user.displayName,
+              email: res.user.email,
+              verified: res.user.emailVerified,
+              id: res.user.uid,
+              role: "regular",
+              osis: null,
+              clubs: [],
+              pfp: res.user.photoURL || Defaultpfp,
+              school: 0
+            });
+            this.setState({logged: true});
+          } else {
+            this.fetchData();
+            this.setState({logged: true});
           }
-        });
+        })
       })
-      this.setState({logged: true});
-      this.fetchData(1);
   }
 
 
   emailpass_auth = async (email,pass) => {
     await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
-      const docRef = doc(db, `schools/1/users`, auth.currentUser.uid);
+      const docRef = doc(db, `users`, auth.currentUser.uid);
       setDoc(docRef, {
           email: email,
           id: res.user.uid,
@@ -77,10 +76,9 @@ export default class App extends React.Component {
           osis: null,
           clubs: [],
           pfp: res.user.photoURL || Defaultpfp,
-          school: 1,
+          school: 0,
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
-      this.fetchData(1);
   }).catch((er) => {
       console.log(er);
       switch(er.code) {
@@ -101,6 +99,7 @@ export default class App extends React.Component {
     await signInWithEmailAndPassword(auth, email, pass).then((res) => {
       console.log("success log in");
       this.setState({logged: true});
+      this.fetchData();
     })
   }
 
@@ -110,11 +109,9 @@ export default class App extends React.Component {
   }
 
 
-  fetchData = async (school_current) => {
-    console.log(school_current);
-    await getDoc(doc(db, `schools/${school_current}/users`, auth.currentUser.uid)).then((data) => {
+  fetchData = async () => {
+    await getDoc(doc(db, `users`, auth.currentUser.uid)).then((data) => {
       if(data.exists()) {
-        console.log("executed and data collected");
         this.setState({
           role: data.data().role,
           clubs: data.data().clubs,
@@ -124,11 +121,9 @@ export default class App extends React.Component {
           id: data.data().id,
           pfp: data.data().pfp,
           verified: data.data().verified,
-          school_select: this.state.school_select || school_current,
+          school_select: data.data().school,
         });
-      } else {
-        console.log("data not found??") 
-      }
+      } 
     });
   }
 
@@ -139,13 +134,12 @@ export default class App extends React.Component {
       if(!user) {
         this.setState({
           logged: false,
-        })
+        });
       } else { //TODO: fix the state update and stuff
         this.setState({
           logged: true,
-          school_select: 1
-        })
-        this.fetchData(1); // the state dont update that fast
+        });
+        this.fetchData();
       }
     });
   }
@@ -154,42 +148,6 @@ export default class App extends React.Component {
     this.setState({
       school_select: e.target.value,
     })
-  }
-
-  updateUserInfo = () => {
-    console.log(this.state.school_select);
-    const checkboxes = document.querySelectorAll(".clubcheck");
-    let clubsArr = [];
-    for(let i = 0; i < checkboxes.length; i++) {
-      if(checkboxes[i].checked) {
-        clubsArr.push(checkboxes[i].id.toString());
-      }
-    }
-
-    const docRef = doc(db, `schools/${this.state.school_select}/users`, this.state.id);
-    if(this.state.school_select === 1) { //default
-      updateDoc(docRef, {
-        name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
-        osis: this.getosis.current.value, 
-        clubs: clubsArr,
-        pfp: this.state.pfp
-      });
-    } else {
-      //someone selected a different option
-      setDoc(docRef, {
-        name: this.state.username || this.getuname.current.value,
-        email: this.state.email,
-        id: this.state.id,
-        verified: this.state.verified,
-        role: "regular",
-        osis: this.getosis.current.value,
-        clubs: clubsArr,
-        school: this.state.school_select,
-      });
-      deleteDoc(doc(db, "schools/1/users", this.state.id));
-    }
-    console.log(this.state.school_select);
-    this.fetchData(this.state.school_select);
   }
   handleImage = (event) => {
     const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
@@ -205,10 +163,31 @@ export default class App extends React.Component {
         this.setState({pfp: url});
       })
     });
-    // updateDoc(doc(db, `schools/${this.state.school_select}/users`, this.state.id), {
-    //   pfp: this.state.pfp
-    // });
   }
+
+  updateUserInfo = () => {
+    console.log(this.state.school_select);
+    const checkboxes = document.querySelectorAll(".clubcheck");
+    let clubsArr = [];
+    for(let i = 0; i < checkboxes.length; i++) {
+      if(checkboxes[i].checked) {
+        clubsArr.push(checkboxes[i].id.toString());
+      }
+    }
+
+    const docRef = doc(db, `users`, this.state.id);
+    updateDoc(docRef, {
+      name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
+      osis: this.getosis.current.value, 
+      clubs: clubsArr,
+      pfp: this.state.pfp,
+      school: parseInt((this.state.school_select)),
+    });
+    this.setState({
+      loaded: true,
+    })
+  }
+  
 
   render() {
     if(this.state.loaded) {
@@ -247,38 +226,47 @@ export default class App extends React.Component {
               <p>i am: {this.state.username}</p>
               <img src={this.state.pfp} width={200} height={200} />
               <button onClick={this.logout}>logout</button>
-        
             {(this.state.clubs) ?
             (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions">
                 <div>BUT FIRST OSOME QUESTIONS!!</div>
                 <p>what opp (school) u a part of??</p>
-                <select value={this.state.school} onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
+                <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
+                  <option value={0}></option>
                   <option value={1}>FDR (the OG ngl)</option>
                   <option value={2}>use api to get other school stuff ig idk</option>  
                 </select>
                 <br />
-                {this.state.username === null && this.state.osis === null ? (
-                <div>
-                    <p>what is name bruh</p>
-                    <input type="text" placeholder="name" ref={this.getuname} />
-                </div>
-                ) : null}
-                <p>what is your osis numbre (student id) hint : check your id card or smth</p>
-                <input type="text" placeholder="osis" ref={this.getosis} />
-                <p>clubs you in???</p>
-                {/* <select> */}
-                <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
-                <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
-                <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
-                <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
-                <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
-
-                <p>upload image (or use default idc)</p>
-                <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
-
-                <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
+                {document.getElementById("school_select") ? 
+                  document.getElementById("school_select").value !== 0 ? 
+                  (
+                    <div>
+                      {this.state.username === null && this.state.osis === null ? (
+                      <div>
+                          <p>what is name bruh</p>
+                          <input type="text" placeholder="name" ref={this.getuname} />
+                      </div>
+                      ) : null}
+                      <p>what is your osis numbre (student id) hint : check your id card or smth</p>
+                      <input type="text" placeholder="osis" ref={this.getosis} />
+                      <p>clubs you in???</p>
+                      {/* <select> */}
+                      <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
+                      <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
+                      <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
+                      <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
+                      <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
+      
+                      <p>upload image (or use default idc)</p>
+                      <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
+      
+                      <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
+                    </div>
+                  )
+                : null 
+              : null
+              }
             </div>
             )
             : 
