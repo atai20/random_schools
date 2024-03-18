@@ -61,6 +61,10 @@ export default class App extends React.Component {
             this.fetchData();
           }
         })
+      }).catch((err) => {
+        // switch(err.code) {
+        //   case 'auth/'
+        // }
       })
   }
 
@@ -81,16 +85,19 @@ export default class App extends React.Component {
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
   }).catch((er) => {
-      console.log(er);
-      switch(er.code) {
+      // console.log(er);
+      const span_element = document.getElementById("spanning-error");
+      if(span_element) {
+        switch(er.code) {
           case 'auth/email-already-in-use':
-              console.log("the email is in use");
+              span_element.innerHTML = `<h1 style="color: red;">sus (email in use)</h1>`
               break;
           case 'auth/weak-password':
-            console.log("NOOOOOOOOOOOOOO goofy ass weak ass lookin password");
+            span_element.innerHTML = `<h1 style="color: red;">NOOOOOOOOOOOOOO goofy ass weak ass lookin password</h1>`
           default:
               console.log(er);
               break;
+        }
       }
   });
   }
@@ -101,7 +108,17 @@ export default class App extends React.Component {
       console.log("success log in");
       this.setState({logged: true});
       this.fetchData();
-    })
+    }).catch((err) => {
+      if(document.getElementById("spanning-error")) {
+        switch(err.code) {
+          case 'auth/invalid-credential':
+            document.getElementById("spanning-error").innerHTML = `<h1 style="color: red;">goofy ahh password and email</h1>` //might change later (google innterHTML vulnerabilities)
+            break;
+          default:
+            break;
+        }
+      }
+    });
   }
 
   anon_login = async () => {
@@ -186,7 +203,8 @@ export default class App extends React.Component {
     });
     this.setState({
       loaded: true,
-    })
+    });
+    window.location.reload();
   }
   
 
@@ -208,19 +226,22 @@ export default class App extends React.Component {
             <input type="email" ref={this.emaillog} />
             <input type="password" ref={this.passlog} />
             <button onClick={() => this.manLogin(this.emaillog.current.value,this.passlog.current.value)}>login riht now</button>
+
+            <span id="spanning-error"></span>
+
           </div>
         );
       } else {
         console.log(this.state);
         return (
-          <div className="landing">
+          <div>
             <nav>
               TODO navbar
             </nav>
             {this.state.clubs ? 
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
-              <Outlet />
+              <Outlet context={this.state} />
             )
             :
             <div>
@@ -230,7 +251,7 @@ export default class App extends React.Component {
             {(this.state.clubs) ?
             (this.state.clubs.length === 0) ? 
             (
-            <div id="popup-questions">
+            <div id="popup-questions" class="modal">
                 <div>BUT FIRST OSOME QUESTIONS!!</div>
                 <p>what opp (school) u a part of??</p>
                 <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
@@ -263,6 +284,7 @@ export default class App extends React.Component {
                       <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
       
                       <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
+
                     </div>
                   )
                 : null 
