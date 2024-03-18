@@ -21,16 +21,17 @@ class Landing extends React.Component {
           this.setState({logged: false});
           window.location.reload();
         }).catch((error) => {console.log("no error")})
-      }
+    }
 
     componentDidMount() {
-        console.log("landed");
+        // getDoc()
     }
     render() {
         return (
             <div className="landing">
                 <button onClick={this.logout}>logout landing</button>
                 <p>you made it...</p>
+                <Link to={"/profile"}>go to ur profile</Link>
                 <OutletProvider>
                     {(outletCtxProps) => {
                         console.log(outletCtxProps);

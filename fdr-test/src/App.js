@@ -204,7 +204,7 @@ export default class App extends React.Component {
     this.setState({
       loaded: true,
     });
-    window.location.reload();
+    setTimeout(() => {window.location.reload()}, 3000);
   }
   
 
@@ -251,7 +251,7 @@ export default class App extends React.Component {
             {(this.state.clubs) ?
             (this.state.clubs.length === 0) ? 
             (
-            <div id="popup-questions" class="modal">
+            <div id="popup-questions">
                 <div>BUT FIRST OSOME QUESTIONS!!</div>
                 <p>what opp (school) u a part of??</p>
                 <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
