@@ -235,65 +235,93 @@ export default class App extends React.Component {
         console.log(this.state);
         return (
           <div>
-            <nav>
-              TODO navbar
-            </nav>
-            {this.state.clubs ? 
+             <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Clubs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">School</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Calendar</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Portfolio</a>
+      </li>
+
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      <a href="#"><img class ="nav-avatar" src={this.state.pfp}/></a>
+      <span class="nav-talents">{this.state.talents}</span>
+      <img class ="nav-coin" src={require('./main_pub/star.png')}/>
+    </form>
+  </div>
+</nav>
+{this.state.clubs ? 
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
               <Outlet context={this.state} />
+            
             )
             :
             <div>
               <p>i am: {this.state.username}</p>
               <img src={this.state.pfp} width={200} height={200} />
               <button onClick={this.logout}>logout</button>
+        
             {(this.state.clubs) ?
-            (this.state.clubs.length === 0) ? 
+            (this.state.clubs.length === 1) ? 
             (
             <div id="popup-questions">
                 <div>BUT FIRST OSOME QUESTIONS!!</div>
                 <p>what opp (school) u a part of??</p>
-                <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
-                  <option value={0}></option>
+                <select value={this.state.school} onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
                   <option value={1}>FDR (the OG ngl)</option>
                   <option value={2}>use api to get other school stuff ig idk</option>  
                 </select>
                 <br />
-                {document.getElementById("school_select") ? 
-                  document.getElementById("school_select").value !== 0 ? 
-                  (
-                    <div>
-                      {this.state.username === null && this.state.osis === null ? (
-                      <div>
-                          <p>what is name bruh</p>
-                          <input type="text" placeholder="name" ref={this.getuname} />
-                      </div>
-                      ) : null}
-                      <p>what is your osis numbre (student id) hint : check your id card or smth</p>
-                      <input type="text" placeholder="osis" ref={this.getosis} />
-                      <p>clubs you in???</p>
-                      {/* <select> */}
-                      <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
-                      <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
-                      <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
-                      <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
-                      <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
-      
-                      <p>upload image (or use default idc)</p>
-                      <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
-      
-                      <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
+                {this.state.username === null && this.state.osis === null ? (
+                <div>
+                    <p>what is name bruh</p>
+                    <input type="text" placeholder="name" ref={this.getuname} />
+                </div>
+                ) : null}
+                <p>what is your osis numbre (student id) hint : check your id card or smth</p>
+                <input type="text" placeholder="osis" ref={this.getosis} />
+                <p>clubs you in???</p>
+                {/* <select> */}
+                <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
+                <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
+                <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
+                <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
+                <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
 
-                    </div>
-                  )
-                : null 
-              : null
-              }
+                <p>upload image (or use default idc)</p>
+                <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
+
+                <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
             </div>
             )
             : 
+            <div>
+            {this.show_posts()}
+            <div class="tatar"></div>
             <p>all questions have been anwered</p>
+<h1>Upload posts</h1>
+
+</div>
             : <button onClick={this.logout}>logout 1</button>}
 
              
