@@ -278,7 +278,7 @@ export default class App extends React.Component {
     </form>
   </div>
 </nav>
-{this.state.clubs ? 
+          {this.state.clubs ? 
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
               <Outlet context={this.state} />
@@ -291,41 +291,46 @@ export default class App extends React.Component {
               <button onClick={this.logout}>logout</button>
         
             {(this.state.clubs) ?
-            (this.state.clubs.length === 1) ? 
+            (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions">
                 <div>BUT FIRST OSOME QUESTIONS!!</div>
                 <p>what opp (school) u a part of??</p>
-                <select value={this.state.school} onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
+                <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
+                  <option value={0}></option>
                   <option value={1}>FDR (the OG ngl)</option>
                   <option value={2}>use api to get other school stuff ig idk</option>  
                 </select>
                 <br />
-                {this.state.username === null && this.state.osis === null ? (
-                <div>
-                    <p>what is name bruh</p>
-                    <input type="text" placeholder="name" ref={this.getuname} />
-                </div>
-                ) : null}
-                <p>what is your osis numbre (student id) hint : check your id card or smth</p>
-                <input type="text" placeholder="osis" ref={this.getosis} />
-                <p>clubs you in???</p>
-                {/* <select> */}
-                <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
-                <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
-                <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
-                <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
-                <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
-
-                <p>upload image (or use default idc)</p>
-                <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
-
-                <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
+                {document.getElementById("school_select") ?
+                document.getElementById("school_select").value !== 0 ? (
+                  <div>
+                    {this.state.username === null && this.state.osis === null ? (
+                    <div>
+                        <p>what is name bruh</p>
+                        <input type="text" placeholder="name" ref={this.getuname} />
+                    </div>
+                    ) : null}
+                    <p>what is your osis numbre (student id) hint : check your id card or smth</p>
+                    <input type="text" placeholder="osis" ref={this.getosis} />
+                    <p>clubs you in???</p>
+                    {/* <select> */}
+                    <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
+                    <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
+                    <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
+                    <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
+                    <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
+    
+                    <p>upload image (or use default idc)</p>
+                    <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
+    
+                    <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
+                  </div>
+                ) : null : null}
             </div>
             )
             : 
             <div>
-            {this.show_posts()}
             <div class="tatar"></div>
             <p>all questions have been anwered</p>
 <h1>Upload posts</h1>
