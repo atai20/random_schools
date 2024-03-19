@@ -7,6 +7,7 @@ import ErrorRoute from './ErrorRoute';
 import Schools from "./Schools";
 import Landing from "./Landing";
 import Profile from "./components/Profile";
+import Clubs from "./components/Clubs";
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />
+      },
+      {
+        path: "/clubs",
+        element: <Clubs />,
       }
     ]
   },
