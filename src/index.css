@@ -5,9 +5,32 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #ade7f0;
+  height: 100%;
+}
+div#root {
+  height: 100%;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+.nav-logo{
+  width:100px;
+  margin-top:-10px;
+}
+.nav-avatar{
+  width:35px;
+  margin:10px;
+  border-radius: 100%;
+}
+.nav-coin{
+  width:25px;
+  margin:10px;
+  margin-left:0px;
+  border-radius: 100%;
+}
+.nav-talents{
+  color:orange;
 }
