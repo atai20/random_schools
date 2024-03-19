@@ -8,6 +8,7 @@ import {db} from "./firebase-config";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
+import Glogo from "./glogo.png";
 import { JSEncrypt } from "jsencrypt";  
 
 const gp = new GoogleAuthProvider();
@@ -221,60 +222,66 @@ export default class App extends React.Component {
       if(!this.state.logged) {
         return (
           <div className="register">
+            <div className="overlay">
+              <div className="modal_register">
+                <h3>Register</h3>
+                <input className="form-control mr-sm-2" type="email" name="email" id="email" ref={this.emailInputRef} placeholder="Email" />
+                <input className="form-control mr-sm-2" type="password" name="password" id="pass" ref={this.passwordRef} placeholder="Password" />
+                <button className="btn btn-outline-success my-2 my-sm-0" onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>Register</button>
+                <br />
+                <br />
+                <h3>Login</h3>
+                <input className="form-control mr-sm-2" type="email" ref={this.emaillog} placeholder="Email"/>
+                <input className="form-control mr-sm-2" type="password" ref={this.passlog} placeholder="Password" />
+                <button className="btn btn-outline-success my-2 my-sm-0" onClick={() => this.manLogin(this.emaillog.current.value,this.passlog.current.value)}>Login</button><br />
+                <span>OR</span><br />
+                <button onClick={this.google_auth} className="glogo"><img src={Glogo} width={50} height={50}/> login with google</button>
+                <br />
+                <br />
+                <br />
+                <p>OR</p>
+                <button className="btn btn-outline-success my-2 my-sm-0" onClick={this.anon_login}>Become anon</button>
 
-            <button onClick={this.google_auth}>glogo login with google</button>
-
-
-            <input type="email" name="email" id="email" ref={this.emailInputRef} />
-            <input type="password" name="password" id="pass" ref={this.passwordRef} />
-            <button onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>register</button>
-            
-            <button onClick={this.anon_login}>become anon</button>
-  
-            <h3>woah another login</h3>
-            <input type="email" ref={this.emaillog} />
-            <input type="password" ref={this.passlog} />
-            <button onClick={() => this.manLogin(this.emaillog.current.value,this.passlog.current.value)}>login riht now</button>
-
-            <span id="spanning-error"></span>
-
+                <span id="spanning-error"></span>
+              </div>
+            </div>
           </div>
         );
       } else {
         console.log(this.state);
         return (
           <div>
-             <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
+             <nav className="navbar navbar-expand-lg navbar-light bg-light">
+  <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
+  <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span className="navbar-toggler-icon"></span>
   </button>
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+  <div className="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul className="navbar-nav mr-auto">
+      <li className="nav-item active">
+        <a className="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Clubs</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">Clubs</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">School</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">School</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Calendar</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">Calendar</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Portfolio</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">Portfolio</a>
       </li>
 
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    <form classNameName="form-inline my-2 my-lg-0">
+      <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>
+      <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
       <a href="#"><img class ="nav-avatar" src={this.state.pfp}/></a>
-      <span class="nav-talents">{this.state.talents}</span>
-      <img class ="nav-coin" src={require('./main_pub/star.png')}/>
+      <span className="nav-talents">{this.state.talents}</span>
+      <img className ="nav-coin" src={require('./main_pub/star.png')}/>
     </form>
   </div>
 </nav>
