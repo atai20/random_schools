@@ -12,9 +12,11 @@ import NoCred from "../lose_social_credit.jpeg";
 import GotCred from "../social-credit.jpg";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
+let arr = [];
 export default function Profile(props) {
     const userSearchRef = useRef("");
     const [searchResults, setSearchResults] = useState([]);
+    const [image, setImage] = useState(0);
 
     function logout() {
         const auth = getAuth();
@@ -60,13 +62,31 @@ export default function Profile(props) {
         const q = query(collection(db, "users"), where("name", "==", userSearchRef.current.value));
         const querySnapShot = await getDocs(q);
         querySnapShot.forEach(doc => {
-            setSearchResults([{
-                "osis": decrypt(doc.data().osis),
+            arr.push({
                 "name": doc.data().name,
-                "email": doc.data().email,
-            }]);
+                "osis": decrypt(doc.data().osis),
+                "role": doc.data().role,
+                "talents": doc.data().talents,
+                "id": doc.data().id
+            });
         });
-        console.log(searchResults);
+        console.log(arr);
+        setSearchResults(arr);
+    }
+    function resetSearch() {
+        userSearchRef.current.value = "";
+        arr = [];
+        setSearchResults([]);
+    }
+    async function talentsManage(target_id, talents_count, index) {
+        if(talents_count < 0) {
+            setImage(1);
+        } else {
+            setImage(2);
+        }
+        await updateDoc(doc(db, "users", target_id), {
+            "talents": (searchResults[index].talents += talents_count)
+        });
     }
 
     return (
@@ -82,8 +102,6 @@ export default function Profile(props) {
                     <li key={index}>{club}</li>
                 ))}
                 <p>Social Credit (tokens): {state_ctx_props.talents} </p>
-                <img src={NoCred} />
-                <img src={GotCred} />
             </div>
             <div className="settings">
                 <h4>Settings</h4>
@@ -91,8 +109,26 @@ export default function Profile(props) {
                 {state_ctx_props.role === "site_admin" ? (
                     <div>
                         <h1>Give some social credit</h1>
-                        <input ref={userSearchRef} type="text" className="form-control" placeholder="Find user" />
+                        <input ref={userSearchRef} type="text" className="form-control" placeholder="Find user" /><button onClick={resetSearch}>Clear</button>
                         <button onClick={findUser}>Find user</button>
+                        {searchResults.length !== 0 ? 
+                        <div> 
+                            {searchResults.map((user, index) => (
+                                <div>
+                                    <p>{user.osis}</p>
+                                    <button onClick={() => talentsManage(user.id, 21, index)}>Give Cred</button>
+                                    <button onClick={() => talentsManage(user.id, -21, index)}>Lose Cred</button>
+                                    <hr />
+                                </div>
+                            ))}
+                        </div>
+                        : <p>arr is empoly</p>}
+                        {image === 1 ? 
+                        <img src={NoCred} width={200} height={200} />
+                        : null}
+                        {image === 2 ? 
+                        <img src={GotCred} width={200} height={200} />
+                        : null}
                     </div>
                 ) : null}
                 <button onClick={logout}>Logout</button>
