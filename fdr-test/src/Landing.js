@@ -1,7 +1,7 @@
 import React, {Component, useRef} from "react";
 import { Link, Outlet, useOutletContext } from "react-router-dom"; 
 import firebase from 'firebase/compat/app';
-import { getFirestore, collection, getDocs, addDoc, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, collection, getDocs, addDoc, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
 
@@ -39,19 +39,22 @@ class Landing extends React.Component {
                 <OutletProvider>
                     {(outletCtxProps) => {
                         const add_news_ref = useRef("");
+                        const text_news_ref = useRef("");
                         console.log(outletCtxProps);
                         const add_news = async() => {
-                            const node = add_news_ref.current.value;
                             const docRef2 = await addDoc(collection(db, `schools/${outletCtxProps.school_select}/news`), {
-                              text: node.toString(),
-                              date: "01/01/01"
+                                title: add_news_ref.current.value,
+                              text: text_news_ref.current.value,
+                              date: serverTimestamp()
                             });
+                            add_news_ref.current.value = "";
+                            text_news_ref.current.value = "";
                         }
                         return (
                         
                         <div>
 
-<form>
+{/* <form>
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="inputEmail4">Publish post or make a challenge</label>
@@ -106,21 +109,22 @@ class Landing extends React.Component {
     </div>
   </div>
   <button type="submit" class="btn btn-primary" onClick={this.create_post}>Sign in</button>
-</form>
+</form> */}
 
 <h1>Add news</h1>
-
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Email</label>
-      <input type="email" class="form-control" ref={add_news_ref} id="inputEmail4" placeholder="Email"/>
+  <div className="form-row">
+    <div className="form-group col-md-6">
+      <label htmlFor="inputEmail4">Title</label>
+      <input className="form-control" ref={add_news_ref} id="inputEmail4" placeholder="Title"/>
+      <label htmlFor="postbox">Content</label><br />
+      <textarea ref={text_news_ref} placeholder="Write here..." className="form-control"></textarea>
     </div>
 </div>
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck"/>
-      <label class="form-check-label" for="gridCheck">
-        Check me out
+  <div className="form-group">
+    <div className="form-check">
+      <input className="form-check-input" type="checkbox" id="gridCheck"/>
+      <label className="form-check-label" for="gridCheck">
+        Check me out (what does this do?????)
       </label>
     </div>
   </div>
@@ -128,7 +132,7 @@ class Landing extends React.Component {
 
 
 
-<h1>Add school</h1>
+{/* <h1>Add school</h1>
 <form>
   <div class="form-row">
     <div class="form-group col-md-6">
@@ -176,10 +180,9 @@ class Landing extends React.Component {
 </div>
   
   <button type="submit" class="btn btn-primary" onClick={this.create_post}>Sign in</button>
-</form>
+</form> */}
 
                         </div>
-                        
                         );
                     }}
                 </OutletProvider>

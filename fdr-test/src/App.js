@@ -53,7 +53,8 @@ export default class App extends React.Component {
               osis: null,
               clubs: [],
               pfp: res.user.photoURL || Defaultpfp,
-              school: 0
+              school: 0,
+              talents: 0,
             });
             this.setState({logged: true});
             this.fetchData();
@@ -81,6 +82,7 @@ export default class App extends React.Component {
           clubs: [],
           pfp: res.user.photoURL || Defaultpfp,
           school: 0,
+          talents: 0,
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
   }).catch((er) => {
@@ -138,6 +140,7 @@ export default class App extends React.Component {
           pfp: data.data().pfp,
           verified: data.data().verified,
           school_select: data.data().school,
+          talents: data.data().talents,
         });
       } 
     });
@@ -260,7 +263,7 @@ export default class App extends React.Component {
   <div className="collapse navbar-collapse" id="navbarSupportedContent">
     <ul className="navbar-nav mr-auto">
       <li className="nav-item active">
-        <a className="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        <Link className="nav-link" to={"/"}>Home <span className="sr-only">(current)</span></Link>
       </li>
       <li className="nav-item">
         <a className="nav-link" href="#">Clubs</a>
@@ -272,7 +275,7 @@ export default class App extends React.Component {
         <a className="nav-link" href="#">Calendar</a>
       </li>
       <li className="nav-item">
-        <a className="nav-link" href="#">Portfolio</a>
+        <Link className="nav-link" to={"/profile"}>Profile</Link>
       </li>
 
     </ul>
@@ -351,15 +354,19 @@ export default class App extends React.Component {
           </div>
         )
       }
+    } else {
+      <div>
+        <h1>Loading...</h1>
+      </div>
     }  
   }
 }
 
 /* 
 TODO:
-- indicate if registering or logging in
+- indicate if registering or logging in     DONE
   -- names, ids, which school u go to, clubs, avatar, ...
-- account page
+- account page                                                    
   -- scores (CCP social credit), calendar of events, challenges, news & announcements of club 
 - main page: posts for everyone by admins, voting system
 - help page

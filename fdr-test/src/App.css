@@ -11,6 +11,9 @@ html, body, .register, .register>div {
   color: red;
   font-size: 25px;
 }
+*:focus {
+  outline: 0;
+}
 
 
 .register {
@@ -39,4 +42,6 @@ html, body, .register, .register>div {
   cursor: pointer;
   width: 350px;
   border-radius: 50px;
+  outline: none;
+  border: 3px solid #e6e6e6;  
 }
