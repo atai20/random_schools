@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import './App.css';
 import firebase from 'firebase/compat/app';
 import { getApp } from "firebase/app";
@@ -8,7 +8,7 @@ import {db} from "./firebase-config";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
-import Megamind from "./megamind.webp";
+import { JSEncrypt } from "jsencrypt";  
 
 const gp = new GoogleAuthProvider();
 const auth = getAuth();
@@ -67,8 +67,6 @@ export default class App extends React.Component {
         // }
       })
   }
-
-
   emailpass_auth = async (email,pass) => {
     await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
       const docRef = doc(db, `users`, auth.currentUser.uid);
@@ -85,7 +83,6 @@ export default class App extends React.Component {
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
   }).catch((er) => {
-      // console.log(er);
       const span_element = document.getElementById("spanning-error");
       if(span_element) {
         switch(er.code) {
@@ -183,6 +180,12 @@ export default class App extends React.Component {
     });
   }
 
+  encrypt(msg) {
+    const encrypt = new JSEncrypt();
+    encrypt.setPublicKey(process.env.REACT_APP_RSA_PUBLIC_KEY);
+    return encrypt.encrypt(JSON.stringify(msg));
+  }
+
   updateUserInfo = () => {
     console.log(this.state.school_select);
     const checkboxes = document.querySelectorAll(".clubcheck");
@@ -194,17 +197,22 @@ export default class App extends React.Component {
     }
 
     const docRef = doc(db, `users`, this.state.id);
-    updateDoc(docRef, {
-      name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
-      osis: this.getosis.current.value, 
-      clubs: clubsArr,
-      pfp: this.state.pfp,
-      school: parseInt((this.state.school_select)),
-    });
-    this.setState({
-      loaded: true,
-    });
-    setTimeout(() => {window.location.reload()}, 3000);
+    try {
+      parseInt(this.getosis.current.value);
+      updateDoc(docRef, {
+        name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
+        osis: this.encrypt(this.getosis.current.value), 
+        clubs: clubsArr,
+        pfp: this.state.pfp,
+        school: parseInt((this.state.school_select)),
+      });
+      this.setState({
+        loaded: true,
+      });
+      setTimeout(() => {window.location.reload()}, 3000);
+    } catch(err) {
+      console.log("thats invalid, like you");
+    }
   }
   
 
@@ -213,6 +221,7 @@ export default class App extends React.Component {
       if(!this.state.logged) {
         return (
           <div className="register">
+
             <button onClick={this.google_auth}>glogo login with google</button>
 
 

@@ -9,7 +9,7 @@ const OutletProvider = ({children}) => {
     const ctx = useOutletContext();
     return typeof children === 'function' ? children(ctx) : children;
 }
-
+//
 class Landing extends React.Component {
     constructor(props) {
         super(props);
@@ -28,6 +28,7 @@ class Landing extends React.Component {
     componentDidMount() {
         // getDoc()
     }
+    //Main feed page
     render() {
         return (
             <div className="landing">
@@ -36,7 +37,6 @@ class Landing extends React.Component {
                 <Link to={"/profile"}>go to ur profile</Link>
                 
                 <OutletProvider>
-
                     {(outletCtxProps) => {
                         const add_news_ref = useRef("");
                         console.log(outletCtxProps);
@@ -46,8 +46,6 @@ class Landing extends React.Component {
                               text: node.toString(),
                               date: "01/01/01"
                             });
-                            
-                            
                         }
                         return (
                         
@@ -182,10 +180,9 @@ class Landing extends React.Component {
 
                         </div>
                         
-                            );
+                        );
                     }}
                 </OutletProvider>
-                {/* <p>{this.state.username}</p> */}
             </div>
         );
     }

@@ -4,6 +4,7 @@ import "./styles/profiles.css";
 import { getAuth, deleteUser, signOut } from "firebase/auth";
 import { doc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
+import { JSEncrypt } from 'jsencrypt';
 
 export default function Profile(props) {
 
@@ -22,8 +23,13 @@ export default function Profile(props) {
             logout();
         });
     }
-
     const state_ctx_props = useOutletContext(); //all our data here basically
+    function decrypt() {
+        const decrypt = new JSEncrypt();
+        decrypt.setPrivateKey(process.env.REACT_APP_RSA_PRIVATE_KEY);
+        return decrypt.decrypt(state_ctx_props.osis);
+    }
+
     return (
         <div className="profile">
             <p>this the profile page</p>
@@ -33,7 +39,12 @@ export default function Profile(props) {
             <p>your id: {state_ctx_props.id}</p>
             <p>your email: {state_ctx_props.email}</p>
             <p>your role: {state_ctx_props.role}</p>
-            <p>your osis: {state_ctx_props.osis}</p>
+            <p>your osis: {decrypt()}</p>
+            {/* <p>yo club: {state_ctx_props.clubs[0]}</p> */}
+            {state_ctx_props.clubs.map((club, index) => {
+                return (<li key={index}>your clubs::: {index}: {club}</li>)
+            })}
+            <button onClick={logout}>liogout normally</button>
             <button onClick={deleteAccount}>Danger zone: delete account</button>
         </div>
     );
