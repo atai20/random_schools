@@ -1,8 +1,8 @@
-import React from "react";
+import React, {useRef, useState} from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import "./styles/profiles.css";
 import { getAuth, deleteUser, signOut } from "firebase/auth";
-import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, deleteDoc, getDocs, setDoc, updateDoc, query, where, collection } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
@@ -13,6 +13,8 @@ import GotCred from "../social-credit.jpg";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 export default function Profile(props) {
+    const userSearchRef = useRef("");
+    const [searchResults, setSearchResults] = useState([]);
 
     function logout() {
         const auth = getAuth();
@@ -30,10 +32,10 @@ export default function Profile(props) {
         });
     }
     const state_ctx_props = useOutletContext(); //all our data here basically
-    function decrypt() {
+    function decrypt(msg) {
         const decrypt = new JSEncrypt();
         decrypt.setPrivateKey(process.env.REACT_APP_RSA_PRIVATE_KEY);
-        return decrypt.decrypt(state_ctx_props.osis);
+        return decrypt.decrypt(msg);
     }
     function handleImage(event) {
         const storageRef = ref(storage, `images/${state_ctx_props.id}/${event.target.files[0].name}`);
@@ -52,6 +54,19 @@ export default function Profile(props) {
             state_ctx_props.pfp = url;
           });
         });
+    }
+
+    async function findUser(e) {
+        const q = query(collection(db, "users"), where("name", "==", userSearchRef.current.value));
+        const querySnapShot = await getDocs(q);
+        querySnapShot.forEach(doc => {
+            setSearchResults([{
+                "osis": decrypt(doc.data().osis),
+                "name": doc.data().name,
+                "email": doc.data().email,
+            }]);
+        });
+        console.log(searchResults);
     }
 
     return (
@@ -73,6 +88,13 @@ export default function Profile(props) {
             <div className="settings">
                 <h4>Settings</h4>
                 <p>Update Profile Image: <input type="file" accept="image/png, image/jpeg" onChange={handleImage} /> </p>
+                {state_ctx_props.role === "site_admin" ? (
+                    <div>
+                        <h1>Give some social credit</h1>
+                        <input ref={userSearchRef} type="text" className="form-control" placeholder="Find user" />
+                        <button onClick={findUser}>Find user</button>
+                    </div>
+                ) : null}
                 <button onClick={logout}>Logout</button>
             </div>
         </div>
