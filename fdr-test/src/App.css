@@ -5,17 +5,6 @@ html, body, .register, .register>div {
   height: 100%;
 }
 
-.modal {
-  width: 300px;
-  height: 250px;
-  color: red;
-  font-size: 25px;
-}
-*:focus {
-  outline: 0;
-}
-
-
 .register {
   background-image: url("");
   /* background-repeat: no-repeat; */

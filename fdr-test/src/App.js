@@ -251,7 +251,6 @@ export default class App extends React.Component {
           </div>
         );
       } else {
-        console.log(this.state);
         return (
           <div>
              <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -266,7 +265,7 @@ export default class App extends React.Component {
         <Link className="nav-link" to={"/"}>Home <span className="sr-only">(current)</span></Link>
       </li>
       <li className="nav-item">
-        <a className="nav-link" href="#">Clubs</a>
+        <Link className="nav-link" to={"/clubs"}>Clubs</Link>
       </li>
       <li className="nav-item">
         <a className="nav-link" href="#">School</a>

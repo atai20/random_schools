@@ -12,3 +12,29 @@
 li {
     list-style-type: none;
 }
+
+.flexdisp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.standard-post {
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+}
+.challenge {
+    padding: 10px;
+    background-color: red;
+    border-radius: 10px;
+}
+.modal-title {
+    color: #000;
+}
+.modal-body {
+    color: #000;
+}
+.modal {
+    position: absolute;
+}
