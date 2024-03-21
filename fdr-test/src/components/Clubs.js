@@ -93,21 +93,14 @@ export default function Clubs() {
                     }
                 )
                 if(selposts.length !== 0) {
-                    // const reify = selposts.map(posts => posts);
-                    //console.log(reify); //TODO: solve how to make not undefined??
-                    // await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
-                    //     posts: reify
-                    // })
+                    const reify = selposts[i].map(post => post);
+                    await updateDoc(doc(db,`schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
+                        posts: reify,
+                    })
                 }
-               
-                // console.log();
             }
         }
-        // setTimeout(() => {
-        //     window.location.reload();
-        // }, 3000);
-        console.log(selposts);
-        
+        setTimeout(() => {window.location.reload();},3000);    
     }
 
     useEffect(() => {
