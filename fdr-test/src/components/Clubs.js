@@ -16,13 +16,14 @@ let clubo = "";
 export default function Clubs() {
     const current_date = new Date();
     const ctxprops = useOutletContext();
-    const [posts, setPosts] = useState([]);
+    const [selposts, setPosts] = useState([]);
     const [challenge, setChallenge] = useState([]);
     const [check, setCheck] = useState(false);
     const [date, setDate] = useState("");
     const [img, setImg] = useState(null);
     const titleRef = useRef("");
     const contentRef = useRef("");
+    let challenges_t = [];
     let posts_t = [];
 
     async function getPosts() {
@@ -31,19 +32,20 @@ export default function Clubs() {
         const snap = await getDocs(q);
         snap.forEach(doc => {
             if(ctxprops.clubs.includes(doc.id)) {
-                setPosts(doc.data().posts);
+                posts_t.push(doc.data().posts);
             } else {
                 doc.data().posts.map((post) => {
                     if(post.type === "challenge") {
                         console.log("this should also be visible: ", post);
-                        posts_t.push(post);
+                        challenges_t.push(post);
                     }
                 })
             }
         });
-        setChallenge(posts_t);
+        setPosts(posts_t);
+        setChallenge(challenges_t);
         posts_t = [];
-        // console.log(challenge)
+        challenges_t = [];
     }
     function showCalendar() {
         if(document.getElementById("challenge-checkbox")) {
@@ -77,7 +79,7 @@ export default function Clubs() {
         const clubsArr = document.querySelectorAll(".posttoclub");
         for(let i = 0; i < clubsArr.length; i++) {
             if(clubsArr[i].checked) {
-                posts.push(
+                selposts.push(
                     {
                         "author": ctxprops.username,
                         "date": `${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}`,
@@ -89,7 +91,7 @@ export default function Clubs() {
                         "from_club": "club?????"
                     }
                 )
-                const reify = posts.map((post) => post);
+                const reify = selposts.map((post) => post.map((p) => p));
                 await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
                     posts: reify
                 })
@@ -106,6 +108,7 @@ export default function Clubs() {
 
     useEffect(() => {
         getPosts();
+        console.log(selposts);
     }, []);
 
 
@@ -150,21 +153,30 @@ export default function Clubs() {
 
 
             <div className="flexdisp">
-            {posts.map((post, index) => {
-                return (
-                <div className="standard-post" key={index}>
-                    <p>from club: {post.club_origin}</p>
-                    <p>author: {post.author}</p>
-                    <p>published: {post.date}</p>
-                    {post.type === "challenge" ?
-                    <p>due date: {post.due_date}</p> 
-                    :null}
-                    {post.img ? 
-                    <img src={post.img} width={300} height={200} />
-                : null}
-                    <p>text: {post.text}</p>
-                </div>
-                );
+            {selposts.map((post_arr, index) => {
+                return ( // bruh react be like...
+                    <div>
+                    {post_arr.map((post, i) => (
+                        <div className="standard-post" key={index}>
+                            <p>from club: {post.club_origin}</p>
+                            <p>author: {post.author}</p>
+                                <p>published: {post.date}</p>
+                                {post.type === "challenge" ?
+                                <p>due date: {post.due_date}</p> 
+                                :null}
+                            {post.img ? 
+                                <img src={post.img} width={300} height={200} />
+                            : null}
+                                <p>text: {post.text}</p>
+                        </div>
+                    ))}
+                    </div>
+                )
+                // post_arr.map((post, i) => {
+                //     return (
+                //         
+                //         );
+                // })
             })}
             {challenge.map((c, i) => (
                 <div className="challenge" key={i}>
