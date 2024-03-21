@@ -76,10 +76,11 @@ export default function Clubs() {
     }
     async function mkPost() {
         const button_target = document.querySelector(".btnpost");
+        button_target.textContent ="Posting...";
         const clubsArr = document.querySelectorAll(".posttoclub");
         for(let i = 0; i < clubsArr.length; i++) {
             if(clubsArr[i].checked) {
-                selposts.push(
+                selposts[i].push( // has to be pushed to the proper club, e.g if you select only math and physics, this needs to be pushed to only those arrays (its 2d)
                     {
                         "author": ctxprops.username,
                         "date": `${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}`,
@@ -88,27 +89,29 @@ export default function Clubs() {
                         "title": titleRef.current.value,
                         "type": (check ? "challenge" : "regular"),
                         "due_date": (check ? date : null ),
-                        "from_club": "club?????"
+                        "from_club": clubsArr[i].id
                     }
                 )
-                const reify = selposts.map((post) => post.map((p) => p));
-                await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
-                    posts: reify
-                })
+                if(selposts.length !== 0) {
+                    // const reify = selposts.map(posts => posts);
+                    //console.log(reify); //TODO: solve how to make not undefined??
+                    // await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
+                    //     posts: reify
+                    // })
+                }
                
                 // console.log();
             }
         }
-        button_target.textContent ="Posting...";
-        setTimeout(() => {
-            window.location.reload();
-        }, 3000);
+        // setTimeout(() => {
+        //     window.location.reload();
+        // }, 3000);
+        console.log(selposts);
         
     }
 
     useEffect(() => {
         getPosts();
-        console.log(selposts);
     }, []);
 
 
@@ -132,7 +135,7 @@ export default function Clubs() {
                   <textarea ref={contentRef} className="form-control" placeholder="write here..."></textarea>
                   <input type="file" onChange={uploadImage} className="form-control" />
                   <label>Post to</label>
-                  {ctxprops.clubs.map((club, index) => (
+                  {Array.from(ctxprops.clubs).sort().map((club, index) => ( //clubs need to be alphabetically ordered to sync with firebase
                     <div><input key={index} type="checkbox" className="posttoclub" id={club} /><label>{club}</label></div>
                   ))}
                   <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label htmlFor="challenge-checkbox">Challenge</label>
@@ -158,7 +161,7 @@ export default function Clubs() {
                     <div>
                     {post_arr.map((post, i) => (
                         <div className="standard-post" key={index}>
-                            <p>from club: {post.club_origin}</p>
+                            <p>from club: {post.from_club}</p>
                             <p>author: {post.author}</p>
                                 <p>published: {post.date}</p>
                                 {post.type === "challenge" ?
