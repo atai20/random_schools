@@ -14,7 +14,6 @@ li {
 }
 
 .flexdisp {
-    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -37,4 +36,9 @@ li {
 }
 .modal {
     position: absolute;
+}
+
+.btnpost {
+    background-color: #98c70c;
+    color: #fff;
 }
