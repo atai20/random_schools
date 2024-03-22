@@ -12,11 +12,9 @@ import NoCred from "../lose_social_credit.jpeg";
 import GotCred from "../social-credit.jpg";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
-let arr = [];
 export default function Profile(props) {
     const userSearchRef = useRef("");
     const [searchResults, setSearchResults] = useState([]);
-    const [image, setImage] = useState(0);
 
     function logout() {
         const auth = getAuth();
@@ -62,77 +60,233 @@ export default function Profile(props) {
         const q = query(collection(db, "users"), where("name", "==", userSearchRef.current.value));
         const querySnapShot = await getDocs(q);
         querySnapShot.forEach(doc => {
-            arr.push({
-                "name": doc.data().name,
+            setSearchResults([{
                 "osis": decrypt(doc.data().osis),
-                "role": doc.data().role,
-                "talents": doc.data().talents,
-                "id": doc.data().id
-            });
+                "name": doc.data().name,
+                "email": doc.data().email,
+                "talents": doc.data().talent,
+
+            }]);
         });
-        console.log(arr);
-        setSearchResults(arr);
+        console.log(searchResults);
     }
-    function resetSearch() {
-        userSearchRef.current.value = "";
-        arr = [];
-        setSearchResults([]);
-    }
-    async function talentsManage(target_id, talents_count, index) {
-        if(talents_count < 0) {
-            setImage(1);
-        } else {
-            setImage(2);
-        }
-        await updateDoc(doc(db, "users", target_id), {
-            "talents": (searchResults[index].talents += talents_count)
+    async function findSchool(e) {
+        const q = query(collection(db, `schools/${state_ctx_props.school_select}`));
+        const querySnapShot = await getDocs(q);
+        querySnapShot.forEach(doc => {
+            setSchools([{
+             
+                "name": doc.data().name,
+             
+
+            }]);
         });
+        console.log(searchResults);
+        return (setSchools.name);
+        
     }
 
     return (
         <div className="profile">
-            <img src={state_ctx_props.pfp} className="profilepageimg" /><h2>{state_ctx_props.username}</h2>
-            <div className="user-info">
-                <h4>Student information</h4>
-                <p>OSIS: {decrypt()}</p>
-                <p>Email: {state_ctx_props.email}</p>
-                <p>Status: {state_ctx_props.role}</p>
-                <p>Clubs: </p>
-                {state_ctx_props.clubs.map((club, index) => (
-                    <li key={index}>{club}</li>
-                ))}
-                <p>Social Credit (tokens): {state_ctx_props.talents} </p>
+     
+
+
+
+
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+        
+        <link href="css/styles.css" rel="stylesheet" />
+
+    <div class="container py-5">
+
+      
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-4">
+            <div class="card-body text-center">
+            <img class="rounded-circle img-fluid" id="avatar_acc"src={state_ctx_props.pfp} />
+              <h5 class="my-3">{state_ctx_props.username}</h5>
+              <p class="text-muted mb-1">Student</p>
+              <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
+              <div class="d-flex justify-content-center mb-2">
+                <button type="button" class="btn btn-primary">check school</button>
+              </div>
             </div>
-            <div className="settings">
+          </div>
+          <div class="card mb-4 mb-lg-0">
+            <div class="card-body p-0">
+              <ul class="list-group list-group-flush rounded-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <i class="fas fa-globe fa-lg text-warning"></i>
+                  <p class="mb-0">https://mdbootstrap.com</p>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <i class="fab fa-github fa-lg" ></i>
+                  <p class="mb-0">mdbootstrap</p>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <i class="fab fa-twitter fa-lg" ></i>
+                  <p class="mb-0">@mdbootstrap</p>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <i class="fab fa-instagram fa-lg" ></i>
+                  <p class="mb-0">mdbootstrap</p>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <i class="fab fa-facebook-f fa-lg" ></i>
+                  <p class="mb-0">mdbootstrap</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-lg-8">
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Full Name</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">{state_ctx_props.username}</p>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Status</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">{state_ctx_props.role}</p>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Clubs</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">{state_ctx_props.clubs.map((club, index) => (
+                    <li key={index}>{club}</li>
+                ))}</p>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">School</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">{findSchool}</p>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Address</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">Bay Area, San Francisco, CA</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><span class="text-primary font-italic me-1">assigment</span> Project Status
+                  </p>
+                  <p class="mb-1"  id="style_acc">Web Design</p>
+                  <div class="progress rounded" id="style_acc_ch" >
+                    <div class="progress-bar" id="style_acc_g_ch1" role="progressbar" aria-valuenow="80"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="mt-4 mb-1" id="style_acc">Website Markup</p>
+                  <div class="progress rounded" id="style_acc_ch">
+                    <div class="progress-bar" id="style_acc_g_ch2" role="progressbar"  aria-valuenow="72"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="mt-4 mb-1" id="style_acc">One Page</p>
+                  <div class="progress rounded"id="style_acc_ch" >
+                    <div class="progress-bar" id="style_acc_g_ch3" role="progressbar"  aria-valuenow="89"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="mt-4 mb-1" id="style_acc">Mobile Template</p>
+                  <div class="progress rounded" id="style_acc_ch">
+                    <div class="progress-bar" id="style_acc_g_ch4" role="progressbar"  aria-valuenow="55"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="mt-4 mb-1" id="style_acc">Backend API</p>
+                  <div class="progress rounded mb-2" id="style_acc_ch">
+                    <div class="progress-bar" id="style_acc_g_ch5" role="progressbar" aria-valuenow="66"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><span class="text-primary font-italic me-1">assigment</span> Project Status
+                  </p>
+                  <p class="mb-1" id="style_acc">Web Design</p>
+                  <div class="progress rounded"id="style_acc_ch">
+                    <div class="progress-bar" role="progressbar" id="style_acc_g_ch1"aria-valuenow="80"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="mt-4 mb-1"id="style_acc">Website Markup</p>
+                  <div class="progress rounded" id="style_acc_ch">
+                    <div class="progress-bar" role="progressbar" id="style_acc_g_ch2" aria-valuenow="72"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="mt-4 mb-1"id="style_acc">One Page</p>
+                  <div class="progress rounded" id="style_acc_ch">
+                    <div class="progress-bar" role="progressbar" id="style_acc_g_ch3" aria-valuenow="89"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="mt-4 mb-1" id="style_acc">Mobile Template</p>
+                  <div class="progress rounded" id="style_acc_ch">
+                    <div class="progress-bar" role="progressbar" id="style_acc_g_ch4"aria-valuenow="55"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="mt-4 mb-1"id="style_acc">Backend API</p>
+                  <div class="progress rounded mb-2" id="style_acc_ch">
+                    <div class="progress-bar" role="progressbar" id="style_acc_g_ch5" aria-valuenow="66"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="settings">
                 <h4>Settings</h4>
                 <p>Update Profile Image: <input type="file" accept="image/png, image/jpeg" onChange={handleImage} /> </p>
                 {state_ctx_props.role === "site_admin" ? (
                     <div>
                         <h1>Give some social credit</h1>
-                        <input ref={userSearchRef} type="text" className="form-control" placeholder="Find user" /><button onClick={resetSearch}>Clear</button>
+                        <input ref={userSearchRef} type="text" className="form-control" placeholder="Find user" />
                         <button onClick={findUser}>Find user</button>
-                        {searchResults.length !== 0 ? 
-                        <div> 
-                            {searchResults.map((user, index) => (
-                                <div>
-                                    <p>{user.osis}</p>
-                                    <button onClick={() => talentsManage(user.id, 21, index)}>Give Cred</button>
-                                    <button onClick={() => talentsManage(user.id, -21, index)}>Lose Cred</button>
-                                    <hr />
-                                </div>
-                            ))}
-                        </div>
-                        : <p>arr is empoly</p>}
-                        {image === 1 ? 
-                        <img src={NoCred} width={200} height={200} />
-                        : null}
-                        {image === 2 ? 
-                        <img src={GotCred} width={200} height={200} />
-                        : null}
                     </div>
                 ) : null}
                 <button onClick={logout}>Logout</button>
             </div>
+
+    </div>
+  
+
+
+
+            
         </div>
+        
     );
 }
