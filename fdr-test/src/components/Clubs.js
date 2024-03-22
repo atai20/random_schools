@@ -79,41 +79,56 @@ export default function Clubs() {
         const button_target = document.querySelector(".btnpost");
         button_target.textContent ="Posting...";
         const clubsArr = document.querySelectorAll(".posttoclub");
-        for(let i = 0; i < clubsArr.length; i++) {
-            if(clubsArr[i].checked) {
-                selposts[i].push( // has to be pushed to the proper club, e.g if you select only math and physics, this needs to be pushed to only those arrays (its 2d)
-                    {
-                        "author": ctxprops.username,
-                        "date": `${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}`,
-                        "img": img,
-                        "text": contentRef.current.value,
-                        "title": titleRef.current.value,
-                        "type": (check ? "challenge" : "regular"),
-                        "due_date": (check ? date : null ),
-                        "from_club": clubsArr[i].id
+        if(contentRef.current.value !== "" && titleRef.current.value !== "") {
+            for(let i = 0; i < clubsArr.length; i++) {
+                if(clubsArr[i].checked) {
+                    selposts[i].push(
+                        {
+                            "author": ctxprops.username,
+                            "date": `${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}`,
+                            "img": img,
+                            "text": contentRef.current.value,
+                            "title": titleRef.current.value,
+                            "type": (check ? "challenge" : "regular"),
+                            "due_date": (check ? date : null ),
+                            "from_club": clubsArr[i].id
+                        }
+                    )
+                    if(selposts.length !== 0) {
+                        const reify = selposts[i].map(post => post);
+                        await updateDoc(doc(db,`schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
+                            posts: reify,
+                        })
                     }
-                )
-                if(selposts.length !== 0) {
-                    const reify = selposts[i].map(post => post);
-                    await updateDoc(doc(db,`schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
-                        posts: reify,
-                    })
                 }
             }
         }
         setTimeout(() => {window.location.reload();},3000);    
+    }
+    async function editPost() {
+        console.log("edit the stuff i guess");
+    }
+    async function deletePost(postId) { //e.g postid-math:0,0
+        console.log(selposts);
+        const club_name = postId.substring(7,postId.indexOf(":"));
+        const club_index = postId.substring(postId.indexOf(":")+1, postId.indexOf(","));
+        const inner_index = postId.substring(postId.indexOf(",")+1);
+        selposts[parseInt(club_index)].splice(parseInt(inner_index), 1)
+        await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${club_name}`), {
+            posts: selposts[parseInt(club_index)]
+        });
+        getPosts();
     }
 
     useEffect(() => {
         getPosts();
     }, []);
     const [toggle, setToggle] = useState("");
-    function indToggle(index) {
-        console.log(index);
-        if(toggle === index) {
+    const indToggle = (e) => {
+        if(toggle === e.target.id) {
             setToggle("");
         } else {
-            setToggle(index);
+            setToggle(e.target.id);
         }
     }
 
@@ -162,35 +177,41 @@ export default function Clubs() {
             {selposts.map((post_arr, index) => {
                 return ( // bruh react be like...
                     <div key={index}>
-                    {post_arr.map((post, i) => (
-                        <div className="standard-post" id={"postid-"+index.toString()+":"+i.toString()} key={i}>
-                            {ctxprops.role === "site_admin" ? 
-                            <div>
-                                {/* <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button> */}
-                                <div className="btn-options" id={"btnid-"+index.toString()+":"+i.toString()} onClick={() => indToggle(this)}><GoKebabHorizontal /></div>
-                                {toggle === ("btnid-"+index.toString()+":"+i.toString()) ? 
+                        {post_arr.map((post, i) => {
+                            return (
                                 <div>
-                                    <p>this is button</p>
-                                </div>
+                                {post.from_club !== undefined ?
+                                 <div className="standard-post" id={"postid-"+post.from_club.toString()+":"+index.toString()+","+i.toString()} key={i}>
+                                 <div className="btn-options"><GoKebabHorizontal id={"btnid-"+index.toString()+":"+i.toString()} onClick={indToggle} /></div>
+                                     {toggle === ("btnid-"+index.toString()+":"+i.toString()) ? 
+                                     <div className="dropdown-custom">
+                                         <button className="btn btnpost" onClick={editPost}>Edit post</button><br />
+                                         {ctxprops.role === "site_admin" ? 
+                                         <div>
+                                         <button className="btn btn-danger deletebtn" onClick={()=>deletePost("postid-"+post.from_club.toString()+":"+index.toString()+","+i.toString())}>Delete</button>
+                                         </div>
+                                     :null}
+                                     </div>
+                                     : null}
+                                 <p>from club: {post.from_club}</p>
+                                 <p>author: {post.author}</p>
+                                     <p>published: {post.date}</p>
+                                     {post.type === "challenge" ?
+                                     <p>due date: {post.due_date}</p> 
+                                     :null}
+                                 <p>title: {post.title}</p>
+                                 {post.img && post.img !== "img/img" ? 
+                                     <img src={post.img} className="imgofpost" />
+                                 : null}
+                                     <p>text: {post.text}</p>
+                             </div>
                                 : null}
-                            </div>
-                            : null}
-                            <p>from club: {post.from_club}</p>
-                            <p>author: {post.author}</p>
-                                <p>published: {post.date}</p>
-                                {post.type === "challenge" ?
-                                <p>due date: {post.due_date}</p> 
-                                :null}
-                            <p>title: {post.title}</p>
-                            {post.img && post.img !== "img/img" ? 
-                                <img src={post.img} className="imgofpost" />
-                            : null}
-                                <p>text: {post.text}</p>
-                        </div>
-                    ))}
-                    
+                                
+                                </div>
+                            )
+                        })}
                     </div>
-                )
+                );
             })}
             
             {challenge.map((c, i) => (

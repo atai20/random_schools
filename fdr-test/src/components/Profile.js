@@ -73,16 +73,16 @@ export default function Profile(props) {
     async function findSchool(e) {
         const q = query(collection(db, `schools/${state_ctx_props.school_select}`));
         const querySnapShot = await getDocs(q);
-        querySnapShot.forEach(doc => {
-            setSchools([{
+        // querySnapShot.forEach(doc => {
+        //     setSchools([{
              
-                "name": doc.data().name,
+        //         "name": doc.data().name,
              
 
-            }]);
-        });
-        console.log(searchResults);
-        return (setSchools.name);
+        //     }]);
+        // });
+        // console.log(searchResults);
+        // return (setSchools.name);
         
     }
 
