@@ -107,8 +107,15 @@ export default function Clubs() {
     useEffect(() => {
         getPosts();
     }, []);
-    const [toggle, setToggle] = useState(false);
-    const [elementPost, setElementPost] = useState("");
+    const [toggle, setToggle] = useState("");
+    function indToggle(index) {
+        console.log(index);
+        if(toggle === index) {
+            setToggle("");
+        } else {
+            setToggle(index);
+        }
+    }
 
 
     return (
@@ -156,16 +163,16 @@ export default function Clubs() {
                 return ( // bruh react be like...
                     <div key={index}>
                     {post_arr.map((post, i) => (
-                        <div className="standard-post" key={i}>
+                        <div className="standard-post" id={"postid-"+index.toString()+":"+i.toString()} key={i}>
                             {ctxprops.role === "site_admin" ? 
                             <div>
                                 {/* <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button> */}
-                                <div className="btn-options dropdown show" onClick={() => { setToggle(!toggle); setElementPost();}}><GoKebabHorizontal /></div>
-                                {/* {(toggle) ? 
-                                <div className="dropdown-custom">
-                                    <p>the dropdown has shown</p>
+                                <div className="btn-options" id={"btnid-"+index.toString()+":"+i.toString()} onClick={() => indToggle(this)}><GoKebabHorizontal /></div>
+                                {toggle === ("btnid-"+index.toString()+":"+i.toString()) ? 
+                                <div>
+                                    <p>this is button</p>
                                 </div>
-                                :null} */}
+                                : null}
                             </div>
                             : null}
                             <p>from club: {post.from_club}</p>
@@ -175,20 +182,17 @@ export default function Clubs() {
                                 <p>due date: {post.due_date}</p> 
                                 :null}
                             <p>title: {post.title}</p>
-                            {post.img ? 
-                                <img src={post.img} width={300} height={200} />
+                            {post.img && post.img !== "img/img" ? 
+                                <img src={post.img} className="imgofpost" />
                             : null}
                                 <p>text: {post.text}</p>
                         </div>
                     ))}
+                    
                     </div>
                 )
             })}
-            {toggle ?
-            <div className="dropdown_custom">
-
-            </div> 
-            : null}
+            
             {challenge.map((c, i) => (
                 <div className="challenge" key={i}>
                     <p>author: {c.author}</p>
