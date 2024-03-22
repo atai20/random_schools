@@ -2,6 +2,25 @@
     width: 200px;
     height: auto;
 }
+.profilepageimg {
+    width: 300px;
+    height: auto;
+}
+
+.btn-options {
+    background-color: #0c9ffb;
+    color: #000;
+    fill: #000;
+    stroke: none;
+    border: none;
+    outline: none;
+    float: right;
+    border-radius: 60px;
+    cursor: pointer;
+}
+svg {
+    vertical-align: -2px;
+}
 
 .user-info, .settings {
     background-color: white;

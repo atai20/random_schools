@@ -9,6 +9,7 @@ import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/st
 import "./styles/profiles.css";
 import { FaPlus } from "react-icons/fa";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { GoKebabHorizontal } from "react-icons/go";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let clubo = "";
@@ -106,6 +107,8 @@ export default function Clubs() {
     useEffect(() => {
         getPosts();
     }, []);
+    const [toggle, setToggle] = useState(false);
+    const [elementPost, setElementPost] = useState("");
 
 
     return (
@@ -151,15 +154,27 @@ export default function Clubs() {
             <div className="flexdisp">
             {selposts.map((post_arr, index) => {
                 return ( // bruh react be like...
-                    <div>
+                    <div key={index}>
                     {post_arr.map((post, i) => (
-                        <div className="standard-post" key={index}>
+                        <div className="standard-post" key={i}>
+                            {ctxprops.role === "site_admin" ? 
+                            <div>
+                                {/* <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button> */}
+                                <div className="btn-options dropdown show" onClick={() => { setToggle(!toggle); setElementPost();}}><GoKebabHorizontal /></div>
+                                {/* {(toggle) ? 
+                                <div className="dropdown-custom">
+                                    <p>the dropdown has shown</p>
+                                </div>
+                                :null} */}
+                            </div>
+                            : null}
                             <p>from club: {post.from_club}</p>
                             <p>author: {post.author}</p>
                                 <p>published: {post.date}</p>
                                 {post.type === "challenge" ?
                                 <p>due date: {post.due_date}</p> 
                                 :null}
+                            <p>title: {post.title}</p>
                             {post.img ? 
                                 <img src={post.img} width={300} height={200} />
                             : null}
@@ -168,12 +183,12 @@ export default function Clubs() {
                     ))}
                     </div>
                 )
-                // post_arr.map((post, i) => {
-                //     return (
-                //         
-                //         );
-                // })
             })}
+            {toggle ?
+            <div className="dropdown_custom">
+
+            </div> 
+            : null}
             {challenge.map((c, i) => (
                 <div className="challenge" key={i}>
                     <p>author: {c.author}</p>

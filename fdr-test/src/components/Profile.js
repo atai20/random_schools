@@ -91,7 +91,7 @@ export default function Profile(props) {
 
     return (
         <div className="profile">
-            <img src={state_ctx_props.pfp} /><h2>{state_ctx_props.username}</h2>
+            <img src={state_ctx_props.pfp} className="profilepageimg" /><h2>{state_ctx_props.username}</h2>
             <div className="user-info">
                 <h4>Student information</h4>
                 <p>OSIS: {decrypt()}</p>
