@@ -69,14 +69,21 @@ li {
     height: auto;
 }
 
-.dropdown-custom {
-    padding: 5px;
-    width: auto;
-    height: auto;
-    background-color: #e5c703;
-    color: #000;
-    float: right;
+.svg-menu {
+    font-size: 25px;
 }
-.deletebtn {
-    width: 100%;
+.warning-hover {
+    border-radius: 8px;
+    width: 60%;
+    height: auto;
+    padding: 5px;
+    font-size: 17px;
+    outline: none;
+    border: none;
+}
+.warning-hover:hover {
+    cursor: pointer;
+    background-color: #ff4949;
+    color: #fff;
+    transition: all 0.5s ease;
 }
