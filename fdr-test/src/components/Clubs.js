@@ -182,11 +182,13 @@ export default function Clubs() {
         return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + eps.getDate());
     }
 
+    const regexLatexBlock = /\$\$.*\$\$/i;
 
     return (
         <div className="clubs-page">
             <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
-            {/* <h3><Latex displayMode={true}>$$(3\times 4) \div (5-3)$$</Latex></h3> */}
+            {/* <h3><Latex displayMode={true}>$$(3\times \\frac{3}{2}) \div (5-3)$$</Latex></h3> */}
+            {/* <h1><Latex displayMode={true}>{fraction}</Latex></h1> */}
             <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
             <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
             <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -311,7 +313,7 @@ export default function Clubs() {
                             : null}
                                 </div>                                
                                 : null}
-                                <p className="card-text">{post.text}</p>
+                                <p className="card-text"><Latex displayMode={true}>{post.text}</Latex></p>
                             </div>
                             <div className="card-footer">
                                 <a href="#" className="card-link"><i className="fa fa-gittip"></i> Like</a>
