@@ -1,8 +1,8 @@
-import React, {useRef, useState} from "react";
+import React, {useRef, useState, useEffect} from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import "./styles/profiles.css";
 import { getAuth, deleteUser, signOut } from "firebase/auth";
-import { doc, deleteDoc, getDocs, setDoc, updateDoc, query, where, collection } from "firebase/firestore";
+import { doc, deleteDoc, getDocs, getDoc, updateDoc, query, where, collection } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
@@ -12,9 +12,11 @@ import NoCred from "../lose_social_credit.jpeg";
 import GotCred from "../social-credit.jpg";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
+let arr = []; // DONT REMOVE THIS. USESTATE DOES NOT WORK LIKE YOU THINK
 export default function Profile(props) {
     const userSearchRef = useRef("");
     const [searchResults, setSearchResults] = useState([]);
+    const [school, setSchool] = useState("");
 
     function logout() {
         const auth = getAuth();
@@ -25,7 +27,6 @@ export default function Profile(props) {
       }
     async function deleteAccount() {
         const auth = getAuth();
-        // logout();
         await deleteDoc(doc(db, "users", auth.currentUser.uid));
         deleteUser(auth.currentUser).then(() => {
             logout();
@@ -60,50 +61,48 @@ export default function Profile(props) {
         const q = query(collection(db, "users"), where("name", "==", userSearchRef.current.value));
         const querySnapShot = await getDocs(q);
         querySnapShot.forEach(doc => {
-            setSearchResults([{
-                "osis": decrypt(doc.data().osis),
-                "name": doc.data().name,
-                "email": doc.data().email,
-                "talents": doc.data().talent,
-
-            }]);
+            arr.push({
+              "osis": decrypt(doc.data().osis),
+              "name": doc.data().name,
+              "email": doc.data().email,
+              "talents": doc.data().talents,
+              "id": doc.data().id
+          })
         });
-        console.log(searchResults);
+        setSearchResults(arr);
     }
-    async function findSchool(e) {
-        const q = query(collection(db, `schools/${state_ctx_props.school_select}`));
-        const querySnapShot = await getDocs(q);
-        // querySnapShot.forEach(doc => {
-        //     setSchools([{
-             
-        //         "name": doc.data().name,
-             
+    function resetSearch() {
+      userSearchRef.current.value = "";
+      arr = [];
+      setSearchResults([]);
+    }
+    async function talentsManage(target_id, talents_count, index) {
+      await updateDoc(doc(db, "users", target_id), {
+        "talents": (searchResults[index].talents += talents_count)
+      })
+    }
+    async function schoolInfo() {
+        const schoolRef = doc(db, `schools/${state_ctx_props.school_select}`);
+        await getDoc(schoolRef).then((school_data) => {
+          setSchool(school_data.data());
+        });      
+    }
+    useEffect(() => {
+      schoolInfo();
+    },[]);
 
-        //     }]);
-        // });
-        // console.log(searchResults);
-        // return (setSchools.name);
-        
-    }
 
     return (
         <div className="profile">
-     
-
-
-
-
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
-      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+          <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
         
-        <link href="css/styles.css" rel="stylesheet" />
+          <link href="css/styles.css" rel="stylesheet" />
 
-    <div class="container py-5">
-
-      
+    <div class="container py-5"> 
       <div class="row">
         <div class="col-lg-4">
           <div class="card mb-4">
@@ -183,7 +182,7 @@ export default function Profile(props) {
                   <p class="mb-0">School</p>
                 </div>
                 <div class="col-sm-9">
-                  <p class="text-muted mb-0">{findSchool}</p>
+                  <p class="text-muted mb-0">{school.name}</p>
                 </div>
               </div>
               
@@ -275,24 +274,20 @@ export default function Profile(props) {
                         <h1>Give some social credit</h1>
                         <input ref={userSearchRef} type="text" className="form-control" placeholder="Find user" />
                         <button onClick={findUser}>Find user</button>
-                        {/* {searchResults.length !== 0 ? 
+                        <button onClick={resetSearch}>Clear </button>
+                        {searchResults.length !== 0 ? 
                         <div> 
-                            {searchResults.map((user, index) => (
+                            {searchResults.map((user, index) => {
+                              return (
                                 <div>
                                     <p>{user.osis}</p>
                                     <button onClick={() => talentsManage(user.id, 21, index)}>Give Cred</button>
                                     <button onClick={() => talentsManage(user.id, -21, index)}>Lose Cred</button>
                                     <hr />
                                 </div>
-                            ))}
+                            )} )}
                         </div>
-                        : <p>arr is empoly</p>}
-                        {image === 1 ? 
-                        <img src={NoCred} width={200} height={200} />
-                        : null}
-                        {image === 2 ? 
-                        <img src={GotCred} width={200} height={200} />
-                        : null} */} {/* WHY WAS THIS REMOVED????????????????????????????/ */}
+                        : <p>arr is empoly</p>} {/* WHY WAS THIS REMOVED????????????????????????????/ */}
                     </div>
                 ) : null}
                 <button onClick={logout}>Logout</button>

@@ -277,11 +277,39 @@ export default function Clubs() {
                                 </div>
                                 <a className="card-link" href="#"><h5 className="card-title">{post.title}</h5></a>
                                 {post.img && post.img.length !== 0 ? 
-                                (typeof post.img === "object" ? 
-                                post.img.map((image, ii) => (
-                                    <img src={image} className="imgofpost" />
-                                ))
-                                : <img src={post.img} className="imgofpost" />)
+                                <div>
+                                <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false" data-interval="false">
+                                    <div className="carousel-inner">
+                                        {typeof post.img === "object" && post.img.length > 1 ? 
+                                        post.img.map((image, ii) => {
+                                            if(ii === 0) {
+                                                return (<div className="carousel-item active">
+                                                    <img src={image} className="imgofpost d-block w-100" />
+                                                </div>)
+                                            } else {
+                                                return (<div className="carousel-item">
+                                                <img src={image} className="imgofpost d-block w-100" />
+                                            </div>)
+                                            }
+                                        })
+                                        : null}
+                                    </div>
+                                    <a className="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                                        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span className="sr-only">Previous</span>
+                                    </a>
+                                    <a className="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                                        <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span className="sr-only">Next</span>
+                                    </a>
+                                </div>
+                                {post.img.length === 1 ? 
+                                <img src={post.img[0]} className="imgofpost d-block w-100" />
+                            :null}
+                                {!(typeof post.img === "object") ? 
+                                <img src={post.img} className="imgofpost" />
+                            : null}
+                                </div>                                
                                 : null}
                                 <p className="card-text">{post.text}</p>
                             </div>
