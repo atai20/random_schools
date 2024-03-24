@@ -136,8 +136,9 @@ export default function Clubs() {
 
         selposts[club_index][inner_index]["title"] = titleEditRef.current.value;
         selposts[club_index][inner_index]["text"] = contentEditRef.current.value;
-        selposts[club_index][inner_index]["img"] = img || selposts[club_index][inner_index]["img"];
-        // if(img !== null) {}
+        if(img.length !== 0) {
+            selposts[club_index][inner_index]["img"] = img;
+        }
 
         await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${selposts[club_index][inner_index]["from_club"]}`), {
             posts: selposts[parseInt(club_index)]
