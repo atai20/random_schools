@@ -11,6 +11,7 @@ import { FaPlus } from "react-icons/fa";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { GoKebabHorizontal } from "react-icons/go";
 import { FaEllipsisH } from "react-icons/fa";
+import { CiCircleCheck } from "react-icons/ci";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let clubo = "";
@@ -109,8 +110,30 @@ export default function Clubs() {
         }
         setTimeout(() => {window.location.reload();},3000);    
     }
-    async function editPost() {
-        console.log("edit the stuff i guess");
+    const [editId, setEditId] = useState("");
+    async function editPost(postId) {
+        const club_index = parseInt(postId.substring(7, postId.indexOf(":")));
+        const inner_index = parseInt(postId.substring(postId.indexOf(":")+1));
+        titleRef.current.value = selposts[club_index][inner_index].title;
+        contentRef.current.value = selposts[club_index][inner_index].text;
+        setEditId(club_index.toString()+":"+inner_index.toString());
+    }
+    async function sendEdit() {
+        console.log("sending edit");
+        const club_index = parseInt(editId.substring(0,editId.indexOf(":")));
+        const inner_index = parseInt(editId.substring(editId.indexOf(":")+1));
+
+        selposts[club_index][inner_index]["title"] = titleRef.current.value;
+        selposts[club_index][inner_index]["text"] = contentRef.current.value;
+        selposts[club_index][inner_index]["img"] = img;
+        // console.log(selposts[club_index][inner_index]["img"]);
+        // console.log(selposts[club_index][inner_index]["from_club"])
+        await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${selposts[club_index][inner_index]["from_club"]}`), {
+            posts: selposts[parseInt(club_index)]
+        });
+        setTimeout(() => {
+            window.location.reload();
+        },3000);
     }
     async function deletePost(postId) { //e.g postid-math:0,0
         const club_name = postId.substring(7,postId.indexOf(":"));
@@ -128,7 +151,6 @@ export default function Clubs() {
     }, []);
     const [toggle, setToggle] = useState("");
     const indToggle = (e) => {
-        // console.log(e.target.id);
         if(toggle === e.target.id) {
             setToggle("");
         } else {
@@ -140,7 +162,7 @@ export default function Clubs() {
     return (
         <div className="clubs-page">
             <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
-            <h3><Latex displayMode={true}>$$(3\times 4) \div (5-3)$$</Latex></h3>
+            {/* <h3><Latex displayMode={true}>$$(3\times 4) \div (5-3)$$</Latex></h3> */}
             <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
             <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
             <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -190,14 +212,14 @@ export default function Clubs() {
             </div>
             <div class="col-md-6 gedf-main">     
                           
-            {selposts.map((post_arr, index) => {
+            {selposts.map((post_arr, index) => { // in future we can probably flatten the array for displaying purposes
                 return ( // bruh react be like...
                     <div key={index}>
                     {post_arr.map((post, i) => (
-                       <div className="card gedf-card">
+                       <div className="card gedf-card" id={"postid-"+index.toString()+":"+i.toString()}>
                        <div className="card-header">
                            <div className="d-flex justify-content-between align-items-center">
-                        <div id={"postid-"+index.toString()+":"+i.toString()} key={i} className="d-flex justify-content-between align-items-center">
+                        <div key={i} className="d-flex justify-content-between align-items-center">
                             {ctxprops.role === "site_admin" || ctxprops.id === post.author_id ? 
                             <div className="dropdown">
                                 <button className="btn btn-link dropdown-toggle" id={"btnid-"+index.toString()+":"+i.toString()} onClick={indToggle} > {/*gedf-drop1  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"*/}
@@ -206,7 +228,7 @@ export default function Clubs() {
                                 {toggle === ("btnid-"+index.toString()+":"+i.toString()) ? 
                                 <div className="dropdown dropdown-menu-right">
                                     <div className="h6 dropdown-header">Configuration</div>
-                                    <button className="dropdown-item" onClick={editPost}>Edit</button>
+                                    <button className="dropdown-item" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+i.toString())}>Edit</button>
                                     <button className="warning-hover" onClick={()=>deletePost("postid-"+post.from_club.toString()+":"+index.toString()+","+i.toString())}>Delete</button>
                                 </div>
                                 : null}
@@ -345,7 +367,36 @@ export default function Clubs() {
                   : null}
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btnpost" onClick={mkPost}><FaPlus /> Post</button>
+                  <button type="button" className="btn btnpost" onClick={mkPost}><FaPlus className="faplus" /> Post</button>
+                  <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="editpost" className="modal" tabIndex="-1" role="dialog">
+            <div className="modal-dialog modal-dialog-centered" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Edit post</h5>
+                  <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <label>Title</label>
+                  <input type="text" className="form-control" placeholder="title" ref={titleRef} />
+                  <label>Content</label>
+                  <textarea ref={contentRef} className="form-control" placeholder="write here..."></textarea>
+                  <label>Replace Image</label>
+                  <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control"  />
+                  {check ?
+                  <div>
+                    <input type="date" onChange={getDate} />
+                  </div>
+                  : null}
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btnpost"  onClick={sendEdit}><CiCircleCheck className="svg-menu" />Make edit</button>
                   <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
               </div>

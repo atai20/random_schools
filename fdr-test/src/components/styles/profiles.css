@@ -70,7 +70,8 @@ li {
 }
 
 .svg-menu {
-    font-size: 25px;
+    width: 25px;
+    height: auto;
 }
 .warning-hover {
     border-radius: 8px;
@@ -86,4 +87,8 @@ li {
     background-color: #ff4949;
     color: #fff;
     transition: all 0.5s ease;
+}
+.faplus {
+    width: 20px;
+    height: 20px;
 }
