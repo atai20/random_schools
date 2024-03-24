@@ -14,6 +14,7 @@ import { FaEllipsisH } from "react-icons/fa";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let clubo = "";
+var Latex = require('react-latex');
 
 export default function Clubs() {
     const current_date = new Date();
@@ -139,6 +140,7 @@ export default function Clubs() {
     return (
         <div className="clubs-page">
             <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
+            <h3><Latex displayMode={true}>$$(3\times 4) \div (5-3)$$</Latex></h3>
             <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
             <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
             <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -213,102 +215,102 @@ export default function Clubs() {
                             <div class="mr-2">
                                 <img className="rounded-circle" width="45" src={post.author_pfp} alt=""/>
                             </div>
-                            <div class="ml-2">  
-                            <div class="h5 m-0">{post.author}</div>
-                                    <div class="h7 text-muted">From {post.from_club} club</div>
+                            <div className="ml-2">  
+                            <div className="h5 m-0">{post.author}</div>
+                                    <div className="h7 text-muted">From {post.from_club} club</div>
                             </div>
                         </div>
                         </div>
             </div>
-            <div class="card-body">
-                        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>{post.date}
+            <div className="card-body">
+                        <div className="text-muted h7 mb-2"> <i className="fa fa-clock-o"></i>{post.date}
                                      {post.type === "challenge" ?
                                      <p>due date: {post.due_date}</p> 
                                      :null}</div>
-                                      <a class="card-link" href="#">
-                            <h5 class="card-title">{post.title}</h5>
+                                      <a className="card-link" href="#">
+                            <h5 className="card-title">{post.title}</h5>
                         </a>
                              {post.img && post.img !== "img/img" ? 
                                      <img src={post.img} className="imgofpost" />
                                  : null}
-                        <p class="card-text">
+                        <p className="card-text">
                         {post.text}
                         </p>
                     </div>
-                    <div class="card-footer">
-                        <a href="#" class="card-link"><i class="fa fa-gittip"></i> Like</a>
-                        <a href="#" class="card-link"><i class="fa fa-comment"></i> Comment</a>
-                        <a href="#" class="card-link"><i class="fa fa-mail-forward"></i> Share</a>
+                    <div className="card-footer">
+                        <a href="#" className="card-link"><i className="fa fa-gittip"></i> Like</a>
+                        <a href="#" className="card-link"><i className="fa fa-comment"></i> Comment</a>
+                        <a href="#" className="card-link"><i className="fa fa-mail-forward"></i> Share</a>
                     </div>
             </div>   
                     ))}
                     </div>
                 )
             })}
-                <div class="card gedf-card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="mr-2">
-                                    <img class="rounded-circle" width="45" src="https://picsum.photos/50/50" alt=""/>
+                <div className="card gedf-card">
+                    <div className="card-header">
+                        <div className="d-flex justify-content-between align-items-center">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div className="mr-2">
+                                    <img className="rounded-circle" width="45" src="https://picsum.photos/50/50" alt=""/>
                                 </div>
-                                <div class="ml-2">
-                                    <div class="h5 m-0">@LeeCross</div>
-                                    <div class="h7 text-muted">Miracles Lee Cross</div>
+                                <div className="ml-2">
+                                    <div className="h5 m-0">@LeeCross</div>
+                                    <div className="h7 text-muted">Miracles Lee Cross</div>
                                 </div>
                             </div>
                             <div>
-                                <div class="dropdown">
-                                    <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fa fa-ellipsis-h"></i>
+                                <div className="dropdown">
+                                    <button className="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i className="fa fa-ellipsis-h"></i>
                                     </button>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                        <div class="h6 dropdown-header">Configuration</div>
-                                        <a class="dropdown-item" href="#">Save</a>
-                                        <a class="dropdown-item" href="#">Hide</a>
-                                        <a class="dropdown-item" href="#">Report</a>
+                                    <div className="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
+                                        <div className="h6 dropdown-header">Configuration</div>
+                                        <a className="dropdown-item" href="#">Save</a>
+                                        <a className="dropdown-item" href="#">Hide</a>
+                                        <a className="dropdown-item" href="#">Report</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                     </div>
-                    <div class="card-body">
-                        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>10 min ago</div>
-                        <a class="card-link" href="#">
-                            <h5 class="card-title">That's how it all should look like</h5>
+                    <div className="card-body">
+                        <div className="text-muted h7 mb-2"> <i className="fa fa-clock-o"></i>10 min ago</div>
+                        <a className="card-link" href="#">
+                            <h5 className="card-title">That's how it all should look like</h5>
                         </a>
 
-                        <p class="card-text">
+                        <p className="card-text">
                             Yep exactly like that
                         </p>
                     </div>
-                    <div class="card-footer">
-                        <a href="#" class="card-link"><i class="fa fa-gittip"></i> Like</a>
-                        <a href="#" class="card-link"><i class="fa fa-comment"></i> Comment</a>
-                        <a href="#" class="card-link"><i class="fa fa-mail-forward"></i> Share</a>
+                    <div className="card-footer">
+                        <a href="#" className="card-link"><i className="fa fa-gittip"></i> Like</a>
+                        <a href="#" className="card-link"><i className="fa fa-comment"></i> Comment</a>
+                        <a href="#" className="card-link"><i className="fa fa-mail-forward"></i> Share</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card gedf-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+            <div className="col-md-3">
+                <div className="card gedf-card">
+                    <div className="card-body">
+                        <h5 className="card-title">Card title</h5>
+                        <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                        <p className="card-text">Some quick example text to build on the card title and make up the bulk of the
                             card's content.</p>
-                        <a href="#" class="card-link">Card link</a>
-                        <a href="#" class="card-link">Another link</a>
+                        <a href="#" className="card-link">Card link</a>
+                        <a href="#" className="card-link">Another link</a>
                     </div>
                 </div>
-                <div class="card gedf-card">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+                <div className="card gedf-card">
+                        <div className="card-body">
+                            <h5 className="card-title">Card title</h5>
+                            <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                            <p className="card-text">Some quick example text to build on the card title and make up the bulk of the
                                 card's content.</p>
-                            <a href="#" class="card-link">Card link</a>
-                            <a href="#" class="card-link">Another link</a>
+                            <a href="#" className="card-link">Card link</a>
+                            <a href="#" className="card-link">Another link</a>
                         </div>
                     </div>
             </div>
