@@ -24,13 +24,14 @@ export default function Clubs() {
     const [challenge, setChallenge] = useState([]);
     const [check, setCheck] = useState(false);
     const [date, setDate] = useState("");
-    const [img, setImg] = useState(null);
+    const [img, setImg] = useState([]);
     const titleRef = useRef("");
     const contentRef = useRef("");
     const titleEditRef = useRef("");
     const contentEditRef = useRef("");
     let challenges_t = [];
     let posts_t = [];
+    let imgs_t = [];
 
     async function getPosts() {
         const clubs_arr = collection(db, `schools/${ctxprops.school_select}/clubs`); 
@@ -65,39 +66,43 @@ export default function Clubs() {
     function getDate(e) {
         setDate(e.target.value);
     }
-    function uploadImage(e) {
-        const storageRef = ref(storage, `images/${ctxprops.id}/${e.target.files[0].name}`);
-        const uploadTask = uploadBytesResumable(storageRef, e.target.files[0]);
-        uploadTask.on('state_changed', (snap) => {
-            if(snap.state === "running") {
-              console.log(snap.state);
-            }
-          }, (err) => {
-            console.log("error upload");
-          }, () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-              setImg(url);
-            })
-          });
+    async function uploadImage(e) {
+        for(let i = 0; i < e.target.files.length; i++) {
+            const storageRef = ref(storage, `images/${ctxprops.id}/${e.target.files[i].name}`);
+            const uploadTask = uploadBytesResumable(storageRef, e.target.files[i]);
+            await uploadTask.on('state_changed', (snap) => {
+                if(snap.state === "running") {
+                console.log(snap.state);
+                }
+            }, (err) => {
+                console.log("error upload");
+            }, () => {
+                getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                    imgs_t.push(url);
+                })
+            });
+        }
+        setImg(imgs_t);
     }
     async function mkPost() {
+        // console.log(img);
         const button_target = document.querySelectorAll(".btnpost")[1];
         button_target.textContent = "Posting...";
         const clubsArr = document.querySelectorAll(".posttoclub");
         if(contentRef.current.value !== "" && titleRef.current.value !== "") {
             for(let i = 0; i < clubsArr.length; i++) {
                 if(clubsArr[i].checked) {
-                    selposts[i].push(
+                    selposts[i].unshift(
                         {
                             "author": ctxprops.username,
                             "author_id": ctxprops.id,
                             "author_pfp": ctxprops.pfp,
-                            "date": `${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}`,
+                            "date": getCurrentTime(),//${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}
                             "img": img,
                             "text": contentRef.current.value,
                             "title": titleRef.current.value,
                             "type": (check ? "challenge" : "regular"),
-                            "due_date": (check ? date : null ),
+                            "due_date": (check ? convertToPOSIX() : null ),
                             "from_club": clubsArr[i].id
                         }
                     )
@@ -163,6 +168,19 @@ export default function Clubs() {
             setToggle(e.target.id);
         }
     }
+    function getCurrentTime() {
+        var b = new Date();
+        return (b.getTime() - b.getMilliseconds()) / 1000;
+    }
+    function convertToPOSIX() {
+        //date as in the usestate
+        var future = new Date(date);
+        return (future.getTime() - future.getMilliseconds()) / 1000;
+    }
+    function convertFromPOSIX(unix_timestamp) {
+        var eps = new Date(unix_timestamp*1000);
+        return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + eps.getDate());
+    }
 
 
     return (
@@ -199,6 +217,7 @@ export default function Clubs() {
                             <div class="card-body">
                                 <div class="h5">@LeeCross</div>
                                 <div class="h7 text-muted">Fullname : Miracles Lee Cross</div>
+                                <a href="https://www.youtube.com/watch?v=A9nvxjUi7Mo">who?</a>
                                 <div class="h7">Developer of web applications, JavaScript, PHP, Java, Python, Ruby, Java, Node.js,
                                     etc.
                                 </div>
@@ -251,14 +270,18 @@ export default function Clubs() {
                                 </div>
                             </div>
                             <div className="card-body">
-                                <div className="text-muted h7 mb-2"> <i className="fa fa-clock-o"></i>{post.date}
+                                <div className="text-muted h7 mb-2"> <i className="fa fa-clock-o"></i>{convertFromPOSIX(post.date)}
                                     {post.type === "challenge" ?
-                                        <p>due date: {post.due_date}</p> 
+                                        <p>due date: {convertFromPOSIX(post.due_date)}</p> 
                                         :null}
                                 </div>
                                 <a className="card-link" href="#"><h5 className="card-title">{post.title}</h5></a>
-                                {post.img && post.img !== "img/img" ? 
-                                <img src={post.img} className="imgofpost" />
+                                {post.img && post.img.length !== 0 ? 
+                                (typeof post.img === "object" ? 
+                                post.img.map((image, ii) => (
+                                    <img src={image} className="imgofpost" />
+                                ))
+                                : <img src={post.img} className="imgofpost" />)
                                 : null}
                                 <p className="card-text">{post.text}</p>
                             </div>
@@ -357,7 +380,7 @@ export default function Clubs() {
                   <input type="text" className="form-control" placeholder="title" ref={titleRef} />
                   <label>Content</label>
                   <textarea ref={contentRef} className="form-control" placeholder="write here..."></textarea>
-                  <input type="file" onChange={uploadImage} className="form-control" />
+                  <input type="file" onChange={uploadImage} className="form-control" multiple />
                   <label>Post to</label>
                   {Array.from(ctxprops.clubs).sort().map((club, index) => ( //clubs need to be alphabetically ordered to sync with firebase
                     <div><input key={index} type="checkbox" className="posttoclub" id={club} /><label>{club}</label></div>

@@ -275,17 +275,30 @@ export default function Profile(props) {
                         <h1>Give some social credit</h1>
                         <input ref={userSearchRef} type="text" className="form-control" placeholder="Find user" />
                         <button onClick={findUser}>Find user</button>
+                        {/* {searchResults.length !== 0 ? 
+                        <div> 
+                            {searchResults.map((user, index) => (
+                                <div>
+                                    <p>{user.osis}</p>
+                                    <button onClick={() => talentsManage(user.id, 21, index)}>Give Cred</button>
+                                    <button onClick={() => talentsManage(user.id, -21, index)}>Lose Cred</button>
+                                    <hr />
+                                </div>
+                            ))}
+                        </div>
+                        : <p>arr is empoly</p>}
+                        {image === 1 ? 
+                        <img src={NoCred} width={200} height={200} />
+                        : null}
+                        {image === 2 ? 
+                        <img src={GotCred} width={200} height={200} />
+                        : null} */} {/* WHY WAS THIS REMOVED????????????????????????????/ */}
                     </div>
                 ) : null}
                 <button onClick={logout}>Logout</button>
             </div>
 
     </div>
-  
-
-
-
-            
         </div>
         
     );
