@@ -198,14 +198,14 @@ export default function Clubs() {
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
         
-            <nav class="navbar navbar-light bg-white">
-                    <a href="#" class="navbar-brand">Bootsbook</a>
-                    <form class="form-inline">
-                        <div class="input-group">
-                            <input type="text" class="form-control" aria-label="Recipient's username" aria-describedby="button-addon2"/>
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="button" id="button-addon2">
-                                    <i class="fa fa-search"></i>
+            <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
+                    <a href="#" className="navbar-brand">Bootsbook</a>
+                    <form className="form-inline">
+                        <div className="input-group">
+                            <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2"/>
+                            <div className="input-group-append">
+                                <button className="btn btn-outline-primary" type="button" id="button-addon2">
+                                    <i className="fa fa-search"></i>
                                 </button>
                             </div>
                         </div>
@@ -213,32 +213,32 @@ export default function Clubs() {
                 </nav>
 
 
-            <div class="container-fluid gedf-wrapper">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="h5">@LeeCross</div>
-                                <div class="h7 text-muted">Fullname : Miracles Lee Cross</div>
+            <div className="container-fluid gedf-wrapper">
+                <div className="row">
+                    <div className="col-md-3">
+                        <div className="card">
+                            <div className="card-body">
+                                <div className="h5">@LeeCross</div>
+                                <div className="h7 text-muted">Fullname : Miracles Lee Cross</div>
                                 <a href="https://www.youtube.com/watch?v=A9nvxjUi7Mo">who?</a>
-                                <div class="h7">Developer of web applications, JavaScript, PHP, Java, Python, Ruby, Java, Node.js,
+                                <div className="h7">Developer of web applications, JavaScript, PHP, Java, Python, Ruby, Java, Node.js,
                                     etc.
                                 </div>
                             </div>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">
-                                    <div class="h6 text-muted">Followers</div>
-                                    <div class="h5">5.2342</div>
+                            <ul className="list-group list-group-flush">
+                                <li className="list-group-item">
+                                    <div className="h6 text-muted">Followers</div>
+                                    <div className="h5">5.2342</div>
                                 </li>
-                                <li class="list-group-item">
-                                    <div class="h6 text-muted">Following</div>
-                                    <div class="h5">6758</div>
+                                <li className="list-group-item">
+                                    <div className="h6 text-muted">Following</div>
+                                    <div className="h5">6758</div>
                                 </li>
-                                <li class="list-group-item">Vestibulum at eros</li>
+                                <li className="list-group-item">Vestibulum at eros</li>
                             </ul>
                         </div>
                     </div>
-                    <div class="col-md-6 gedf-main">     
+                    <div className="col-md-6 gedf-main">     
                           
                     {selposts.map((post_arr, index) => { // in future we can probably flatten the array for displaying purposes
                         return ( // bruh react be like...
@@ -256,7 +256,7 @@ export default function Clubs() {
                                         {toggle === ("btnid-"+index.toString()+":"+i.toString()) ? 
                                         <div className="dropdown dropdown-menu-right">
                                             <div className="h6 dropdown-header">Configuration</div>
-                                            <button className="dropdown-item" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+i.toString())}>Edit</button>
+                                            <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+i.toString())}>Edit</button>
                                             <button className="warning-hover" onClick={()=>deletePost("postid-"+post.from_club.toString()+":"+index.toString()+","+i.toString())}>Delete</button>
                                         </div>
                                         : null}
@@ -267,24 +267,24 @@ export default function Clubs() {
                                     </div>
                                     <div className="ml-2">  
                                     <div className="h5 m-0">{post.author}</div>
-                                            <div className="h7 text-muted">From {post.from_club} club</div>
+                                            <div className="h7">From {post.from_club} club</div>
                                     </div>
                                 </div>
                                 </div>
                             </div>
-                            <div className="card-body">
-                                <div className="text-muted h7 mb-2"> <i className="fa fa-clock-o"></i>{convertFromPOSIX(post.date)}
+                            <div className="card-body cbg">
+                                <div className="cmute-text h7 mb-2"> <i className="fa fa-clock-o"></i>{convertFromPOSIX(post.date)}
                                     {post.type === "challenge" ?
                                         <p>due date: {convertFromPOSIX(post.due_date)}</p> 
                                         :null}
                                 </div>
                                 <a className="card-link" href="#"><h5 className="card-title">{post.title}</h5></a>
-                                {post.img && post.img.length !== 0 ? 
+                                
                                 <div>
+                                {typeof post.img === "object" && post.img.length > 1 ? 
                                 <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false" data-interval="false">
                                     <div className="carousel-inner">
-                                        {typeof post.img === "object" && post.img.length > 1 ? 
-                                        post.img.map((image, ii) => {
+                                        {post.img.map((image, ii) => {
                                             if(ii === 0) {
                                                 return (<div className="carousel-item active">
                                                     <img src={image} className="imgofpost d-block w-100" />
@@ -294,8 +294,7 @@ export default function Clubs() {
                                                 <img src={image} className="imgofpost d-block w-100" />
                                             </div>)
                                             }
-                                        })
-                                        : null}
+                                        })}
                                     </div>
                                     <a className="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
                                         <span className="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -306,6 +305,7 @@ export default function Clubs() {
                                         <span className="sr-only">Next</span>
                                     </a>
                                 </div>
+                                : null}
                                 {post.img.length === 1 ? 
                                 <img src={post.img[0]} className="imgofpost d-block w-100" />
                             :null}
@@ -313,7 +313,6 @@ export default function Clubs() {
                                 <img src={post.img} className="imgofpost" />
                             : null}
                                 </div>                                
-                                : null}
                                 <p className="card-text"><Latex displayMode={true}>{post.text}</Latex></p>
                             </div>
                             <div className="card-footer">
@@ -354,7 +353,7 @@ export default function Clubs() {
                             </div>
 
                         </div>
-                    <div className="card-body">
+                    <div className="card-body cbg">
                         <div className="text-muted h7 mb-2"> <i className="fa fa-clock-o"></i>10 min ago</div>
                         <a className="card-link" href="#">
                             <h5 className="card-title">That's how it all should look like</h5>
@@ -373,7 +372,7 @@ export default function Clubs() {
             </div>
             <div className="col-md-3">
                 <div className="card gedf-card">
-                    <div className="card-body">
+                    <div className="card-body cbg">
                         <h5 className="card-title">Card title</h5>
                         <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
                         <p className="card-text">Some quick example text to build on the card title and make up the bulk of the
@@ -383,7 +382,7 @@ export default function Clubs() {
                     </div>
                 </div>
                 <div className="card gedf-card">
-                        <div className="card-body">
+                        <div className="card-body cbg">
                             <h5 className="card-title">Card title</h5>
                             <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
                             <p className="card-text">Some quick example text to build on the card title and make up the bulk of the
@@ -401,22 +400,22 @@ export default function Clubs() {
             <div className="modal-dialog modal-dialog-centered" role="document">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">Make post</h5>
+                  <h5 className="modal-title cmodal-title">Make post</h5>
                   <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <div className="modal-body">
-                  <label>Title</label>
+                  <label className="ctext-primary">Title</label>
                   <input type="text" className="form-control" placeholder="title" ref={titleRef} />
-                  <label>Content</label>
+                  <label className="ctext-primary">Content</label>
                   <textarea ref={contentRef} className="form-control" placeholder="write here..."></textarea>
                   <input type="file" onChange={uploadImage} className="form-control" multiple />
-                  <label>Post to</label>
+                  <label className="ctext-primary">Post to</label>
                   {Array.from(ctxprops.clubs).sort().map((club, index) => ( //clubs need to be alphabetically ordered to sync with firebase
-                    <div><input key={index} type="checkbox" className="posttoclub" id={club} /><label>{club}</label></div>
+                    <div className="ctext-primary"><input key={index} type="checkbox" className="posttoclub" id={club} /><label>{club}</label></div>
                   ))}
-                  <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label htmlFor="challenge-checkbox">Challenge</label>
+                  <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label className="ctext-primary" htmlFor="challenge-checkbox">Challenge</label>
                   {check ?
                   <div>
                     <input type="date" onChange={getDate} />
@@ -434,17 +433,17 @@ export default function Clubs() {
             <div className="modal-dialog modal-dialog-centered" role="document">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">Edit post</h5>
+                  <h5 className="modal-title cmodal-title">Edit post</h5>
                   <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <div className="modal-body">
-                  <label>Title</label>
+                  <label className="ctext-primary">Title</label>
                   <input type="text" className="form-control" placeholder="title" ref={titleEditRef} />
-                  <label>Content</label>
+                  <label className="ctext-primary">Content</label>
                   <textarea ref={contentEditRef} className="form-control" placeholder="write here..."></textarea>
-                  <label>Replace Image</label>
+                  <label className="ctext-primary">Replace Image</label>
                   <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control"  />
                   {check ?
                   <div>

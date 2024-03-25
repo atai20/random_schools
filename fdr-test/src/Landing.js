@@ -32,9 +32,9 @@ class Landing extends React.Component {
     render() {
         return (
             <div className="landing">
-                <button onClick={this.logout}>logout landing</button>
-                <p>you made it...</p>
-                <Link to={"/profile"}>go to ur profile</Link>
+                <button onClick={this.logout} className="btn">logout landing</button>
+                <p className="text-primary">you made it...</p>
+                <Link to={"/profile"} className="text-primary">go to ur profile</Link>
                 
                 <OutletProvider>
                     {(outletCtxProps) => {
@@ -111,19 +111,19 @@ class Landing extends React.Component {
   <button type="submit" class="btn btn-primary" onClick={this.create_post}>Sign in</button>
 </form> */}
 
-<h1>Add news</h1>
+<h1 className="text-primary">Add news</h1>
   <div className="form-row">
     <div className="form-group col-md-6">
-      <label htmlFor="inputEmail4">Title</label>
+      <label htmlFor="inputEmail4" className="text-primary">Title</label>
       <input className="form-control" ref={add_news_ref} id="inputEmail4" placeholder="Title"/>
-      <label htmlFor="postbox">Content</label><br />
+      <label htmlFor="postbox" className="text-primary">Content</label><br />
       <textarea ref={text_news_ref} placeholder="Write here..." className="form-control"></textarea>
     </div>
 </div>
   <div className="form-group">
     <div className="form-check">
       <input className="form-check-input" type="checkbox" id="gridCheck"/>
-      <label className="form-check-label" for="gridCheck">
+      <label className="form-check-label text-primary" for="gridCheck" >
         Check me out (what does this do?????)
       </label>
     </div>

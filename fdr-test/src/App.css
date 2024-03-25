@@ -34,3 +34,128 @@ html, body, .register, .register>div {
   outline: none;
   border: 3px solid #e6e6e6;  
 }
+body[data-theme="light theme"] {
+  --bg-color: #fff;
+  --headings-color: #000;
+  --desc-color: #000;
+  --button-color: #007bff;
+  --div-color: #ededed;
+  --other-color: #ffffff;
+  --mute-text: #a3a3a3;
+  --lighter-bgs: #d3d4d5;
+  border: none !important;
+}
+body[data-theme="dark theme"] {
+  --bg-color: #141b21;
+  --headings-color: #fafafa;
+  --desc-color: #fafafa;
+  --button-color: #FF4C29;
+  --div-color: #2f3a43;
+  --other-color: #2C394B;
+  --mute-text: #c9c9c9;
+  --lighter-bgs: #384953;
+  border: none !important;
+}
+
+body[data-theme="summer theme"] {
+  --bg-color: #61A3BA;
+  --desc-color: #000;
+  --button-color: #D2DE32;
+  --div-color: #ebebcd;
+  --other-color: #FFFFDD;
+  --mute-text: #000;
+  --lighter-bgs: #e9e9e9;
+  border: none !important;
+}
+
+body[data-theme="night theme"] {
+  --bg-color: #092635;
+  --headings-color: #fafafa;
+  --desc-color: #fafafa;
+  --button-color: #9EC8B9;
+  --div-color: #5C8374;
+  --other-color: #1B4242;
+  --mute-text: #c9c9c9;
+  --lighter-bgs: #384953;
+}
+
+body {
+  background: var(--bg-color) !important;
+}
+nav {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color) !important;
+}
+.cinline-nav {
+  background-color: var(--bg-color) !important;
+}
+.navbar-brand {
+  color: var(--desc-color) !important;
+}
+.nav-link {
+  color: var(--desc-color) !important;
+}
+.theme-text {
+  color: var(--desc-color) !important;
+}
+
+.card {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color);
+}
+.card-title {
+  color: var(--desc-color) !important;
+}
+.card-body {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color);
+}
+.text-muted {
+  color: var(--desc-color) !important;
+}
+.text-primary {
+  color: var(--desc-color) !important;
+}
+.btn {
+  border: none !important;
+  outline: none !important;
+  background-color: var(--button-color) !important;
+  color: #fafafa !important;
+}
+.progress {
+  background-color: var(--lighter-bgs) !important;
+}
+.list-group-item {
+  background-color: var(--other-color) !important;
+}
+.settings {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color);
+}
+.ctext-primary {
+  color: var(--desc-color) !important;
+}
+.cbg {
+  background-color: var(--div-color) !important;
+}
+.cmute-text {
+  color: var(--mute-text) !important;
+}
+.dropdown-item {
+  color: var(--desc-color) !important;
+}
+.btnedit:hover {
+  background-color: transparent !important;
+  cursor: pointer;
+}
+.modal-content {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color) !important;
+}
+.cmodal-title {
+  color: var(--desc-color) !important;
+}
+.close {
+  color: var(--desc-color) !important;
+
+}

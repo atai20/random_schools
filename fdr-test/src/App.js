@@ -55,6 +55,7 @@ export default class App extends React.Component {
               pfp: res.user.photoURL || Defaultpfp,
               school: 0,
               talents: 0,
+              theme: "light"
             });
             this.setState({logged: true});
             this.fetchData();
@@ -83,6 +84,7 @@ export default class App extends React.Component {
           pfp: res.user.photoURL || Defaultpfp,
           school: 0,
           talents: 0,
+          theme: "light",
       }).then(() => {console.log("written")}).catch(er => {console.log(er)});
       this.setState({logged: true});
   }).catch((er) => {
@@ -141,6 +143,7 @@ export default class App extends React.Component {
           verified: data.data().verified,
           school_select: data.data().school,
           talents: data.data().talents,
+          theme: data.data().theme,
         });
       } 
     });
@@ -253,7 +256,7 @@ export default class App extends React.Component {
       } else {
         return (
           <div>
-             <nav className="navbar navbar-expand-lg navbar-light bg-light">
+             <nav className="navbar navbar-expand-lg navbar-light custom">
   <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
   <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span className="navbar-toggler-icon"></span>
