@@ -6,9 +6,12 @@ import reportWebVitals from './reportWebVitals';
 import ErrorRoute from './ErrorRoute';
 import Schools from "./Schools";
 import Landing from "./Landing";
+import About from "./components/About";
 import Profile from "./components/Profile";
 import Clubs from "./components/Clubs";
+import Calendar from "./components/Scheduler";
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Scheduler from './components/Scheduler';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -33,6 +36,16 @@ const router = createBrowserRouter([
       {
         path: "/clubs",
         element: <Clubs />,
+      }
+      ,
+      {
+        path: "/calendar",
+        element: <Scheduler />,
+      }
+      ,
+      {
+        path: "/about",
+        element: <About />,
       }
     ]
   },

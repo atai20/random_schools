@@ -274,7 +274,10 @@ export default class App extends React.Component {
         <a className="nav-link" href="#">School</a>
       </li>
       <li className="nav-item">
-        <a className="nav-link" href="#">Calendar</a>
+      <Link className="nav-link" to={"/calendar"}>Calendar</Link>
+      </li>
+      <li className="nav-item">
+      <Link className="nav-link" to={"/about"}>About</Link>
       </li>
       <li className="nav-item">
         <Link className="nav-link" to={"/profile"}>Profile</Link>

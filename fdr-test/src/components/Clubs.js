@@ -213,28 +213,29 @@ export default function Clubs() {
                 </nav>
 
 
-            <div className="container-fluid gedf-wrapper">
-                <div className="row">
-                    <div className="col-md-3">
-                        <div className="card">
-                            <div className="card-body">
-                                <div className="h5">@LeeCross</div>
-                                <div className="h7 text-muted">Fullname : Miracles Lee Cross</div>
+
+            <div class="container-fluid gedf-wrapper">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="h5">Social credit today: 23</div>
+                                <div class="h7 text-muted">Party +respect</div>
                                 <a href="https://www.youtube.com/watch?v=A9nvxjUi7Mo">who?</a>
-                                <div className="h7">Developer of web applications, JavaScript, PHP, Java, Python, Ruby, Java, Node.js,
-                                    etc.
+                                <div class="h7">description of the last results from leader of club
                                 </div>
                             </div>
-                            <ul className="list-group list-group-flush">
-                                <li className="list-group-item">
-                                    <div className="h6 text-muted">Followers</div>
-                                    <div className="h5">5.2342</div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <div class="h6 text-muted">Tasks completed</div>
+                                    <div class="h5">2</div>
                                 </li>
-                                <li className="list-group-item">
-                                    <div className="h6 text-muted">Following</div>
-                                    <div className="h5">6758</div>
+                                <li class="list-group-item">
+                                    <div class="h6 text-muted">Competitions</div>
+                                    <div class="h5">4</div>
                                 </li>
-                                <li className="list-group-item">Vestibulum at eros</li>
+                                <li class="list-group-item">main goal of user</li>
+
                             </ul>
                         </div>
                     </div>
@@ -333,8 +334,8 @@ export default function Clubs() {
                                         <img className="rounded-circle" width="45" src="https://picsum.photos/50/50" alt=""/>
                                     </div>
                                     <div className="ml-2">
-                                        <div className="h5 m-0">@LeeCross</div>
-                                        <div className="h7 text-muted">Miracles Lee Cross</div>
+                                        <div className="h5 m-0">Social credit for today: 23</div>
+                                        <div className="h7 text-muted">+miska ris</div>
                                     </div>
                                 </div>
                                 <div>
@@ -372,18 +373,19 @@ export default function Clubs() {
             </div>
             <div className="col-md-3">
                 <div className="card gedf-card">
-                    <div className="card-body cbg">
-                        <h5 className="card-title">Card title</h5>
-                        <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                        <p className="card-text">Some quick example text to build on the card title and make up the bulk of the
-                            card's content.</p>
-                        <a href="#" className="card-link">Card link</a>
-                        <a href="#" className="card-link">Another link</a>
+
+                    <div className="card-body">
+                        <h5 className="card-title">Main task of the day</h5>
+                        <h6 className="card-subtitle mb-2 text-muted">complete immediatelly</h6>
+                        <p className="card-text">Eat the potato</p>
+                        <a href="#" className="card-link">right here</a>
+                        <a href="#" className="card-link">That's right</a>
                     </div>
                 </div>
                 <div className="card gedf-card">
-                        <div className="card-body cbg">
-                            <h5 className="card-title">Card title</h5>
+                        <div className="card-body">
+                            <h5 className="card-title">Another task</h5>
+
                             <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
                             <p className="card-text">Some quick example text to build on the card title and make up the bulk of the
                                 card's content.</p>
