@@ -12,6 +12,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { GoKebabHorizontal } from "react-icons/go";
 import { FaEllipsisH } from "react-icons/fa";
 import { CiCircleCheck } from "react-icons/ci";
+import "../App.css";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let clubo = "";

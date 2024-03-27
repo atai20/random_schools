@@ -11,6 +11,8 @@ import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/st
 import NoCred from "../lose_social_credit.jpeg";
 import GotCred from "../social-credit.jpg";
 
+import "../App.css";
+
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let arr = []; // DONT REMOVE THIS. USESTATE DOES NOT WORK LIKE YOU THINK
 export default function Profile(props) {
