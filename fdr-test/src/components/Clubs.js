@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { getAuth, deleteUser, signOut } from "firebase/auth";
-import { doc, deleteDoc, getDoc, setDoc, updateDoc, query, where, collection, getDocs, serverTimestamp } from "firebase/firestore";
+import { doc, deleteDoc, getDoc, addDoc, updateDoc, query, where, collection, getDocs, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
@@ -91,29 +91,39 @@ export default function Clubs() {
         button_target.textContent = "Posting...";
         const clubsArr = document.querySelectorAll(".posttoclub");
         if(contentRef.current.value !== "" && titleRef.current.value !== "") {
-            for(let i = 0; i < clubsArr.length; i++) {
-                if(clubsArr[i].checked) {
-                    selposts[i].unshift(
-                        {
-                            "author": ctxprops.username,
-                            "author_id": ctxprops.id,
-                            "author_pfp": ctxprops.pfp,
-                            "date": getCurrentTime(),//${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}
-                            "img": img,
-                            "text": contentRef.current.value,
-                            "title": titleRef.current.value,
-                            "type": (check ? "challenge" : "regular"),
-                            "due_date": (check ? convertToPOSIX() : null ),
-                            "from_club": clubsArr[i].id
+            if(!check) {
+                for(let i = 0; i < clubsArr.length; i++) {
+                    if(clubsArr[i].checked) {
+                        selposts[i].unshift(
+                            {
+                                "author": ctxprops.username,
+                                "author_id": ctxprops.id,
+                                "author_pfp": ctxprops.pfp,
+                                "date": getCurrentTime(),//${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}
+                                "img": img,
+                                "text": contentRef.current.value,
+                                "title": titleRef.current.value,
+                                "type": (check ? "challenge" : "regular"),
+                                "due_date": (check ? convertToPOSIX() : null ),
+                                "from_club": clubsArr[i].id, //trust me I know, it can be fixed later, I am just too lazy to do allat rn
+                                "origin": `${ctxprops.school_select}/${clubsArr[i].id}`
+                            }
+                        )
+                        if(selposts.length !== 0) {
+                            const reify = selposts[i].map(post => post);
+                            await updateDoc(doc(db,`schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
+                                posts: reify,
+                            })
                         }
-                    )
-                    if(selposts.length !== 0) {
-                        const reify = selposts[i].map(post => post);
-                        await updateDoc(doc(db,`schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
-                            posts: reify,
-                        })
                     }
                 }
+            } else { //send to challegnes collection for easier
+                await addDoc(collection(db,"challenges"), {
+                    "content": contentRef.current.value,
+                    "title": titleRef.current.value,
+                    "due_date": convertToPOSIX(),
+                    "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //change later
+                })
             }
         } else {
             console.log(contentRef.current.value);
@@ -141,7 +151,7 @@ export default function Clubs() {
             selposts[club_index][inner_index]["img"] = img;
         }
 
-        await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${selposts[club_index][inner_index]["from_club"]}`), {
+        await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${selposts[club_index][inner_index]["origin"]}`), {
             posts: selposts[parseInt(club_index)]
         });
         setTimeout(() => {
@@ -160,6 +170,7 @@ export default function Clubs() {
     }
 
     useEffect(() => {
+        document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase())
         getPosts();
     }, []);
     const [toggle, setToggle] = useState("");
@@ -181,7 +192,7 @@ export default function Clubs() {
     }
     function convertFromPOSIX(unix_timestamp) {
         var eps = new Date(unix_timestamp*1000);
-        return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + eps.getDate());
+        return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())+1));
     }
 
     const regexLatexBlock = /\$\$.*\$\$/i;
@@ -269,7 +280,7 @@ export default function Clubs() {
                                     </div>
                                     <div className="ml-2">  
                                     <div className="h5 m-0">{post.author}</div>
-                                            <div className="h7">From {post.from_club} club</div>
+                                            <div className="h7">From {post.origin} club</div>
                                     </div>
                                 </div>
                                 </div>

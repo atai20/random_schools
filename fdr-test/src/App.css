@@ -159,3 +159,7 @@ nav {
   color: var(--desc-color) !important;
 
 }
+.render-challenge {
+  background-color: #007bff;
+  position: absolute;
+}

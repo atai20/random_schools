@@ -4,6 +4,7 @@ import firebase from 'firebase/compat/app';
 import { getFirestore, collection, getDocs, addDoc, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
+import "./App.css";
 
 const OutletProvider = ({children}) => {
     const ctx = useOutletContext();
