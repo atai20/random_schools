@@ -160,7 +160,7 @@ nav {
 
 }
 .render-challenge {
-  position: absolute;
+  /* position: absolute; */
   background-color: #041f3c;
   border-radius: 8px;
   padding: 10px;

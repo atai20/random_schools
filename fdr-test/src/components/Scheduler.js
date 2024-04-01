@@ -5,6 +5,8 @@ import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, dele
 import "../App.css";
 import { Link, useOutletContext } from "react-router-dom";
 
+import { GoDotFill } from "react-icons/go";
+
 
 let challenges_t = [];
 function Scheduler() {
@@ -12,6 +14,7 @@ function Scheduler() {
     const [challenge, setChallenge] = useState([]);
     const [cbtn, setCbtn] = useState("");
     const [school, setSchool] = useState("");
+    const [board, setBoard] = useState([]);
 
     function getCurrentTime() {
       const time_t = new Date();
@@ -38,6 +41,7 @@ function Scheduler() {
       document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase());
       getChallenges();
       schoolInfo();
+      fetchAllUsers();
     },[]);
     function convertFromPOSIX(unix_timestamp) {
       var eps = new Date(unix_timestamp*1000);
@@ -48,19 +52,33 @@ function Scheduler() {
       return (future.getTime() - future.getMilliseconds()) / 1000;
     }
 
-    // const [toggle, setToggle] = useState("");
     const [currChallenge, setCurrChallenge] = useState([]);
-    function challengeDate(value, event) {
+    function challengeDate(value, event) { //yes it renders twice. will go away after npm build
+      let dub_t = [];
       for(const c of challenge) {
         if(convertFromPOSIX(c.due_date) === (value.getFullYear()+"-"+(parseInt(value.getMonth())+1)+"-"+(parseInt(value.getDate())))) {
-          setCurrChallenge([]);
-          setCurrChallenge(currChallenge => [...currChallenge, {"title": c.title, "content": c.content, "origin": c.origin, "offsetleft": event.target.offsetLeft, "offsettop": event.target.offsetTop}]);
+          dub_t.push({"title": c.title, "content": c.content, "origin": c.origin, "status": c.status, "offsetleft": event.target.offsetLeft, "offsettop": event.target.offsetTop});
         } 
       }
-      
+      setCurrChallenge(dub_t);
+      dub_t = [];
     }
     function displaceRelative(ev) {
       ev.target.classList.add("date_click_active_custom");
+    }
+
+    async function fetchAllUsers() {
+      const q = query(collection(db, "users"));
+      const gd = await getDocs(q);
+      let token_t = [];
+      gd.forEach((t) => {
+        token_t.push({"talents": t.data().talents, "name": t.data().name});
+      });
+      token_t.sort(function(a,b) {
+        return a.talents - b.talents;
+      })
+      setBoard(token_t);
+      console.log(board);
     }
     
 
@@ -83,12 +101,22 @@ function Scheduler() {
             <div>
               {currChallenge.map((t_c) => (
                 <div className='render-challenge' id="challenge-display" style={{left: t_c.offsetleft, top: (t_c.offsettop+20)}}>
+                  {/* <p className='ctext-primary'>{t_c.title}</p> */}
+                  {t_c.status === "active" ?
+                  <span style={{fill: "#34eb77", color: "#34eb77"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                  : t_c.status === "in_review" ? 
+                  <span style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                : 
+                <span style={{fill: "#eb1c1c", color: "#eb1c1c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                
+                }
                   <p className='ctext-primary'>{t_c.title}</p>
                   <p className='ctext-primary'>{t_c.content}</p>
                   <p className='ctext-primary'>{t_c.origin.replace(`${ctxprops.school_select}`, `${school.name}`)}</p>
-                  <button onClick={() => setCurrChallenge([])} className='btn'>Close</button>
+                  
                 </div>
               ))}
+              <button onClick={() => setCurrChallenge([])} className='btn'>Close</button>
             </div>
             :null}
           </div>
@@ -99,7 +127,15 @@ function Scheduler() {
           {/* {currdate.getDate()} bruh */}
         </p>
         </div>
-        <div className='leaderboard ctext-primary'>Leaderboard and stuff</div>
+        <div className='leaderboard ctext-primary'>Leaderboard and stuff
+        {board.map((obj) => (
+          <div className='ctext-primary card'>
+            <p>name: {obj.name}</p>
+            <p>score: {obj.talents}</p>
+          </div>
+        ))}
+        
+        </div>
     </div>
     );
   }

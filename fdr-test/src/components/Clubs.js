@@ -123,6 +123,7 @@ export default function Clubs() {
                     "title": titleRef.current.value,
                     "due_date": convertToPOSIX(),
                     "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //change later
+                    "status": "active"
                 })
             }
         } else {
