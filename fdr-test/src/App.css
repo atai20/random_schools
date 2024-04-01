@@ -160,6 +160,11 @@ nav {
 
 }
 .render-challenge {
-  background-color: #007bff;
   position: absolute;
+  background-color: #041f3c;
+  border-radius: 8px;
+  padding: 10px;
+}
+.date_click_active_custom {
+  position: relative;
 }

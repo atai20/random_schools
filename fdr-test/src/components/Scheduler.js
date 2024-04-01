@@ -10,8 +10,8 @@ let challenges_t = [];
 function Scheduler() {
     const ctxprops = useOutletContext();
     const [challenge, setChallenge] = useState([]);
-    // const currentBtn = useRef("");
     const [cbtn, setCbtn] = useState("");
+    const [school, setSchool] = useState("");
 
     function getCurrentTime() {
       const time_t = new Date();
@@ -28,38 +28,41 @@ function Scheduler() {
       });
       setChallenge(challenges_t);
     }
+    async function schoolInfo() {
+      const schoolRef = doc(db, `schools/${ctxprops.school_select}`);
+      await getDoc(schoolRef).then((school_data) => {
+        setSchool(school_data.data());
+      });      
+    }
     useEffect(() => {
       document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase());
       getChallenges();
-      // setDate();
+      schoolInfo();
     },[]);
     function convertFromPOSIX(unix_timestamp) {
       var eps = new Date(unix_timestamp*1000);
       return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())+1)); //+1 to getDate to adjust to GMT otherwise EST
     }
     function convertToPOSIX(dateobj) {
-      //date as in the usestate
       var future = new Date(dateobj);
       return (future.getTime() - future.getMilliseconds()) / 1000;
     }
 
-    const [toggle, setToggle] = useState("");
+    // const [toggle, setToggle] = useState("");
     const [currChallenge, setCurrChallenge] = useState([]);
-    function challengeDate(value) {
+    function challengeDate(value, event) {
       for(const c of challenge) {
         if(convertFromPOSIX(c.due_date) === (value.getFullYear()+"-"+(parseInt(value.getMonth())+1)+"-"+(parseInt(value.getDate())))) {
-          if(toggle === value.getDate().toString()) {
-            setToggle("");
-            setCurrChallenge([]);
-          } else {
-            setToggle(value.getDate().toString());
-            setCurrChallenge([]);
-            setCurrChallenge(currChallenge => [...currChallenge, {"title": c.title, "content": c.content, "origin": c.origin}]);
-          }
+          setCurrChallenge([]);
+          setCurrChallenge(currChallenge => [...currChallenge, {"title": c.title, "content": c.content, "origin": c.origin, "offsetleft": event.target.offsetLeft, "offsettop": event.target.offsetTop}]);
         } 
       }
+      
     }
-    // console.log(currChallenge);
+    function displaceRelative(ev) {
+      ev.target.classList.add("date_click_active_custom");
+    }
+    
 
     return (
       <div className='calendar-main'>
@@ -71,19 +74,19 @@ function Scheduler() {
         
           <link href="css/styles.css" rel="stylesheet" />
         <h1 className='text-center ctext-primary'>Calendar</h1>
-        <div className='calendar-container' style={{position: 'relative'}} >
-          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v);setCbtn(v)}} className="ctext-primary" />
+        <div className='calendar-container' >
+          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary" />
 
           {cbtn !== "" ? 
           <div className='render-challenge-temp' >
-            {toggle === cbtn.getDate().toString() ? 
-            <div className='render-challenge' style={{position: 'relative'}}>
+            {currChallenge.length !== 0 ? 
+            <div>
               {currChallenge.map((t_c) => (
-                <div>
+                <div className='render-challenge' id="challenge-display" style={{left: t_c.offsetleft, top: (t_c.offsettop+20)}}>
                   <p className='ctext-primary'>{t_c.title}</p>
                   <p className='ctext-primary'>{t_c.content}</p>
-                  <p className='ctext-primary'>{t_c.origin}</p>
-                  <button onClick={() => setCurrChallenge([])}>Close</button>
+                  <p className='ctext-primary'>{t_c.origin.replace(`${ctxprops.school_select}`, `${school.name}`)}</p>
+                  <button onClick={() => setCurrChallenge([])} className='btn'>Close</button>
                 </div>
               ))}
             </div>
