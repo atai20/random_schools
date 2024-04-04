@@ -1,7 +1,7 @@
-import React, {Component, useRef} from "react";
+import React, {Component, useRef, useState} from "react";
 import { Link, Outlet, useOutletContext } from "react-router-dom"; 
 import firebase from 'firebase/compat/app';
-import { getFirestore, collection, getDocs, addDoc, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { getFirestore, collection, getDocs, addDoc, query,getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
 import "./App.css";
@@ -39,18 +39,36 @@ class Landing extends React.Component {
                 
                 <OutletProvider>
                     {(outletCtxProps) => {
-                        const add_news_ref = useRef("");
+                         const [news_text, setNews] = useState([]);
+                        
+                         let news_t = [];
+ 
+ 
+                         const add_news_ref = useRef("");
                         const text_news_ref = useRef("");
                         console.log(outletCtxProps);
                         const add_news = async() => {
                             const docRef2 = await addDoc(collection(db, `schools/${outletCtxProps.school_select}/news`), {
                                 title: add_news_ref.current.value,
                               text: text_news_ref.current.value,
+            
                               date: serverTimestamp()
                             });
                             add_news_ref.current.value = "";
                             text_news_ref.current.value = "";
                         }
+                        const get_news = async() => {
+                          const q = query(collection(db,`schools/${outletCtxProps.school_select}/news`));
+                          const docsRef = await getDocs(q);
+                          
+                          docsRef.forEach(doc => {
+
+                            news_t.push(doc.data())
+
+                          });
+                          setNews(news_t);
+                        }
+                        get_news();
                         return (
                         
                         <div>
@@ -131,7 +149,15 @@ class Landing extends React.Component {
   </div>
   <button  class="btn btn-primary" onClick={add_news}>Sign in</button>
 
+  {news_text.map((data) => (
+ <div>
 
+   {data.title}<br></br>
+ {data.text}
+
+ </div>
+
+))}
 
 {/* <h1>Add school</h1>
 <form>

@@ -4,11 +4,19 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ErrorRoute from './ErrorRoute';
-import Schools from "./Schools";
+import Schools from "./components/Schools";
 import Landing from "./Landing";
 import About from "./components/About";
 import Profile from "./components/Profile";
 import Clubs from "./components/Clubs";
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+=======
+>>>>>>> Stashed changes
+import Intro from "./components/Intro";
+import Calendar from "./components/Scheduler";
+>>>>>>> Stashed changes
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Scheduler from './components/Scheduler';
 
@@ -43,6 +51,11 @@ const router = createBrowserRouter([
       {
         path: "/about",
         element: <About />,
+      }
+      ,
+      {
+        path: "/intro",
+        element: <Intro />,
       }
     ]
   },

@@ -2295,6 +2295,18 @@
   resolved "https://registry.npmjs.org/@remix-run/router/-/router-1.15.3.tgz"
   integrity sha512-Oy8rmScVrVxWZVOpEF57ovlnhpZ8CCPlnIIumVcV9nFdiSIrus99+Lw78ekXyGvVDlIsFJbSfmSovJUhCWYV3w==
 
+"@rive-app/canvas@2.12.0":
+  version "2.12.0"
+  resolved "https://registry.npmjs.org/@rive-app/canvas/-/canvas-2.12.0.tgz"
+  integrity sha512-icOLOibDARYSGPWzxqe/VrqjpajzPNcL9NUs0Rhtso+cheZLDCf/Sap3GI7/7FVAcvTvMt01e2nUPy6uu0Uhvg==
+
+"@rive-app/react-canvas@^4.8.4":
+  version "4.8.4"
+  resolved "https://registry.npmjs.org/@rive-app/react-canvas/-/react-canvas-4.8.4.tgz"
+  integrity sha512-lAHrzoeQYOsY1F8kIKJWWGJRWYte6c59p6tV5Z0g6wIPMQOYcZzA8IgkgvouhO0UvBV1cHC/jfpSmchInwjpqw==
+  dependencies:
+    "@rive-app/canvas" "2.12.0"
+
 "@rollup/plugin-babel@^5.2.0":
   version "5.3.1"
   resolved "https://registry.npmjs.org/@rollup/plugin-babel/-/plugin-babel-5.3.1.tgz"
