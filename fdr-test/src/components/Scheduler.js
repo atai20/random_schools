@@ -90,11 +90,18 @@ function Scheduler() {
           <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
           <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
-        
+     
           <link href="css/styles.css" rel="stylesheet" />
+<<<<<<< Updated upstream
         <h1 className='text-center ctext-primary'>Calendar</h1>
         <div className='calendar-container' style={{width: '100%', height: 'auto'}} >
           <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary" />
+=======
+        <h1 className='text-center ctext-primary'><div className='nunito-all'>Challenges and plans</div></h1>
+        <div className='nunito-all'>*Select the date to see if there is a challange for the day</div>
+        <div className='calendar-container' >
+          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary"/>
+>>>>>>> Stashed changes
 
           {cbtn !== "" ? 
           <div className='render-challenge-temp' >
@@ -129,6 +136,7 @@ function Scheduler() {
         </p>
         </div>
         <div className='leaderboard ctext-primary'>Leaderboard and stuff
+<<<<<<< Updated upstream
         {board.map((obj, index) => {
           if(index === 0) {
             return (
@@ -151,6 +159,25 @@ function Scheduler() {
             )
           }
         })}
+=======
+        <table class="table" id="leaders">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col" className='name_col1'>Name</th>
+      <th scope="col" className='name_col2'>Score</th>
+    </tr>
+  </thead>
+  <tbody>
+        {board.map((obj) => (
+         
+         <tr>
+         <td>{obj.name}</td>
+         <td>{obj.talents}</td>
+       </tr>
+        ))}
+        </tbody>
+</table>
+>>>>>>> Stashed changes
         
         </div>
     </div>

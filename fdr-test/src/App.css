@@ -92,9 +92,7 @@ nav {
 .navbar-brand {
   color: var(--desc-color) !important;
 }
-.nav-link {
-  color: var(--desc-color) !important;
-}
+
 .theme-text {
   color: var(--desc-color) !important;
 }
@@ -171,6 +169,7 @@ nav {
 .date_click_active_custom {
   position: relative;
 }
+<<<<<<< Updated upstream
 .leaderboard-display {
   margin: 10px;
   padding: 10px;
@@ -189,4 +188,17 @@ nav {
 .odd {
   background-color: #273e55 !important;
   
+=======
+
+
+.main-form{
+  border-radius:10px;
+  padding:10px;
+  box-shadow: 0px 3px 3px -1px rgba(135,135,135,1);
+  background-color: grey;
+  border-color: black;
+  max-width: 700px;
+  margin: auto;
+  border-color: black;
+>>>>>>> Stashed changes
 }

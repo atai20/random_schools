@@ -174,6 +174,7 @@ export default class App extends React.Component {
     })
   }
   handleImage = (event) => {
+    
     const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
     const uploadTask = uploadBytesResumable(storageRef, event.target.files[0]);
     uploadTask.on('state_changed', (snap) => {
@@ -330,7 +331,9 @@ export default class App extends React.Component {
       } else {
         return (
           <div>
-             <nav className="navbar navbar-expand-lg navbar-light custom">
+                             <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,678;1,678&display=swap" rel="stylesheet"></link>         <nav className="navbar navbar-expand-lg navbar-light custom">
   <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
   <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span className="navbar-toggler-icon"></span>
@@ -339,7 +342,7 @@ export default class App extends React.Component {
   <div className="collapse navbar-collapse" id="navbarSupportedContent">
     <ul className="navbar-nav mr-auto">
       <li className="nav-item active">
-        <Link className="nav-link" to={"/"}>Home <span className="sr-only">(current)</span></Link>
+        <Link className="nav-link" to={"/"}><div className="nunito-header">Home</div> <span className="sr-only">(current)</span></Link>
       </li>
       <li className="nav-item">
         <Link className="nav-link" to={"/clubs"}>Clubs</Link>

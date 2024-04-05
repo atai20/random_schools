@@ -129,7 +129,7 @@ class Landing extends React.Component {
   </div>
   <button type="submit" class="btn btn-primary" onClick={this.create_post}>Sign in</button>
 </form> */}
-
+<div className="main-form">
 <h1 className="text-primary">Add news</h1>
   <div className="form-row">
     <div className="form-group col-md-6">
@@ -147,8 +147,14 @@ class Landing extends React.Component {
       </label>
     </div>
   </div>
+  <div className="form-group">
+    <div className="form-check">
+      select images<br/>
+      <input className="form-check-input" type="file" id="gridCheck"/>
+    </div>
+  </div>
   <button  class="btn btn-primary" onClick={add_news}>Sign in</button>
-
+</div>
   {news_text.map((data) => (
  <div>
 
