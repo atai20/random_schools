@@ -159,6 +159,9 @@ nav {
   color: var(--desc-color) !important;
 
 }
+.calendar-container {
+  height: 300px;
+}
 .render-challenge {
   /* position: absolute; */
   background-color: #041f3c;
@@ -167,4 +170,23 @@ nav {
 }
 .date_click_active_custom {
   position: relative;
+}
+.leaderboard-display {
+  margin: 10px;
+  padding: 10px;
+  /* background-color: #007bff !important; */
+
+}
+.score-span {
+  float: right;
+}
+.first-placer {
+  background-color: #007bff !important;
+}
+.even {
+  background-color: #021427 !important;
+}
+.odd {
+  background-color: #273e55 !important;
+  
 }

@@ -30,6 +30,7 @@ function Scheduler() {
         challenges_t.push(doc.data());
       });
       setChallenge(challenges_t);
+      challenges_t = [];
     }
     async function schoolInfo() {
       const schoolRef = doc(db, `schools/${ctxprops.school_select}`);
@@ -75,7 +76,7 @@ function Scheduler() {
         token_t.push({"talents": t.data().talents, "name": t.data().name});
       });
       token_t.sort(function(a,b) {
-        return a.talents - b.talents;
+        return b.talents - a.talents;
       })
       setBoard(token_t);
       console.log(board);
@@ -92,7 +93,7 @@ function Scheduler() {
         
           <link href="css/styles.css" rel="stylesheet" />
         <h1 className='text-center ctext-primary'>Calendar</h1>
-        <div className='calendar-container' >
+        <div className='calendar-container' style={{width: '100%', height: 'auto'}} >
           <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary" />
 
           {cbtn !== "" ? 
@@ -128,12 +129,28 @@ function Scheduler() {
         </p>
         </div>
         <div className='leaderboard ctext-primary'>Leaderboard and stuff
-        {board.map((obj) => (
-          <div className='ctext-primary card'>
-            <p>name: {obj.name}</p>
-            <p>score: {obj.talents}</p>
+        {board.map((obj, index) => {
+          if(index === 0) {
+            return (
+              <div className='ctext-primary card leaderboard-display first-placer'>
+            <h3>{index+1} <span>name: {obj.name}</span> <span className='ctext-primary score-span'>score: {obj.talents}</span></h3>
           </div>
-        ))}
+            );
+          } else if(index % 2 === 0) {
+            return (
+              <div className='ctext-primary card leaderboard-display even'>
+                <h3>{index+1} <span>name: {obj.name}</span> <span className='ctext-primary score-span'>score: {obj.talents}</span></h3>
+              </div>
+            )
+          } else {
+            return (
+              <div className='ctext-primary card leaderboard-display odd'>
+            
+            <h3>{index+1} <span>name: {obj.name}</span> <span className='ctext-primary score-span'>score: {obj.talents}</span></h3>
+          </div>
+            )
+          }
+        })}
         
         </div>
     </div>

@@ -134,7 +134,8 @@ export default function Clubs() {
     }
     const [editId, setEditId] = useState("");
     async function editPost(postId) {
-        console.log(img);
+        console.log(postId);
+        // console.log(img);
         const club_index = parseInt(postId.substring(7, postId.indexOf(":")));
         const inner_index = parseInt(postId.substring(postId.indexOf(":")+1));
         titleEditRef.current.value = selposts[club_index][inner_index].title;
@@ -446,7 +447,7 @@ export default function Clubs() {
           </div>
           <div id="editpost" className="modal" tabIndex="-1" role="dialog">
             <div className="modal-dialog modal-dialog-centered" role="document">
-              <div className="modal-content">
+              <div className="modal-content">   
                 <div className="modal-header">
                   <h5 className="modal-title cmodal-title">Edit post</h5>
                   <button type="button" className="close" data-dismiss="modal" aria-label="Close">

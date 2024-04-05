@@ -9,14 +9,7 @@ import Landing from "./Landing";
 import About from "./components/About";
 import Profile from "./components/Profile";
 import Clubs from "./components/Clubs";
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
 import Intro from "./components/Intro";
-import Calendar from "./components/Scheduler";
->>>>>>> Stashed changes
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Scheduler from './components/Scheduler';
 
