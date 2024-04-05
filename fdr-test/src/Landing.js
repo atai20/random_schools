@@ -46,7 +46,7 @@ class Landing extends React.Component {
  
                          const add_news_ref = useRef("");
                         const text_news_ref = useRef("");
-                        console.log(outletCtxProps);
+                        // console.log(outletCtxProps);
                         const add_news = async() => {
                             const docRef2 = await addDoc(collection(db, `schools/${outletCtxProps.school_select}/news`), {
                                 title: add_news_ref.current.value,

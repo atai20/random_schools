@@ -71,37 +71,39 @@ export default class App extends React.Component {
       })
   }
   emailpass_auth = async (email,pass) => {
-    await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
-      const docRef = doc(db, `users`, auth.currentUser.uid);
-      setDoc(docRef, {
-          email: email,
-          id: res.user.uid,
-          verified: res.user.emailVerified,
-          role: "regular",
-          name: null,
-          osis: null,
-          clubs: [],
-          pfp: res.user.photoURL || Defaultpfp,
-          school: 0,
-          talents: 0,
-          theme: "light",
-      }).then(() => {console.log("written")}).catch(er => {console.log(er)});
-      this.setState({logged: true});
-  }).catch((er) => {
-      const span_element = document.getElementById("spanning-error");
-      if(span_element) {
-        switch(er.code) {
-          case 'auth/email-already-in-use':
-              span_element.innerHTML = `<h1 style="color: red;">sus (email in use)</h1>`
-              break;
-          case 'auth/weak-password':
-            span_element.innerHTML = `<h1 style="color: red;">NOOOOOOOOOOOOOO goofy ass weak ass lookin password</h1>`
-          default:
-              console.log(er);
-              break;
+    if(this.checkPassword(pass)) {
+      await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
+        const docRef = doc(db, `users`, auth.currentUser.uid);
+        setDoc(docRef, {
+            email: email,
+            id: res.user.uid,
+            verified: res.user.emailVerified,
+            role: "regular",
+            name: null,
+            osis: null,
+            clubs: [],
+            pfp: res.user.photoURL || Defaultpfp,
+            school: 0,
+            talents: 0,
+            theme: "light",
+        }).then(() => {console.log("written")}).catch(er => {console.log(er)});
+        this.setState({logged: true});
+    }).catch((er) => {
+        const span_element = document.getElementById("spanning-error");
+        if(span_element) {
+          switch(er.code) {
+            case 'auth/email-already-in-use':
+                span_element.innerHTML = `<h1 style="color: red;">sus (email in use)</h1>`
+                break;
+            case 'auth/weak-password':
+              span_element.innerHTML = `<h1 style="color: red;">NOOOOOOOOOOOOOO goofy ass weak ass lookin password</h1>`
+            default:
+                console.log(er);
+                break;
+          }
         }
-      }
-  });
+    });
+    }
   }
 
   manLogin = async(email, pass) => {
@@ -194,7 +196,7 @@ export default class App extends React.Component {
   }
 
   updateUserInfo = () => {
-    console.log(this.state.school_select);
+    // console.log(this.state.school_select);
     const checkboxes = document.querySelectorAll(".clubcheck");
     let clubsArr = [];
     for(let i = 0; i < checkboxes.length; i++) {
@@ -202,38 +204,64 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
-
-    const docRef = doc(db, `users`, this.state.id);
-    try {
-      parseInt(this.getosis.current.value);
-      updateDoc(docRef, {
-        name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
-        osis: this.encrypt(this.getosis.current.value), 
-        clubs: clubsArr,
-        pfp: this.state.pfp,
-        school: parseInt((this.state.school_select)),
-      });
-      this.setState({
-        loaded: true,
-      });
-      setTimeout(() => {window.location.reload()}, 3000);
-    } catch(err) {
-      console.log("thats invalid, like you");
+    if(this.getosis.current.value.length > 0 && this.getuname.current.value.length > 0) {
+      if((/^\d+$/.test(this.getosis.current.value))) {
+        const docRef = doc(db, `users`, this.state.id);
+        updateDoc(docRef, {
+          name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
+          osis: this.encrypt(this.getosis.current.value), 
+          clubs: clubsArr,
+          pfp: this.state.pfp,
+          school: parseInt((this.state.school_select)),
+        });
+        this.setState({
+          loaded: true,
+        });
+        setTimeout(() => {window.location.reload()}, 3000);
+      } else {
+        alert("nah bro do you know what numbers look like??? put ur osis in right or u forfeit life fool");
+      }
+    } else {
+      alert("must be information entered or else you cannot be registered fool. oaf really thought they could get through with that but nah i told it straight like that");
     }
+    
   }
-  
+
+  checkPassword(pass_string) { // for registration
+    let b3 = true;
+    if(pass_string.toLowerCase() === pass_string) {
+      alert("A password is required to have at least one upper case");
+      b3 = false;
+      throw "custom_auth/require-uppercase";
+    }
+    const digit = /[0-9]/;
+    if(!digit.test(pass_string)) {
+      alert("requires at least one number");
+      b3 = false;
+      throw "custom_auth/require-number";
+    }
+    const format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    if(!format.test(pass_string)) {
+      b3 = false;
+      alert("it is required to have at least one special character");
+      throw "custom_auth/require-special-char";
+    }
+    return b3;
+  }
+
 
   render() {
+    // this.checkPassword("123456U@");
     if(this.state.loaded) {
       if(!this.state.logged) {
         return (
-          <div className="register">
+          <div className="register ctext-primary">
             <div className="overlay">
               <div className="modal_register">
                 <h3>Register</h3>
                 <input className="form-control mr-sm-2" type="email" name="email" id="email" ref={this.emailInputRef} placeholder="Email" />
                 <input className="form-control mr-sm-2" type="password" name="password" id="pass" ref={this.passwordRef} placeholder="Password" />
-                <button className="btn btn-outline-success my-2 my-sm-0" onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>Register</button>
+                <button className="btn btn-outline-success my-2 my-sm-0 ctext-primary" onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>Register</button>
                 <br />
                 <br />
                 <h3>Login</h3>
@@ -246,7 +274,7 @@ export default class App extends React.Component {
                 <br />
                 <br />
                 <p>OR</p>
-                <button className="btn btn-outline-success my-2 my-sm-0" onClick={this.anon_login}>Become anon</button>
+                {/* <button className="btn btn-outline-success my-2 my-sm-0" onClick={this.anon_login}>Become anon</button> */}
 
                 <span id="spanning-error"></span>
               </div>
@@ -354,7 +382,7 @@ export default class App extends React.Component {
             {(this.state.clubs) ?
             (this.state.clubs.length === 0) ? 
             (
-            <div id="popup-questions">
+            <div id="popup-questions" className="ctext-primary">
                 <div>BUT FIRST OSOME QUESTIONS!!</div>
                 <p>what opp (school) u a part of??</p>
                 <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
@@ -398,10 +426,8 @@ export default class App extends React.Component {
 
 </div>
             : <button onClick={this.logout}>logout 1</button>}
-
-             
             </div>
-            : <button onClick={this.logout}>logout 2</button>}
+            : <button onClick={this.logout}>logout 2</button> /*insert thousand yard stare */}
           </div>
         )
       }
@@ -425,5 +451,12 @@ TODO:
 - status updates: changing roles via email
 
 posts and articles for newcomers
+
+
+password checks:
+    At least 12 characters long or more
+    >= 1 uppercase 
+    >= 1 numbers
+    >= 1 symbols
 */
 
