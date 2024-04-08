@@ -86,17 +86,23 @@ export default class App extends React.Component {
             school: 0,
             talents: 0,
             theme: "light",
-        }).then(() => {console.log("written")}).catch(er => {console.log(er)});
+        }).then(() => {console.log("written");
+        sendEmailVerification(auth.currentUser).then(() => {
+          updateDoc(docRef, {
+            verified: true,
+          })
+        })
+      }).catch(er => {console.log(er)});
         this.setState({logged: true});
     }).catch((er) => {
         const span_element = document.getElementById("spanning-error");
         if(span_element) {
           switch(er.code) {
             case 'auth/email-already-in-use':
-                span_element.innerHTML = `<h1 style="color: red;">sus (email in use)</h1>`
+                span_element.innerHTML = `<h1 style="color: red;">Email already in use</h1>`
                 break;
             case 'auth/weak-password':
-              span_element.innerHTML = `<h1 style="color: red;">NOOOOOOOOOOOOOO goofy ass weak ass lookin password</h1>`
+              span_element.innerHTML = `<h1 style="color: red;">Weak password detected</h1>`
             default:
                 console.log(er);
                 break;

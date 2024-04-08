@@ -204,9 +204,9 @@ export default function Clubs() {
             <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
             {/* <h3><Latex displayMode={true}>$$(3\times \\frac{3}{2}) \div (5-3)$$</Latex></h3> */}
             {/* <h1><Latex displayMode={true}>{fraction}</Latex></h1> */}
-            <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
-            <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-            <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+            <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
             <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"/>
             <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
@@ -367,7 +367,7 @@ export default function Clubs() {
             <div className="override-flex">
             <div id="makepost" className="modal" tabIndex="-1" role="dialog">
             <div className="modal-dialog modal-dialog-centered" role="document">
-              <div className="modal-content">
+              <div className="modal-content cmodal-content">
                 <div className="modal-header">
                   <h5 className="modal-title cmodal-title">Make post</h5>
                   <button type="button" className="close" data-dismiss="modal" aria-label="Close">
@@ -393,7 +393,7 @@ export default function Clubs() {
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btnpost" onClick={mkPost}><FaPlus className="faplus" /> Post</button>
-                  <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" className="btn" data-dismiss="modal">Close</button>
                 </div>
               </div>
             </div>

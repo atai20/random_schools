@@ -118,10 +118,11 @@ nav {
 .text-primary {
   color: var(--desc-color) !important;
 }
-.btn {
+.cbtn {
   border: none !important;
   outline: none !important;
   background-color: var(--button-color) !important;
+  /* background-color: var(--button-color) !important; */
   color: #fafafa !important;
 }
 .progress {
@@ -150,7 +151,7 @@ nav {
   background-color: transparent !important;
   cursor: pointer;
 }
-.modal-content {
+.modal-content .cmodal-content {
   background-color: var(--other-color) !important;
   color: var(--desc-color) !important;
 }

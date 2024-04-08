@@ -59,6 +59,7 @@ export default function Profile(props) {
     }
 
     async function findUser(e) {
+      console.log("clicked");
         const q = query(collection(db, "users"), where("name", "==", userSearchRef.current.value));
         const querySnapShot = await getDocs(q);
         querySnapShot.forEach(doc => {
@@ -120,6 +121,8 @@ export default function Profile(props) {
             <img className="rounded-circle img-fluid" id="avatar_acc"src={state_ctx_props.pfp} />
               <h5 className="my-3">{state_ctx_props.username}</h5>
               <p className="mb-1 theme-text">Student</p>
+              {state_ctx_props.verified ? 
+              <p>Status: verified</p>: <p>Status: not verified</p>}
               <div className="d-flex justify-content-center mb-2">
               </div>
             </div>

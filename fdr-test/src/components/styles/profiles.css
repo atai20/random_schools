@@ -61,8 +61,8 @@ li {
 }
 
 .btnpost {
-    background-color: #98c70c;
-    color: #fff;
+    background-color: #98c70c !important;
+    color: #fff !important;
 }
 .imgofpost {
     width: 300px;
