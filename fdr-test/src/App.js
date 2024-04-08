@@ -205,7 +205,7 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
-    if(this.getosis.current.value.length > 0 && this.getuname.current.value.length > 0) {
+    if(this.getosis.current.value.length > 0) {
       if((/^\d+$/.test(this.getosis.current.value))) {
         const docRef = doc(db, `users`, this.state.id);
         updateDoc(docRef, {
@@ -344,12 +344,12 @@ export default class App extends React.Component {
             (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions" className="ctext-primary">
-                <div>BUT FIRST OSOME QUESTIONS!!</div>
-                <p>what opp (school) u a part of??</p>
+                <div>BUT FIRST SOME QUESTIONS!</div>
+                <p>what school do you go to?</p>
                 <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
                   <option value={0}></option>
-                  <option value={1}>FDR (the OG ngl)</option>
-                  <option value={2}>use api to get other school stuff ig idk</option>  
+                  <option value={1}>FDR</option>
+                  <option value={2}>Stuyvesant</option>  
                 </select>
                 <br />
                 {document.getElementById("school_select") ?

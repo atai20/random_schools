@@ -281,7 +281,7 @@ export default function Clubs() {
                                     </div>
                                     <div className="ml-2">  
                                     <div className="h5 m-0">{post.author}</div>
-                                            <div className="h7">From {post.origin} club</div>
+                                            <div className="h7">From {post.from_club} club</div>
                                     </div>
                                 </div>
                                 </div>
@@ -330,9 +330,6 @@ export default function Clubs() {
                                 <p className="card-text"><Latex displayMode={true}>{post.text}</Latex></p>
                             </div>
                             <div className="card-footer">
-                                <a href="#" className="card-link"><i className="fa fa-gittip"></i> Like</a>
-                                <a href="#" className="card-link"><i className="fa fa-comment"></i> Comment</a>
-                                <a href="#" className="card-link"><i className="fa fa-mail-forward"></i> Share</a>
                             </div>
                         </div>   
                             ))}
