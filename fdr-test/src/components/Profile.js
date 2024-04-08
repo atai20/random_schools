@@ -124,32 +124,7 @@ export default function Profile(props) {
               </div>
             </div>
           </div>
-          <div className="card mb-4 mb-lg-0 ">
-            <div className="card-body p-0">
-              <ul className="list-group list-group-flush rounded-3 list-unstyled">
-                <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                  <i className="fas fa-globe fa-lg text-warning"></i>
-                  <p className="mb-0">https://mdbootstrap.com</p>
-                </li>
-                <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                  <i className="fab fa-github fa-lg" ></i>
-                  <p className="mb-0">mdbootstrap</p>
-                </li>
-                <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                  <i className="fab fa-twitter fa-lg" ></i>
-                  <p className="mb-0">@mdbootstrap</p>
-                </li>
-                <li className="list-group-itemF d-flex justify-content-between align-items-center p-3">
-                  <i className="fab fa-instagram fa-lg" ></i>
-                  <p className="mb-0">mdbootstrap</p>
-                </li>
-                <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                  <i className="fab fa-facebook-f fa-lg" ></i>
-                  <p className="mb-0">mdbootstrap</p>
-                </li>
-              </ul>
-            </div>
-          </div>
+      
         </div>
 
 
@@ -203,67 +178,11 @@ export default function Profile(props) {
                 <div className="card-body">
                   <p className="mb-4"><span className="font-italic me-1 ctext-primary"></span> You don't yet have any projects or challenges!
                   </p>
-                  <p className="mb-1"  id="style_acc">Web Design</p>
-                  <div className="progress rounded" id="style_acc_ch" >
-                    <div className="progress-bar" id="style_acc_g_ch1" role="progressbar" aria-valuenow="80"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <p className="mt-4 mb-1" id="style_acc">Website Markup</p>
-                  <div className="progress rounded" id="style_acc_ch">
-                    <div className="progress-bar" id="style_acc_g_ch2" role="progressbar"  aria-valuenow="72"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <p className="mt-4 mb-1" id="style_acc">One Page</p>
-                  <div className="progress rounded"id="style_acc_ch" >
-                    <div className="progress-bar" id="style_acc_g_ch3" role="progressbar"  aria-valuenow="89"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <p className="mt-4 mb-1" id="style_acc">Mobile Template</p>
-                  <div className="progress rounded" id="style_acc_ch">
-                    <div className="progress-bar" id="style_acc_g_ch4" role="progressbar"  aria-valuenow="55"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <p className="mt-4 mb-1" id="style_acc">Backend API</p>
-                  <div className="progress rounded mb-2" id="style_acc_ch">
-                    <div className="progress-bar" id="style_acc_g_ch5" role="progressbar" aria-valuenow="66"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
+            
                 </div>
               </div>
             </div>
-            <div className="col-md-6">
-              <div className="card mb-4 mb-md-0">
-                <div className="card-body">
-                  <p className="mb-4"><span className="font-italic me-1 ctext-primary">assigment</span> Project Status
-                  </p>
-                  <p className="mb-1" id="style_acc">Web Design</p>
-                  <div className="progress rounded"id="style_acc_ch">
-                    <div className="progress-bar" role="progressbar" id="style_acc_g_ch1"aria-valuenow="80"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <p className="mt-4 mb-1"id="style_acc">Website Markup</p>
-                  <div className="progress rounded" id="style_acc_ch">
-                    <div className="progress-bar" role="progressbar" id="style_acc_g_ch2" aria-valuenow="72"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <p className="mt-4 mb-1"id="style_acc">One Page</p>
-                  <div className="progress rounded" id="style_acc_ch">
-                    <div className="progress-bar" role="progressbar" id="style_acc_g_ch3" aria-valuenow="89"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <p className="mt-4 mb-1" id="style_acc">Mobile Template</p>
-                  <div className="progress rounded" id="style_acc_ch">
-                    <div className="progress-bar" role="progressbar" id="style_acc_g_ch4"aria-valuenow="55"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <p className="mt-4 mb-1"id="style_acc">Backend API</p>
-                  <div className="progress rounded mb-2" id="style_acc_ch">
-                    <div className="progress-bar" role="progressbar" id="style_acc_g_ch5" aria-valuenow="66"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+           
           </div>
         </div>
       </div>
@@ -278,7 +197,7 @@ export default function Profile(props) {
                 <p>Update Profile Image: <input type="file" accept="image/png, image/jpeg" onChange={handleImage} /> </p>
                 {state_ctx_props.role === "site_admin" ? (
                     <div>
-                        <h1>Give some social credit</h1>
+                      
                         <input ref={userSearchRef} type="text" className="form-control" placeholder="Find user" />
                         <button onClick={findUser} className="btn">Find user</button>
                         <button onClick={resetSearch} className="btn">Clear </button>

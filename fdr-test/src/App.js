@@ -320,9 +320,8 @@ export default class App extends React.Component {
 
     </ul>
     <form classNameName="form-inline my-2 my-lg-0">
-      <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>
-      <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-      <a href="#"><img class ="nav-avatar" src={this.state.pfp}/></a>
+    
+    
       <span className="nav-talents">{this.state.talents}</span>
       <img className ="nav-coin" src={require('./main_pub/star.png')}/>
     </form>

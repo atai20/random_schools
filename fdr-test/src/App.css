@@ -11,6 +11,7 @@ html, body, .register, .register>div {
   width: 100%;
   height: 100%;
 }
+
 .overlay {
   width: 100%;
   height: 100%;
@@ -165,7 +166,9 @@ nav {
 }
 .render-challenge {
   /* position: absolute; */
-  background-color: #041f3c;
+  background-color: hsl(211, 100%, 84%);
+  border-style: solid;
+  
   border-radius: 8px;
   padding: 10px;
 }

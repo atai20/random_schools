@@ -3,7 +3,7 @@ import { Link, Outlet, useOutletContext } from "react-router-dom";
 import firebase from 'firebase/compat/app';
 import { getApp } from "firebase/app";
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
-
+import { useRive } from '@rive-app/react-canvas';
 import { getFirestore, collection, getDocs, addDoc, query,getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
@@ -39,15 +39,19 @@ class Landing extends React.Component {
         return (
             <div className="landing">
                 <button onClick={this.logout} className="btn">logout landing</button>
-                <p className="text-primary">you made it...</p>
-                <Link to={"/profile"} className="text-primary">go to ur profile</Link>
+            
+          
                 
                 <OutletProvider>
                     {(outletCtxProps) => {
                         const [news_text, setNews] = useState([]);
                         let imgs_t = [];
                         let news_t = [];
-                
+                        const { rive, RiveComponent } = useRive({
+                          src: 'firey.riv',
+                          stateMachines: "State Machine 1",
+                        autoplay: true,
+                        });
                         const ctxprops = useOutletContext();
                         const [img, setImg] = useState([]);
                         const add_news_ref = useRef("");
@@ -97,7 +101,12 @@ class Landing extends React.Component {
                         return (
                         
                         <div>
-
+<div class="d-flex">
+ <div class="d-inline-block"><RiveComponent style={{height:"400px", width:"500px"}}/></div>
+ <div class="d-inline-block"> <div class="chat">
+    Hello! My name is Firey
+    </div> </div>
+</div>
 {/* <form>
   <div class="form-row">
     <div class="form-group col-md-6">
@@ -154,34 +163,7 @@ class Landing extends React.Component {
   </div>
   <button type="submit" class="btn btn-primary" onClick={this.create_post}>Sign in</button>
 </form> */}
-<div className="main-form">
-<h1 className="text-primary">Add news</h1>
-  <div className="form-row">
-    <div className="form-group col-md-6">
-      <label htmlFor="inputEmail4" className="text-primary">Title</label>
-      <input className="form-control" ref={add_news_ref} id="inputEmail4" placeholder="Title"/>
-      <label htmlFor="postbox" className="text-primary">Content</label><br />
-      <textarea ref={text_news_ref} placeholder="Write here..." className="form-control"></textarea>
-    </div>
-</div>
-  <div className="form-group">
-    <div className="form-check">
-      select images<br/>
-      <input className="form-check-input" onChange={uploadImage} type="file" id="gridCheck"/>
-    </div>
-  </div>
-  <button  className="btn btn-primary" onClick={add_news}>Sign in</button>
-  
-</div>
-  {news_text.map((data) => (
- <div>
 
-   {data.title}<br></br>
- {data.text}
-
- </div>
-
-))}
 
 {/* <h1>Add school</h1>
 <form>
