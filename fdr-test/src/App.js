@@ -88,9 +88,9 @@ export default class App extends React.Component {
             theme: "light",
         }).then(() => {console.log("written");
         sendEmailVerification(auth.currentUser).then(() => {
-          updateDoc(docRef, {
-            verified: true,
-          })
+          // updateDoc(docRef, {
+          //   verified: true,
+          // })
         })
       }).catch(er => {console.log(er)});
         this.setState({logged: true});
@@ -122,7 +122,7 @@ export default class App extends React.Component {
       if(document.getElementById("spanning-error")) {
         switch(err.code) {
           case 'auth/invalid-credential':
-            document.getElementById("spanning-error").innerHTML = `<h1 style="color: red;">goofy ahh password and email</h1>` //might change later (google innterHTML vulnerabilities)
+            document.getElementById("spanning-error").innerHTML = `<h1 style="color: red;">wrong pass or email</h1>` //might change later (google innterHTML vulnerabilities)
             break;
           default:
             break;
@@ -226,10 +226,10 @@ export default class App extends React.Component {
         });
         setTimeout(() => {window.location.reload()}, 3000);
       } else {
-        alert("nah bro do you know what numbers look like??? put ur osis in right or u forfeit life fool");
+        alert("incorrect format");
       }
     } else {
-      alert("must be information entered or else you cannot be registered fool. oaf really thought they could get through with that but nah i told it straight like that");
+      alert("error");
     }
     
   }
@@ -362,11 +362,11 @@ export default class App extends React.Component {
                   <div>
                     {this.state.username === null && this.state.osis === null ? (
                     <div>
-                        <p>what is name bruh</p>
+                        <p>Name</p>
                         <input type="text" placeholder="name" ref={this.getuname} />
                     </div>
                     ) : null}
-                    <p>what is your osis numbre (student id) hint : check your id card or smth</p>
+                    <p>OSIS</p>
                     <input type="text" placeholder="osis" ref={this.getosis} />
                     <p>clubs you in???</p>
                     {/* <select> */}
@@ -376,7 +376,7 @@ export default class App extends React.Component {
                     <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
                     <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
     
-                    <p>upload image (or use default idc)</p>
+                    <p>upload image (or use default)</p>
                     <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
     
                     <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
