@@ -187,12 +187,7 @@ abbr[title] {
   position: relative;
   }
  
-  .name_col1{
-    border-top-left-radius:12px;
-  }
-  .name_col2{
-    border-top-right-radius:12px;
-  }
+
 .table{
   width:50%;
   max-width:50%;

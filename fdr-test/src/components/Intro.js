@@ -9,19 +9,16 @@ export default function Intro() {
     const { rive, RiveComponent } = useRive({
       src: 'firey.riv',
       stateMachines: "State Machine 1",
-    autoplay: false,
+    autoplay: true,
     });
   
     return (
    
 
 <div class="d-flex">
- <div class="d-inline-block"><RiveComponent style={{height:"400px", width:"500px"}}
-        onMouseEnter={() => rive && rive.play()}
-   
-      /></div>
+ <div class="d-inline-block"><RiveComponent style={{height:"400px", width:"500px"}}/></div>
  <div class="d-inline-block"> <div class="chat">
-    Hello gays
+    Hello everyone! I'm Firey!
     </div> </div>
 </div>
 

@@ -10,10 +10,8 @@ import About from "./components/About";
 import Profile from "./components/Profile";
 import Clubs from "./components/Clubs";
 import Intro from "./components/Intro";
-<<<<<<< Updated upstream
-=======
+import Cookie from "./components/Cookie";
 import Calendar from "./components/Scheduler";
->>>>>>> Stashed changes
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Scheduler from './components/Scheduler';
 
@@ -44,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: "/calendar",
         element: <Scheduler />,
+      },
+      {
+        path: "/cookie",
+        element: <Cookie />,
       },
       {
         path: "/about",

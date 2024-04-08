@@ -1,18 +1,9 @@
+import React, {useState, useEffect, useRef} from "react";
 import App from './../App';
 import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import "../App.css";
 
-export default class Calendar extends App {
-    constructor(props) {
-        super(props);
-        // this.state = {}
-    }
-    show_posts() {
-       
-
-      }
-    render() {
-        
+export default function Cookie() {
         return (
             
             <div>
@@ -36,13 +27,13 @@ export default class Calendar extends App {
 <br/>As you start learning the basics, let us introduce you to the main idea of this website. Our project not only serves as a tool for schools to help with organization of clubs, sports events and other extracurricular activities but also a guideline for international students as well as helpful forums from those who had the same situation. Here a parent can be sure that no matter how suddenly a student transferred to another school or even just came to the United States, the child will always have a place where to start the process. This way the child will have the same chances as in-state students to get into a prestigious college, without any barriers. With a comfortable step by step guideline for people from all over the World, no matter what language they use.
 <br/>As students use the application, they can gather in-site units of progress after accomplishing tasks from their group leaders. Each task has its due date, but they do not have the same importance as homework and are <code class="small">not</code> mandatory. After getting units, students are marked on a day leaderboard of students from different schools according to how much they earned in a particular day. Group leaders for clubs are elected each month, their profiles will be seen for all of the students inside the club. The same works for the president of the school, this way the person students are electing for will be much more transparent for all of the students in school.
 (I guess we’ll add this later) Students signing up for clubs do not have to attend all the meetings, but their attendance will be seen for them only in the profile page. Any user including teachers or club leaders can observe the challenges and events hosted by their clubs or sports teams in an interactive calendar. In the main page Students will be able to observe <code class="small">opportunities</code> hosted by verified organizations according to interests of a particular student. The organizations will have to pay fixed fee in order to be on posts page for Students.</p>
-        <p className='ctext-primary'>please <a href="ataikyd@gmail.com" className='ctext-primary'>contact</a> us if you have any questions.</p>
+        <p className='ctext-primary'>please <a href="https://v5.getbootstrap.com/docs/5.0/examples/sticky-footer/" className='ctext-primary'>contact</a> us if you have any questions.</p>
     </div>
 </main>
 
 <footer class="footer mt-auto py-3 bg-light">
     <div class="container">
-        <span class="text-muted">Privacy policy</span>
+        <span class="text-muted">Privacy policy stuff.©</span>
     </div>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-alpha3/js/bootstrap.min.js"></script>
@@ -52,7 +43,7 @@ export default class Calendar extends App {
 
             
         );
-    }
+    
 }
 
 

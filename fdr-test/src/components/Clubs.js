@@ -233,9 +233,8 @@ export default function Clubs() {
                     <div class="col-md-3">
                         <div class="card">
                             <div class="card-body">
-                                <div class="h5">Social credit today: 23</div>
-                                <div class="h7 text-muted">Party +respect</div>
-                                <a href="https://www.youtube.com/watch?v=A9nvxjUi7Mo">who?</a>
+                                <div class="h5">Talents harvested: 23</div>
+                                <div class="h7 text-muted">Today</div>
                                 <div class="h7">description of the last results from leader of club
                                 </div>
                             </div>
@@ -248,7 +247,7 @@ export default function Clubs() {
                                     <div class="h6 text-muted">Competitions</div>
                                     <div class="h5">4</div>
                                 </li>
-                                <li class="list-group-item">main goal of user</li>
+                                <li class="list-group-item">main goal: Solve the 10th problem of 2023 DMI(for math team)</li>
 
                             </ul>
                         </div>
@@ -340,50 +339,7 @@ export default function Clubs() {
                     </div>
                     )
                     })}
-                    <div className="card gedf-card">
-                        <div className="card-header">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <div className="mr-2">
-                                        <img className="rounded-circle" width="45" src="https://picsum.photos/50/50" alt=""/>
-                                    </div>
-                                    <div className="ml-2">
-                                        <div className="h5 m-0">Social credit for today: 23</div>
-                                        <div className="h7 text-muted">+miska ris</div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="dropdown">
-                                        <button className="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i className="fa fa-ellipsis-h"></i>
-                                        </button>
-                                        <div className="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                            <div className="h6 dropdown-header">Configuration</div>
-                                            <a className="dropdown-item" href="#">Save</a>
-                                            <a className="dropdown-item" href="#">Hide</a>
-                                            <a className="dropdown-item" href="#">Report</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    <div className="card-body cbg">
-                        <div className="text-muted h7 mb-2"> <i className="fa fa-clock-o"></i>10 min ago</div>
-                        <a className="card-link" href="#">
-                            <h5 className="card-title">That's how it all should look like</h5>
-                        </a>
-
-                        <p className="card-text">
-                            Yep exactly like that
-                        </p>
-                    </div>
-                    <div className="card-footer">
-                        <a href="#" className="card-link"><i className="fa fa-gittip"></i> Like</a>
-                        <a href="#" className="card-link"><i className="fa fa-comment"></i> Comment</a>
-                        <a href="#" className="card-link"><i className="fa fa-mail-forward"></i> Share</a>
-                    </div>
-                </div>
+             
             </div>
             <div className="col-md-3">
                 <div className="card gedf-card">

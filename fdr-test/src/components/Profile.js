@@ -8,8 +8,7 @@ import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
 
-import NoCred from "../lose_social_credit.jpeg";
-import GotCred from "../social-credit.jpg";
+
 
 import "../App.css";
 
@@ -121,9 +120,7 @@ export default function Profile(props) {
             <img className="rounded-circle img-fluid" id="avatar_acc"src={state_ctx_props.pfp} />
               <h5 className="my-3">{state_ctx_props.username}</h5>
               <p className="mb-1 theme-text">Student</p>
-              <p className="mb-4 theme-text">Bay Area, San Francisco, CA</p>
               <div className="d-flex justify-content-center mb-2">
-                <button type="button" className="btn btn-primary">check school</button>
               </div>
             </div>
           </div>
@@ -142,7 +139,7 @@ export default function Profile(props) {
                   <i className="fab fa-twitter fa-lg" ></i>
                   <p className="mb-0">@mdbootstrap</p>
                 </li>
-                <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                <li className="list-group-itemF d-flex justify-content-between align-items-center p-3">
                   <i className="fab fa-instagram fa-lg" ></i>
                   <p className="mb-0">mdbootstrap</p>
                 </li>
@@ -197,21 +194,14 @@ export default function Profile(props) {
                 </div>
               </div>
               
-              <div className="row">
-                <div className="col-sm-3">
-                  <p className="mb-0">Address</p>
-                </div>
-                <div className="col-sm-9">
-                  <p className="mb-0 theme-text">Bay Area, San Francisco, CA</p>
-                </div>
-              </div>
+         
             </div>
           </div>
           <div className="row">
             <div className="col-md-6">
               <div className="card mb-4 mb-md-0">
                 <div className="card-body">
-                  <p className="mb-4"><span className="font-italic me-1 ctext-primary">assigment</span> Project Status
+                  <p className="mb-4"><span className="font-italic me-1 ctext-primary"></span> You don't yet have any projects or challenges!
                   </p>
                   <p className="mb-1"  id="style_acc">Web Design</p>
                   <div className="progress rounded" id="style_acc_ch" >
@@ -304,7 +294,7 @@ export default function Profile(props) {
                                 </div>
                             )} )}
                         </div>
-                        : <p>arr is empoly</p>} {/* WHY WAS THIS REMOVED????????????????????????????/ */}
+                        : <p>arr is empoly</p>} {/* / */}
                     </div>
                 ) : null}
                 <button onClick={logout} className="btn">Logout</button>

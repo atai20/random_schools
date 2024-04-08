@@ -92,16 +92,15 @@ function Scheduler() {
           <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
      
           <link href="css/styles.css" rel="stylesheet" />
-<<<<<<< Updated upstream
-        <h1 className='text-center ctext-primary'>Calendar</h1>
-        <div className='calendar-container' style={{width: '100%', height: 'auto'}} >
-          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary" />
-=======
+
+        
+      
+
         <h1 className='text-center ctext-primary'><div className='nunito-all'>Challenges and plans</div></h1>
         <div className='nunito-all'>*Select the date to see if there is a challange for the day</div>
         <div className='calendar-container' >
           <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary"/>
->>>>>>> Stashed changes
+
 
           {cbtn !== "" ? 
           <div className='render-challenge-temp' >
@@ -130,36 +129,11 @@ function Scheduler() {
           </div>
           :null}
           
-        <p className='text-center ctext-primary'>
-          <span className='bold'>Selected Date:</span>
-          {/* {currdate.getDate()} bruh */}
-        </p>
+   
         </div>
-        <div className='leaderboard ctext-primary'>Leaderboard and stuff
-<<<<<<< Updated upstream
-        {board.map((obj, index) => {
-          if(index === 0) {
-            return (
-              <div className='ctext-primary card leaderboard-display first-placer'>
-            <h3>{index+1} <span>name: {obj.name}</span> <span className='ctext-primary score-span'>score: {obj.talents}</span></h3>
-          </div>
-            );
-          } else if(index % 2 === 0) {
-            return (
-              <div className='ctext-primary card leaderboard-display even'>
-                <h3>{index+1} <span>name: {obj.name}</span> <span className='ctext-primary score-span'>score: {obj.talents}</span></h3>
-              </div>
-            )
-          } else {
-            return (
-              <div className='ctext-primary card leaderboard-display odd'>
-            
-            <h3>{index+1} <span>name: {obj.name}</span> <span className='ctext-primary score-span'>score: {obj.talents}</span></h3>
-          </div>
-            )
-          }
-        })}
-=======
+        <div className='leaderboard-display'>Leaderboard
+
+
         <table class="table" id="leaders">
   <thead class="thead-dark">
     <tr>
@@ -177,9 +151,9 @@ function Scheduler() {
         ))}
         </tbody>
 </table>
->>>>>>> Stashed changes
-        
+
         </div>
+        
     </div>
     );
   }

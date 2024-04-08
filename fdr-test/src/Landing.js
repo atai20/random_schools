@@ -1,10 +1,15 @@
 import React, {Component, useRef, useState} from "react";
 import { Link, Outlet, useOutletContext } from "react-router-dom"; 
 import firebase from 'firebase/compat/app';
+import { getApp } from "firebase/app";
+import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
+
 import { getFirestore, collection, getDocs, addDoc, query,getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
 import "./App.css";
+
+const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 
 const OutletProvider = ({children}) => {
     const ctx = useOutletContext();
@@ -39,19 +44,39 @@ class Landing extends React.Component {
                 
                 <OutletProvider>
                     {(outletCtxProps) => {
-                         const [news_text, setNews] = useState([]);
-                        
-                         let news_t = [];
- 
- 
-                         const add_news_ref = useRef("");
+                        const [news_text, setNews] = useState([]);
+                        let imgs_t = [];
+                        let news_t = [];
+                
+                        const ctxprops = useOutletContext();
+                        const [img, setImg] = useState([]);
+                        const add_news_ref = useRef("");
                         const text_news_ref = useRef("");
+                        async function uploadImage(e) {
+                          for(let i = 0; i < e.target.files.length; i++) {
+                              const storageRef = ref(storage, `images/${ctxprops.id}/${e.target.files[i].name}`);
+                              const uploadTask = uploadBytesResumable(storageRef, e.target.files[i]);
+                              await uploadTask.on('state_changed', (snap) => {
+                                  if(snap.state === "running") {
+                                  console.log(snap.state);
+                                  }
+                              }, (err) => {
+                                  console.log("error upload");
+                              }, () => {
+                                  getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                                      imgs_t.push(url);
+                                  })
+                              });
+                          }
+                          setImg(imgs_t);
+                      }
+
                         // console.log(outletCtxProps);
                         const add_news = async() => {
                             const docRef2 = await addDoc(collection(db, `schools/${outletCtxProps.school_select}/news`), {
                                 title: add_news_ref.current.value,
                               text: text_news_ref.current.value,
-            
+                              img:img,
                               date: serverTimestamp()
                             });
                             add_news_ref.current.value = "";
@@ -141,19 +166,12 @@ class Landing extends React.Component {
 </div>
   <div className="form-group">
     <div className="form-check">
-      <input className="form-check-input" type="checkbox" id="gridCheck"/>
-      <label className="form-check-label text-primary" for="gridCheck" >
-        Check me out (what does this do?????)
-      </label>
-    </div>
-  </div>
-  <div className="form-group">
-    <div className="form-check">
       select images<br/>
-      <input className="form-check-input" type="file" id="gridCheck"/>
+      <input className="form-check-input" onChange={uploadImage} type="file" id="gridCheck"/>
     </div>
   </div>
-  <button  class="btn btn-primary" onClick={add_news}>Sign in</button>
+  <button  className="btn btn-primary" onClick={add_news}>Sign in</button>
+  
 </div>
   {news_text.map((data) => (
  <div>
