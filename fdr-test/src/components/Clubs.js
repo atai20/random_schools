@@ -157,7 +157,8 @@ export default function Clubs() {
             posts: selposts[parseInt(club_index)]
         });
         setTimeout(() => {
-            window.location.reload();
+            // window.location.reload();
+            getPosts();
         },3000);
     }
     async function deletePost(postId) { //e.g postid-math:0,0

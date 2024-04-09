@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from "react";
-import App from './../App';
+// import App from './../App';
 import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import "../App.css";
 
