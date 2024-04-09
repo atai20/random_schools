@@ -122,7 +122,7 @@ export default function Clubs() {
                     "content": contentRef.current.value,
                     "title": titleRef.current.value,
                     "due_date": convertToPOSIX(),
-                    "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //change later
+                    "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`,
                     "status": "active"
                 })
             }
@@ -130,7 +130,7 @@ export default function Clubs() {
             console.log(contentRef.current.value);
             console.log(titleRef.current.value);
         }
-        setTimeout(() => {window.location.reload();},3000);    
+        setTimeout(() => {getPosts(); },3000);    
     }
     const [editId, setEditId] = useState("");
     async function editPost(postId) {
@@ -266,7 +266,7 @@ export default function Clubs() {
                                 <div key={i} className="d-flex justify-content-between align-items-center">
                                     {ctxprops.role === "site_admin" || ctxprops.id === post.author_id ? 
                                     <div className="dropdown">
-                                        <button className="btn btn-link dropdown-toggle" id={"btnid-"+index.toString()+":"+i.toString()} onClick={indToggle} > {/*gedf-drop1  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"*/}
+                                        <button className=" cbtn btn-link dropdown-toggle" id={"btnid-"+index.toString()+":"+i.toString()} onClick={indToggle} > {/*gedf-drop1  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"*/}
                                             <FaEllipsisH className="svg-menu" id={"btnid-"+index.toString()+":"+i.toString()} onClick={indToggle} />
                                         </button>
                                         {toggle === ("btnid-"+index.toString()+":"+i.toString()) ? 

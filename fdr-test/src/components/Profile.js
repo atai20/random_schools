@@ -219,7 +219,7 @@ export default function Profile(props) {
                         : <p>arr is empoly</p>} {/* / */}
                     </div>
                 ) : null}
-                <button onClick={logout} className="btn">Logout</button>
+                <button onClick={logout} className="btn cbtn">Logout</button>
             </div>
 
     </div>
