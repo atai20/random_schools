@@ -55,6 +55,7 @@ export default class App extends React.Component {
               pfp: res.user.photoURL || Defaultpfp,
               school: 0,
               talents: 0,
+              theme: "light"
             });
             this.setState({logged: true});
             this.fetchData();
@@ -70,36 +71,45 @@ export default class App extends React.Component {
       })
   }
   emailpass_auth = async (email,pass) => {
-    await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
-      const docRef = doc(db, `users`, auth.currentUser.uid);
-      setDoc(docRef, {
-          email: email,
-          id: res.user.uid,
-          verified: res.user.emailVerified,
-          role: "regular",
-          name: null,
-          osis: null,
-          clubs: [],
-          pfp: res.user.photoURL || Defaultpfp,
-          school: 0,
-          talents: 0,
-      }).then(() => {console.log("written")}).catch(er => {console.log(er)});
-      this.setState({logged: true});
-  }).catch((er) => {
-      const span_element = document.getElementById("spanning-error");
-      if(span_element) {
-        switch(er.code) {
-          case 'auth/email-already-in-use':
-              span_element.innerHTML = `<h1 style="color: red;">sus (email in use)</h1>`
-              break;
-          case 'auth/weak-password':
-            span_element.innerHTML = `<h1 style="color: red;">NOOOOOOOOOOOOOO goofy ass weak ass lookin password</h1>`
-          default:
-              console.log(er);
-              break;
+    if(this.checkPassword(pass)) {
+      await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
+        const docRef = doc(db, `users`, auth.currentUser.uid);
+        setDoc(docRef, {
+            email: email,
+            id: res.user.uid,
+            verified: res.user.emailVerified,
+            role: "regular",
+            name: null,
+            osis: null,
+            clubs: [],
+            pfp: res.user.photoURL || Defaultpfp,
+            school: 0,
+            talents: 0,
+            theme: "light",
+        }).then(() => {console.log("written");
+        sendEmailVerification(auth.currentUser).then(() => {
+          // updateDoc(docRef, {
+          //   verified: true,
+          // })
+        })
+      }).catch(er => {console.log(er)});
+        this.setState({logged: true});
+    }).catch((er) => {
+        const span_element = document.getElementById("spanning-error");
+        if(span_element) {
+          switch(er.code) {
+            case 'auth/email-already-in-use':
+                span_element.innerHTML = `<h1 style="color: red;">Email already in use</h1>`
+                break;
+            case 'auth/weak-password':
+              span_element.innerHTML = `<h1 style="color: red;">Weak password detected</h1>`
+            default:
+                console.log(er);
+                break;
+          }
         }
-      }
-  });
+    });
+    }
   }
 
   manLogin = async(email, pass) => {
@@ -112,7 +122,7 @@ export default class App extends React.Component {
       if(document.getElementById("spanning-error")) {
         switch(err.code) {
           case 'auth/invalid-credential':
-            document.getElementById("spanning-error").innerHTML = `<h1 style="color: red;">goofy ahh password and email</h1>` //might change later (google innterHTML vulnerabilities)
+            document.getElementById("spanning-error").innerHTML = `<h1 style="color: red;">wrong pass or email</h1>` //might change later (google innterHTML vulnerabilities)
             break;
           default:
             break;
@@ -141,6 +151,7 @@ export default class App extends React.Component {
           verified: data.data().verified,
           school_select: data.data().school,
           talents: data.data().talents,
+          theme: data.data().theme,
         });
       } 
     });
@@ -169,6 +180,7 @@ export default class App extends React.Component {
     })
   }
   handleImage = (event) => {
+    
     const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
     const uploadTask = uploadBytesResumable(storageRef, event.target.files[0]);
     uploadTask.on('state_changed', (snap) => {
@@ -191,7 +203,7 @@ export default class App extends React.Component {
   }
 
   updateUserInfo = () => {
-    console.log(this.state.school_select);
+    // console.log(this.state.school_select);
     const checkboxes = document.querySelectorAll(".clubcheck");
     let clubsArr = [];
     for(let i = 0; i < checkboxes.length; i++) {
@@ -199,38 +211,64 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
-
-    const docRef = doc(db, `users`, this.state.id);
-    try {
-      parseInt(this.getosis.current.value);
-      updateDoc(docRef, {
-        name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
-        osis: this.encrypt(this.getosis.current.value), 
-        clubs: clubsArr,
-        pfp: this.state.pfp,
-        school: parseInt((this.state.school_select)),
-      });
-      this.setState({
-        loaded: true,
-      });
-      setTimeout(() => {window.location.reload()}, 3000);
-    } catch(err) {
-      console.log("thats invalid, like you");
+    if(this.getosis.current.value.length > 0) {
+      if((/^\d+$/.test(this.getosis.current.value))) {
+        const docRef = doc(db, `users`, this.state.id);
+        updateDoc(docRef, {
+          name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
+          osis: this.encrypt(this.getosis.current.value), 
+          clubs: clubsArr,
+          pfp: this.state.pfp,
+          school: parseInt((this.state.school_select)),
+        });
+        this.setState({
+          loaded: true,
+        });
+        setTimeout(() => {window.location.reload()}, 3000);
+      } else {
+        alert("incorrect format");
+      }
+    } else {
+      alert("error");
     }
+    
   }
-  
+
+  checkPassword(pass_string) { // for registration
+    let b3 = true;
+    if(pass_string.toLowerCase() === pass_string) {
+      alert("A password is required to have at least one upper case");
+      b3 = false;
+      throw "custom_auth/require-uppercase";
+    }
+    const digit = /[0-9]/;
+    if(!digit.test(pass_string)) {
+      alert("requires at least one number");
+      b3 = false;
+      throw "custom_auth/require-number";
+    }
+    const format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    if(!format.test(pass_string)) {
+      b3 = false;
+      alert("it is required to have at least one special character");
+      throw "custom_auth/require-special-char";
+    }
+    return b3;
+  }
+
 
   render() {
+    // this.checkPassword("123456U@");
     if(this.state.loaded) {
       if(!this.state.logged) {
         return (
-          <div className="register">
+          <div className="register ctext-primary">
             <div className="overlay">
               <div className="modal_register">
                 <h3>Register</h3>
                 <input className="form-control mr-sm-2" type="email" name="email" id="email" ref={this.emailInputRef} placeholder="Email" />
                 <input className="form-control mr-sm-2" type="password" name="password" id="pass" ref={this.passwordRef} placeholder="Password" />
-                <button className="btn btn-outline-success my-2 my-sm-0" onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>Register</button>
+                <button className="btn btn-outline-success my-2 my-sm-0 ctext-primary" onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>Register</button>
                 <br />
                 <br />
                 <h3>Login</h3>
@@ -240,21 +278,26 @@ export default class App extends React.Component {
                 <span>OR</span><br />
                 <button onClick={this.google_auth} className="glogo"><img src={Glogo} width={50} height={50}/> login with google</button>
                 <br />
-                <br />
-                <br />
-                <p>OR</p>
-                <button className="btn btn-outline-success my-2 my-sm-0" onClick={this.anon_login}>Become anon</button>
+              
+             
+                {/* <button className="btn btn-outline-success my-2 my-sm-0" onClick={this.anon_login}>Become anon</button> */}
 
                 <span id="spanning-error"></span>
               </div>
             </div>
+            <form>
+ 
+ 
+  <button type="submit" class="btn btn-primary">Sign in</button>
+</form>
           </div>
         );
       } else {
-        console.log(this.state);
         return (
           <div>
-             <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                             <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,678;1,678&display=swap" rel="stylesheet"></link>         <nav className="navbar navbar-expand-lg navbar-light custom">
   <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
   <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span className="navbar-toggler-icon"></span>
@@ -263,16 +306,19 @@ export default class App extends React.Component {
   <div className="collapse navbar-collapse" id="navbarSupportedContent">
     <ul className="navbar-nav mr-auto">
       <li className="nav-item active">
-        <Link className="nav-link" to={"/"}>Home <span className="sr-only">(current)</span></Link>
+        <Link className="nav-link" to={"/"}><div className="nunito-header">Home</div> <span className="sr-only">(current)</span></Link>
       </li>
       <li className="nav-item">
-        <a className="nav-link" href="#">Clubs</a>
+        <Link className="nav-link" to={"/clubs"}>Clubs</Link>
       </li>
       <li className="nav-item">
-        <a className="nav-link" href="#">School</a>
+      <Link className="nav-link" to={"/schools"}>School</Link>
       </li>
       <li className="nav-item">
-        <a className="nav-link" href="#">Calendar</a>
+      <Link className="nav-link" to={"/calendar"}>Calendar</Link>
+      </li>
+      <li className="nav-item">
+      <Link className="nav-link" to={"/about"}>About</Link>
       </li>
       <li className="nav-item">
         <Link className="nav-link" to={"/profile"}>Profile</Link>
@@ -280,9 +326,8 @@ export default class App extends React.Component {
 
     </ul>
     <form classNameName="form-inline my-2 my-lg-0">
-      <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>
-      <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-      <a href="#"><img class ="nav-avatar" src={this.state.pfp}/></a>
+    
+    
       <span className="nav-talents">{this.state.talents}</span>
       <img className ="nav-coin" src={require('./main_pub/star.png')}/>
     </form>
@@ -303,13 +348,13 @@ export default class App extends React.Component {
             {(this.state.clubs) ?
             (this.state.clubs.length === 0) ? 
             (
-            <div id="popup-questions">
-                <div>BUT FIRST OSOME QUESTIONS!!</div>
-                <p>what opp (school) u a part of??</p>
+            <div id="popup-questions" className="ctext-primary">
+                <div>BUT FIRST SOME QUESTIONS!</div>
+                <p>what school do you go to?</p>
                 <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
                   <option value={0}></option>
-                  <option value={1}>FDR (the OG ngl)</option>
-                  <option value={2}>use api to get other school stuff ig idk</option>  
+                  <option value={1}>FDR</option>
+                  <option value={2}>Stuyvesant</option>  
                 </select>
                 <br />
                 {document.getElementById("school_select") ?
@@ -317,11 +362,11 @@ export default class App extends React.Component {
                   <div>
                     {this.state.username === null && this.state.osis === null ? (
                     <div>
-                        <p>what is name bruh</p>
+                        <p>Name</p>
                         <input type="text" placeholder="name" ref={this.getuname} />
                     </div>
                     ) : null}
-                    <p>what is your osis numbre (student id) hint : check your id card or smth</p>
+                    <p>OSIS</p>
                     <input type="text" placeholder="osis" ref={this.getosis} />
                     <p>clubs you in???</p>
                     {/* <select> */}
@@ -331,7 +376,7 @@ export default class App extends React.Component {
                     <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
                     <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
     
-                    <p>upload image (or use default idc)</p>
+                    <p>upload image (or use default)</p>
                     <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
     
                     <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
@@ -347,10 +392,8 @@ export default class App extends React.Component {
 
 </div>
             : <button onClick={this.logout}>logout 1</button>}
-
-             
             </div>
-            : <button onClick={this.logout}>logout 2</button>}
+            : <button onClick={this.logout}>logout 2</button> /*insert thousand yard stare */}
           </div>
         )
       }
@@ -374,5 +417,12 @@ TODO:
 - status updates: changing roles via email
 
 posts and articles for newcomers
+
+
+password checks:
+    At least 12 characters long or more
+    >= 1 uppercase 
+    >= 1 numbers
+    >= 1 symbols
 */
 

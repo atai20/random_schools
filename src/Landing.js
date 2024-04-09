@@ -1,9 +1,15 @@
-import React, {Component, useRef} from "react";
+import React, {Component, useRef, useState} from "react";
 import { Link, Outlet, useOutletContext } from "react-router-dom"; 
 import firebase from 'firebase/compat/app';
-import { getFirestore, collection, getDocs, addDoc, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { getApp } from "firebase/app";
+import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
+import { useRive } from '@rive-app/react-canvas';
+import { getFirestore, collection, getDocs, addDoc, query,getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
+import "./App.css";
+
+const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 
 const OutletProvider = ({children}) => {
     const ctx = useOutletContext();
@@ -32,28 +38,75 @@ class Landing extends React.Component {
     render() {
         return (
             <div className="landing">
-                <button onClick={this.logout}>logout landing</button>
-                <p>you made it...</p>
-                <Link to={"/profile"}>go to ur profile</Link>
+                <button onClick={this.logout} className="btn">logout landing</button>
+            
+          
                 
                 <OutletProvider>
                     {(outletCtxProps) => {
+                        const [news_text, setNews] = useState([]);
+                        let imgs_t = [];
+                        let news_t = [];
+                        const { rive, RiveComponent } = useRive({
+                          src: 'firey.riv',
+                          stateMachines: "State Machine 1",
+                        autoplay: true,
+                        });
+                        const ctxprops = useOutletContext();
+                        const [img, setImg] = useState([]);
                         const add_news_ref = useRef("");
                         const text_news_ref = useRef("");
-                        console.log(outletCtxProps);
+                        async function uploadImage(e) {
+                          for(let i = 0; i < e.target.files.length; i++) {
+                              const storageRef = ref(storage, `images/${ctxprops.id}/${e.target.files[i].name}`);
+                              const uploadTask = uploadBytesResumable(storageRef, e.target.files[i]);
+                              await uploadTask.on('state_changed', (snap) => {
+                                  if(snap.state === "running") {
+                                  console.log(snap.state);
+                                  }
+                              }, (err) => {
+                                  console.log("error upload");
+                              }, () => {
+                                  getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                                      imgs_t.push(url);
+                                  })
+                              });
+                          }
+                          setImg(imgs_t);
+                      }
+
+                        // console.log(outletCtxProps);
                         const add_news = async() => {
                             const docRef2 = await addDoc(collection(db, `schools/${outletCtxProps.school_select}/news`), {
                                 title: add_news_ref.current.value,
                               text: text_news_ref.current.value,
+                              img:img,
                               date: serverTimestamp()
                             });
                             add_news_ref.current.value = "";
                             text_news_ref.current.value = "";
                         }
+                        const get_news = async() => {
+                          const q = query(collection(db,`schools/${outletCtxProps.school_select}/news`));
+                          const docsRef = await getDocs(q);
+                          
+                          docsRef.forEach(doc => {
+
+                            news_t.push(doc.data())
+
+                          });
+                          setNews(news_t);
+                        }
+                        get_news();
                         return (
                         
                         <div>
-
+<div class="d-flex">
+ <div class="d-inline-block"><RiveComponent style={{height:"400px", width:"500px"}}/></div>
+ <div class="d-inline-block"> <div class="chat">
+    Hello! My name is Firey
+    </div> </div>
+</div>
 {/* <form>
   <div class="form-row">
     <div class="form-group col-md-6">
@@ -110,26 +163,6 @@ class Landing extends React.Component {
   </div>
   <button type="submit" class="btn btn-primary" onClick={this.create_post}>Sign in</button>
 </form> */}
-
-<h1>Add news</h1>
-  <div className="form-row">
-    <div className="form-group col-md-6">
-      <label htmlFor="inputEmail4">Title</label>
-      <input className="form-control" ref={add_news_ref} id="inputEmail4" placeholder="Title"/>
-      <label htmlFor="postbox">Content</label><br />
-      <textarea ref={text_news_ref} placeholder="Write here..." className="form-control"></textarea>
-    </div>
-</div>
-  <div className="form-group">
-    <div className="form-check">
-      <input className="form-check-input" type="checkbox" id="gridCheck"/>
-      <label className="form-check-label" for="gridCheck">
-        Check me out (what does this do?????)
-      </label>
-    </div>
-  </div>
-  <button  class="btn btn-primary" onClick={add_news}>Sign in</button>
-
 
 
 {/* <h1>Add school</h1>

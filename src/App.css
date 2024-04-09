@@ -5,23 +5,13 @@ html, body, .register, .register>div {
   height: 100%;
 }
 
-.modal {
-  width: 300px;
-  height: 250px;
-  color: red;
-  font-size: 25px;
-}
-*:focus {
-  outline: 0;
-}
-
-
 .register {
   background-image: url("");
   /* background-repeat: no-repeat; */
   width: 100%;
   height: 100%;
 }
+
 .overlay {
   width: 100%;
   height: 100%;
@@ -29,6 +19,9 @@ html, body, .register, .register>div {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.form-check-input{
+  margin-right:100px;
 }
 .modal_register {
   background-color: white;
@@ -44,4 +37,180 @@ html, body, .register, .register>div {
   border-radius: 50px;
   outline: none;
   border: 3px solid #e6e6e6;  
+}
+body[data-theme="light theme"] {
+  --bg-color: #fff;
+  --headings-color: #000;
+  --desc-color: #000;
+  --button-color: #007bff;
+  --div-color: #ededed;
+  --other-color: #ffffff;
+  --mute-text: #a3a3a3;
+  --lighter-bgs: #d3d4d5;
+  border: none !important;
+}
+body[data-theme="dark theme"] {
+  --bg-color: #141b21;
+  --headings-color: #fafafa;
+  --desc-color: #fafafa;
+  --button-color: #FF4C29;
+  --div-color: #2f3a43;
+  --other-color: #2C394B;
+  --mute-text: #c9c9c9;
+  --lighter-bgs: #384953;
+  border: none !important;
+}
+
+body[data-theme="summer theme"] {
+  --bg-color: #61A3BA;
+  --desc-color: #000;
+  --button-color: #D2DE32;
+  --div-color: #ebebcd;
+  --other-color: #FFFFDD;
+  --mute-text: #000;
+  --lighter-bgs: #e9e9e9;
+  border: none !important;
+}
+
+body[data-theme="night theme"] {
+  --bg-color: #092635;
+  --headings-color: #fafafa;
+  --desc-color: #fafafa;
+  --button-color: #9EC8B9;
+  --div-color: #5C8374;
+  --other-color: #1B4242;
+  --mute-text: #c9c9c9;
+  --lighter-bgs: #384953;
+}
+
+body {
+  background: var(--bg-color) !important;
+}
+nav {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color) !important;
+}
+.cinline-nav {
+  background-color: var(--bg-color) !important;
+}
+.navbar-brand {
+  color: var(--desc-color) !important;
+}
+
+.theme-text {
+  color: var(--desc-color) !important;
+}
+
+.card {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color);
+}
+.card-title {
+  color: var(--desc-color) !important;
+}
+.card-body {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color);
+}
+.text-muted {
+  color: var(--desc-color) !important;
+}
+.text-primary {
+  color: var(--desc-color) !important;
+}
+.cbtn {
+  border: none !important;
+  outline: none !important;
+  background-color: var(--button-color) !important;
+  /* background-color: var(--button-color) !important; */
+  color: #fafafa !important;
+}
+.progress {
+  background-color: var(--lighter-bgs) !important;
+}
+.list-group-item {
+  background-color: var(--other-color) !important;
+}
+.settings {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color);
+}
+.ctext-primary {
+  color: var(--desc-color) !important;
+}
+.cbg {
+  background-color: var(--div-color) !important;
+}
+.cmute-text {
+  color: var(--mute-text) !important;
+}
+.dropdown-item {
+  color: var(--desc-color) !important;
+}
+.btnedit:hover {
+  background-color: transparent !important;
+  cursor: pointer;
+}
+.modal-content .cmodal-content {
+  background-color: var(--other-color) !important;
+  color: var(--desc-color) !important;
+}
+.cmodal-title {
+  color: var(--desc-color) !important;
+}
+.close {
+  color: var(--desc-color) !important;
+
+}
+.calendar-container {
+  height: 300px;
+}
+.render-challenge {
+  /* position: absolute; */
+  background-color: hsl(211, 100%, 84%);
+  border-style: solid;
+  
+  border-radius: 8px;
+  padding: 10px;
+}
+.render-challenge-temp{
+  margin-top:100%;
+}
+.date_click_active_custom {
+  position: relative;
+}
+
+
+.leaderboard-display {
+  margin: 10px;
+  margin-top:300px;
+  padding: 10px;
+  /* background-color: #007bff !important; */
+
+}
+.score-span {
+  float: right;
+}
+.first-placer {
+  background-color: #007bff !important;
+}
+.even {
+  background-color: #021427 !important;
+}
+.odd {
+  background-color: #273e55 !important;
+  
+
+}
+
+.main-form{
+  border-radius:10px;
+  padding:10px;
+  box-shadow: 0px 3px 3px -1px rgba(135,135,135,1);
+
+  border-color: black;
+  max-width: 700px;
+  margin: auto;
+  border-color: black;
+
 }
