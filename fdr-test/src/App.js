@@ -296,9 +296,9 @@ export default class App extends React.Component {
         return (
           <div>
                              <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,678;1,678&display=swap" rel="stylesheet"></link>         <nav className="navbar navbar-expand-lg navbar-light custom">
-  <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
+  <a className="navbar-brand" href="#"><img className="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
   <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span className="navbar-toggler-icon"></span>
   </button>
@@ -325,7 +325,7 @@ export default class App extends React.Component {
       </li>
 
     </ul>
-    <form classNameName="form-inline my-2 my-lg-0">
+    <form className="form-inline my-2 my-lg-0">
     
     
       <span className="nav-talents">{this.state.talents}</span>
