@@ -130,7 +130,7 @@ export default function Clubs() {
             console.log(contentRef.current.value);
             console.log(titleRef.current.value);
         }
-        setTimeout(() => {getPosts(); },3000);    
+        // setTimeout(() => {getPosts(); },3000);    
     }
     const [editId, setEditId] = useState("");
     async function editPost(postId) {
@@ -171,9 +171,9 @@ export default function Clubs() {
         });
         getPosts();
     }
-
-    useEffect(() => {
-        console.log(ctxprops.theme);
+    const [ptheme, setptheme]= useState("");
+    useEffect(() => { //TODO: add theme to localstorage (or cookies) cuz i aint readin allat (firebase reads)
+        // getDoc(doc(db, `users/${ctxprops.theme}`))
         document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase())
         getPosts();
     }, []);

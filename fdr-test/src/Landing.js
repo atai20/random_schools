@@ -52,28 +52,28 @@ class Landing extends React.Component {
                           stateMachines: "State Machine 1",
                         autoplay: true,
                         });
-                        const ctxprops = useOutletContext();
+                        // const ctxprops = useOutletContext();
                         const [img, setImg] = useState([]);
                         const add_news_ref = useRef("");
                         const text_news_ref = useRef("");
-                        async function uploadImage(e) {
-                          for(let i = 0; i < e.target.files.length; i++) {
-                              const storageRef = ref(storage, `images/${ctxprops.id}/${e.target.files[i].name}`);
-                              const uploadTask = uploadBytesResumable(storageRef, e.target.files[i]);
-                              await uploadTask.on('state_changed', (snap) => {
-                                  if(snap.state === "running") {
-                                  console.log(snap.state);
-                                  }
-                              }, (err) => {
-                                  console.log("error upload");
-                              }, () => {
-                                  getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-                                      imgs_t.push(url);
-                                  })
-                              });
-                          }
-                          setImg(imgs_t);
-                      }
+                      //   async function uploadImage(e) {
+                      //     for(let i = 0; i < e.target.files.length; i++) {
+                      //         const storageRef = ref(storage, `images/${ctxprops.id}/${e.target.files[i].name}`);
+                      //         const uploadTask = uploadBytesResumable(storageRef, e.target.files[i]);
+                      //         await uploadTask.on('state_changed', (snap) => {
+                      //             if(snap.state === "running") {
+                      //             console.log(snap.state);
+                      //             }
+                      //         }, (err) => {
+                      //             console.log("error upload");
+                      //         }, () => {
+                      //             getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                      //                 imgs_t.push(url);
+                      //             })
+                      //         });
+                      //     }
+                      //     setImg(imgs_t);
+                      // }
 
                         // console.log(outletCtxProps);
                         const add_news = async() => {
@@ -97,7 +97,7 @@ class Landing extends React.Component {
                           });
                           setNews(news_t);
                         }
-                        get_news();
+                        // get_news();
                         return (
                         
                         <div>

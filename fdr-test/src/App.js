@@ -211,11 +211,11 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
-    if(this.getosis.current.value.length > 0) {
+    if(this.getosis.current.value.length > 0 && this.getosis.current.value.length < 9 && parseInt((this.state.school_select)) > 0 ) {
       if((/^\d+$/.test(this.getosis.current.value))) {
         const docRef = doc(db, `users`, this.state.id);
         updateDoc(docRef, {
-          name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
+          name:( this.state.username !== null ? this.state.username : (this.getuname.current.value.replace(/ /g, '') !== "" ? this.getuname.current.value : alert("put in username")) ),
           osis: this.encrypt(this.getosis.current.value), 
           clubs: clubsArr,
           pfp: this.state.pfp,
@@ -229,7 +229,7 @@ export default class App extends React.Component {
         alert("incorrect format");
       }
     } else {
-      alert("error");
+      alert("error: you need to make sure all the values are filled properly (make sure you select a school by clicking the dropdown)");
     }
     
   }
