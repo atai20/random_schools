@@ -26,8 +26,12 @@ function Scheduler() {
     async function getChallenges() {
       const q = query(collection(db, "challenges"));
       const gd = await getDocs(q);
-      gd.forEach((doc) => {
-        challenges_t.push(doc.data());
+      gd.forEach((document) => {
+        if((getCurrentTime() - parseInt(document.data().due_date)) > 0) {
+          deleteDoc(doc(db, "challenges", document.id));
+        }
+
+        challenges_t.push(document.data());
       });
       setChallenge(challenges_t);
       challenges_t = [];
@@ -54,7 +58,7 @@ function Scheduler() {
     }
 
     const [currChallenge, setCurrChallenge] = useState([]);
-    function challengeDate(value, event) { //yes it renders twice. will go away after npm build
+    function challengeDate(value, event) { 
       let dub_t = [];
       for(const c of challenge) {
         if(convertFromPOSIX(c.due_date) === (value.getFullYear()+"-"+(parseInt(value.getMonth())+1)+"-"+(parseInt(value.getDate())))) {
@@ -92,9 +96,6 @@ function Scheduler() {
           <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
      
           <link href="css/styles.css" rel="stylesheet" />
-
-        
-      
 
         <h1 className='text-center ctext-primary'><div className='nunito-all'>Challenges and plans</div></h1>
         <div className='nunito-all'>*Select the date to see if there is a challange for the day</div>
