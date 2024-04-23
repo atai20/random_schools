@@ -6,6 +6,7 @@ import "../App.css";
 import { Link, useOutletContext } from "react-router-dom";
 
 import { GoDotFill } from "react-icons/go";
+import Latex from 'react-latex';
 
 
 let challenges_t = [];
@@ -59,6 +60,7 @@ function Scheduler() {
 
     const [currChallenge, setCurrChallenge] = useState([]);
     function challengeDate(value, event) { 
+      // console.log(event.target)
       let dub_t = [];
       for(const c of challenge) {
         if(convertFromPOSIX(c.due_date) === (value.getFullYear()+"-"+(parseInt(value.getMonth())+1)+"-"+(parseInt(value.getDate())))) {
@@ -85,7 +87,14 @@ function Scheduler() {
       setBoard(token_t);
       console.log(board);
     }
-    
+    function calendarDisplayChallenges() {
+      const cal = document.getElementById("maincal");
+      for(const cn of cal.classList) {
+        if(convertFromPOSIX(c.due_date) === (value.getFullYear()+"-"+(parseInt(value.getMonth())+1)+"-"+(parseInt(value.getDate())))) {
+          dub_t.push({"title": c.title, "content": c.content, "origin": c.origin, "status": c.status, "offsetleft": event.target.offsetLeft, "offsettop": event.target.offsetTop});
+        } 
+      }
+    }
 
     return (
       <div className='calendar-main'>
@@ -98,13 +107,13 @@ function Scheduler() {
           <link href="css/styles.css" rel="stylesheet" />
         <h1 className='text-center ctext-primary'>Calendar</h1>
         <div className='calendar-container' style={{width: '100%', height: 'auto'}} >
-          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary" />
+          {/* <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary" /> */}
 
 
         <h1 className='text-center ctext-primary'><div className='nunito-all'>Challenges and plans</div></h1>
         <div className='nunito-all'>*Select the date to see if there is a challange for the day</div>
         <div className='calendar-container' >
-          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary"/>
+          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="maincal ctext-primary" id="maincal"/>
 
 
           {cbtn !== "" ? 
@@ -112,29 +121,27 @@ function Scheduler() {
             {currChallenge.length !== 0 ? 
             <div>
               {currChallenge.map((t_c) => (
-                <div className='render-challenge' id="challenge-display" style={{left: t_c.offsetleft, top: (t_c.offsettop+20)}}>
+                <div className='render-challenge' id="challenge-display" style={{position: 'absolute', left: t_c.offsetleft, top: (t_c.offsettop+100)}}>
                   {/* <p className='ctext-primary'>{t_c.title}</p> */}
                   {t_c.status === "active" ?
-                  <span style={{fill: "#34eb77", color: "#34eb77"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                  <span title="active" style={{fill: "#34eb77", color: "#34eb77"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
                   : t_c.status === "in_review" ? 
-                  <span style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                  <span title="in review" style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
                 : 
-                <span style={{fill: "#eb1c1c", color: "#eb1c1c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                <span title="not taking anymore answers" style={{fill: "#eb1c1c", color: "#eb1c1c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
                 
                 }
                   <p className='ctext-primary'>{t_c.title}</p>
-                  <p className='ctext-primary'>{t_c.content}</p>
+                  <p className='ctext-primary'><Latex displayMode={true}>{t_c.content}</Latex></p>
                   <p className='ctext-primary'>{t_c.origin.replace(`${ctxprops.school_select}`, `${school.name}`)}</p>
                   
                 </div>
               ))}
-              <button onClick={() => setCurrChallenge([])} className='btn'>Close</button>
+              <button onClick={() => setCurrChallenge([])} className='cbtn btn' style={{position: 'absolute'}}>Close</button>
             </div>
             :null}
           </div>
           :null}
-          
-   
         </div>
         <div className='leaderboard-display'>Leaderboard
 

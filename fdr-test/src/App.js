@@ -19,9 +19,6 @@ const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let avatar_fileref = "";
 const schools_ref = collection(db, "schools");
 
-
-
-
 export default class App extends React.Component {
   constructor(props) {
       super(props);
@@ -222,11 +219,11 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
-    if(this.getosis.current.value.length > 0 && this.getuname.current.value.length > 0) {
+    if(this.getosis.current.value.length > 0 && this.getosis.current.value.length == 9 && parseInt((this.state.school_select)) > 0 ) {
       if((/^\d+$/.test(this.getosis.current.value))) {
         const docRef = doc(db, `users`, this.state.id);
         updateDoc(docRef, {
-          name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
+          name:( this.state.username !== null ? this.state.username : (this.getuname.current.value.replace(/ /g, '') !== "" ? this.getuname.current.value : alert("put in username")) ),
           osis: this.encrypt(this.getosis.current.value), 
           clubs: clubsArr,
           pfp: this.state.pfp,
