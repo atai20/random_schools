@@ -20,9 +20,6 @@ html, body, .register, .register>div {
   align-items: center;
   justify-content: center;
 }
-.form-check-input{
-  margin-right:100px;
-}
 .modal_register {
   background-color: white;
   width: 500px;
@@ -173,17 +170,11 @@ nav {
   border-radius: 8px;
   padding: 10px;
 }
-.render-challenge-temp{
-  margin-top:100%;
-}
 .date_click_active_custom {
   position: relative;
 }
-
-
 .leaderboard-display {
   margin: 10px;
-  margin-top:300px;
   padding: 10px;
   /* background-color: #007bff !important; */
 
@@ -199,18 +190,83 @@ nav {
 }
 .odd {
   background-color: #273e55 !important;
-  
-
 }
+
 
 .main-form{
   border-radius:10px;
   padding:10px;
   box-shadow: 0px 3px 3px -1px rgba(135,135,135,1);
-
+  background-color: rgb(255, 255, 255);
   border-color: black;
-  max-width: 700px;
+ 
   margin: auto;
   border-color: black;
+
+
+}
+
+
+.news_head{
+
+  background-image:url('https://3.files.edl.io/39de/17/06/05/224217-a5b10a3b-4272-43d8-b0fd-fb4c9ece83d9'); 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+.thumbn{
+  width:100px !important;
+}
+.news_head_grad{
+  background: rgb(0,0,0);
+  color:white;
+  background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  padding:20px;
+
+}
+
+#news_desc{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+#my_teacher_b{
+  margin:10px;
+  background:transparent;
+  border-radius:20px;
+  padding:10px;
+  font-size:20px;
+  border-width: medium;
+  color:#1cb0f6;
+  border-bottom-color: #1cb0f6;
+  border-left-color: #1cb0f6;
+  border-right-color: #1cb0f6;
+  border-top-color: #1cb0f6;
+}
+#my_teacher_b:hover{
+  background-color:#77d4ff;
+ 
+}
+#my_student_b{
+  border-radius:20px;
+  padding:10px;
+  margin-left:10px;
+  border-width: medium;
+  font-size:20px;
+  background:transparent;
+  color: #ff4b4b;
+  border-bottom-color: #ff4b4b;
+  border-left-color: #ff4b4b;
+  border-right-color: #ff4b4b;
+  border-top-color: #ff4b4b;
+}
+#my_student_b:hover{
+  background-color: #ffb1b1;
+}
+.clubs_but{
+  max-height: 200px;
+  overflow: scroll;
 
 }
