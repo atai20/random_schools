@@ -2,35 +2,26 @@ import React, {useRef, useState, useEffect} from "react";
 import "./news_files/css.css";
 import "./news_files/blog.css";
 import "./news_files/bootstrap.min.css";
-import { Link, Outlet, useOutletContext } from "react-router-dom"; 
+import { Link, useNavigate,  Outlet, useOutletContext } from "react-router-dom"; 
 import { getFirestore, collection, getDocs,orderBy, limit,  addDoc, query,getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
+import NewsTemplate from "./NewsTemplate";
 
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let arr = []; // DONT REMOVE THIS. USESTATE DOES NOT WORK LIKE YOU THINK
-
-
-
 const OutletProvider = ({children}) => {
   const ctx = useOutletContext();
- 
-  
   return typeof children === 'function' ? children(ctx) : children;
 }
 
 
-
 export default function Schools(props) {
-
-    
-
-   
-  const state_ctx_props = useOutletContext(); 
- 
+  const pass= useNavigate();
+  const state_ctx_props = useOutletContext();
   const [school, setSchool] = useState("");
   const [news_text, setNews] = useState([]);
   let news_t = [];
@@ -48,10 +39,8 @@ export default function Schools(props) {
   function convertFromPOSIX(unix_timestamp) {
     var eps = new Date(unix_timestamp*1000);
     return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + eps.getDate());
-}
-  get_news();
+  }
   async function schoolInfo() {
-    
     const schoolRef = doc(db, `schools/${state_ctx_props.school_select}`);
     
     await getDoc(schoolRef).then((school_data) => {
@@ -62,49 +51,11 @@ export default function Schools(props) {
   useEffect(() => {
     document.body.setAttribute("data-theme", state_ctx_props.theme.toLowerCase());
     schoolInfo();
+    get_news();
   },[]);
 
     return (
-      
         <div>
-<OutletProvider>
-                    {
-                    (outletCtxProps) => {
-                     
-                      
-                
-                        
- 
-
-                         
-                         
-                        
-
-
-              
-                        return (
-                        
-                        <div>
-
-
-                        </div>
-                        );
-                    }}
-               
-
-<html lang="en">
-    <head>
-
-    <link rel="icon" href="https://getbootstrap.com/docs/4.0/assets/img/favicons/favicon.ico"/>
-
-    <title>Blog Template for Bootstrap</title>
-
-  
-
-  </head>
-
-  <body>
-
     <div class="container">
       <header class="blog-header py-3">
         <div class="row flex-nowrap justify-content-between align-items-center">
@@ -133,6 +84,7 @@ export default function Schools(props) {
         <div class="col-md-6 px-0" className="news_head_grad">
           <h1 id="article"class="display-4 font-italic">{school.name}'s moto</h1>
           <p class="lead my-3">{school.description}</p>
+          
           <p class="lead mb-0"></p>
     
         </div>
@@ -144,13 +96,6 @@ export default function Schools(props) {
           <div class="card flex-md-row mb-4 box-shadow h-md-250">
             <div class="card-body d-flex flex-column align-items-start">
               <strong class="d-inline-block mb-2 text-success">New</strong>
-              
-            
-  
-  
-
-
-  
     <div>
     <h3 id="article"class="mb-0">
     <a class="text-dark" href="#">{data.title}</a>
@@ -160,56 +105,27 @@ export default function Schools(props) {
  <div class="mb-1 text-muted">{convertFromPOSIX(data.date)}</div>
 
  <p class="card-text mb-auto" id="news_desc">{data.text}</p>
-                <a href="#">read more</a>
+ <button onClick={() => {pass("/newsdisplay", {replace: true, state: {title: data.title, content: data.text}})}}>Read more</button>
                 </div>
- 
-
-  
-                
-                
-       
-
             </div>
             {data.img.map((image, ii) => {
-                                            if(ii === 0) {
-                                                return (<div className="carousel-item active" background={image}>
-                                                    <img style={{height:"100"}}src={image} className="imgofpost d-block w-100" />
-                                                </div>)
-                                            }
-                                        })}
+              if(ii === 0) {
+                  return (<div className="carousel-item active" background={image}>
+                      <img style={{height:"100"}}src={image} className="imgofpost d-block w-100" />
+                  </div>)
+              }
+            })}
           </div>
         </div>
-
-
 ))
 
 }
-
-
-
-      </div>
+</div>
     </div>
-
-
- 
-
-
     <script src="news_files/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="news_files/popper.min.js"></script>
     <script src="news_files/bootstrap.min.js"></script>
     <script src="news_files/holder.min.js"></script>
-  
-  
-
-
-
-    
-</body>
-
-
-</html>
-</OutletProvider>
-
-        </div>
+</div>
     )
 }

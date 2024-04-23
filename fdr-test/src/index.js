@@ -9,7 +9,7 @@ import About from "./components/About";
 import Profile from "./components/Profile";
 import Clubs from "./components/Clubs";
 import Intro from "./components/Intro";
-
+import NewsTemplate from './components/NewsTemplate';
 
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -30,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Landing />,
+      },
+      {
+        path: "newsdisplay",
+        element: <NewsTemplate  />
       },
       {
         path: "/schools",

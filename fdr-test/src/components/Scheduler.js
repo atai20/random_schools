@@ -35,7 +35,9 @@ function Scheduler() {
         challenges_t.push(document.data());
       });
       setChallenge(challenges_t);
+
       challenges_t = [];
+      
     }
     async function schoolInfo() {
       const schoolRef = doc(db, `schools/${ctxprops.school_select}`);
@@ -87,12 +89,25 @@ function Scheduler() {
       setBoard(token_t);
       console.log(board);
     }
-    function calendarDisplayChallenges() {
-      const cal = document.getElementById("maincal");
-      for(const cn of cal.classList) {
-        if(convertFromPOSIX(c.due_date) === (value.getFullYear()+"-"+(parseInt(value.getMonth())+1)+"-"+(parseInt(value.getDate())))) {
-          dub_t.push({"title": c.title, "content": c.content, "origin": c.origin, "status": c.status, "offsetleft": event.target.offsetLeft, "offsettop": event.target.offsetTop});
-        } 
+
+    function DetStatus(props) {
+      // console.log(props.d);
+      // if(convertToPOSIX(props.d) === )
+      for(const c of challenge) {
+        if(convertFromPOSIX(c.due_date) === (props.d.getFullYear()+"-"+(parseInt(props.d.getMonth())+1)+"-"+(parseInt(props.d.getDate()))) ) {
+          return (
+            <div>
+              {c.status === "active" ?
+            <span title="active" style={{fill: "#34eb77", color: "#34eb77"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+            : c.status === "in_review" ? 
+            <span title="in review" style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+          : 
+          <span title="not taking anymore answers" style={{fill: "#eb1c1c", color: "#eb1c1c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+          
+          }
+            </div>
+          )
+        }
       }
     }
 
@@ -113,7 +128,7 @@ function Scheduler() {
         <h1 className='text-center ctext-primary'><div className='nunito-all'>Challenges and plans</div></h1>
         <div className='nunito-all'>*Select the date to see if there is a challange for the day</div>
         <div className='calendar-container' >
-          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="maincal ctext-primary" id="maincal"/>
+          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="maincal ctext-primary" tileContent={({ date, view }) => <DetStatus d={date} v={view} />} />
 
 
           {cbtn !== "" ? 
