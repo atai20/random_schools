@@ -5,6 +5,7 @@ import { getApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, signInAnonymously, signInWithPopup, createUserWithEmailAndPassword, GoogleAuthProvider, sendEmailVerification  } from "firebase/auth";
 import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import {db} from "./firebase-config";
+import Rive, { useRive } from '@rive-app/react-canvas';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
@@ -18,12 +19,18 @@ const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let avatar_fileref = "";
 const schools_ref = collection(db, "schools");
 
+
+
+
 export default class App extends React.Component {
   constructor(props) {
       super(props);
       this.state = {
         loaded: false,
+        showMe:true,
+        showMe2:false
       }
+
       this.emailInputRef = React.createRef();
       this.passwordRef = React.createRef();
       this.emaillog = React.createRef();
@@ -32,6 +39,7 @@ export default class App extends React.Component {
       this.getosis = React.createRef();
 
   }
+  
   logout() {
     const auth = getAuth();
     signOut(auth).then(() => {
@@ -39,6 +47,8 @@ export default class App extends React.Component {
       window.location.reload();
     }).catch((error) => {console.log("no error")})
   }
+
+
   google_auth = async () => {
       await signInWithPopup(auth, gp).then((res) => {
         const user = doc(db, `users`, auth.currentUser.uid);
@@ -70,6 +80,7 @@ export default class App extends React.Component {
         // }
       })
   }
+  
   emailpass_auth = async (email,pass) => {
     if(this.checkPassword(pass)) {
       await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
@@ -210,18 +221,12 @@ export default class App extends React.Component {
       if(checkboxes[i].checked) {
         clubsArr.push(checkboxes[i].id.toString());
       }
-    
-
-    if(this.getosis.current.value.length > 0 && this.getosis.current.value.length == 9 && parseInt((this.state.school_select)) > 0 ) {
-
+    }
     if(this.getosis.current.value.length > 0 && this.getuname.current.value.length > 0) {
-
-    if(this.getosis.current.value.length > 0 && this.getosis.current.value.length == 9 && parseInt((this.state.school_select)) > 0 ) {
-
       if((/^\d+$/.test(this.getosis.current.value))) {
         const docRef = doc(db, `users`, this.state.id);
         updateDoc(docRef, {
-          name:( this.state.username !== null ? this.state.username : (this.getuname.current.value.replace(/ /g, '') !== "" ? this.getuname.current.value : alert("put in username")) ),
+          name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
           osis: this.encrypt(this.getosis.current.value), 
           clubs: clubsArr,
           pfp: this.state.pfp,
@@ -235,11 +240,10 @@ export default class App extends React.Component {
         alert("incorrect format");
       }
     } else {
-      alert("error: you need to make sure all the values are filled properly (make sure you select a school by clicking the dropdown)");
+      alert("error");
     }
     
   }
-}}}
 
   checkPassword(pass_string) { // for registration
     let b3 = true;
@@ -265,10 +269,13 @@ export default class App extends React.Component {
 
 
   render() {
+   
     // this.checkPassword("123456U@");
     if(this.state.loaded) {
       if(!this.state.logged) {
+     
         return (
+          
           <div className="register ctext-primary">
             <div className="overlay">
               <div className="modal_register">
@@ -285,27 +292,105 @@ export default class App extends React.Component {
                 <span>OR</span><br />
                 <button onClick={this.google_auth} className="glogo"><img src={Glogo} width={50} height={50}/> login with google</button>
                 <br />
-              
-             
+                <br />
+                <br />
+                <p>OR</p>
                 {/* <button className="btn btn-outline-success my-2 my-sm-0" onClick={this.anon_login}>Become anon</button> */}
 
                 <span id="spanning-error"></span>
               </div>
             </div>
             <form>
- 
- 
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="inputEmail4">Email</label>
+      <input type="email" class="form-control" id="inputEmail4" placeholder="Email"/>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="inputPassword4">Password</label>
+      <input type="password" class="form-control" id="inputPassword4" placeholder="Password"/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputAddress">Address</label>
+    <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St"/>
+  </div>
+  <div class="form-group">
+    <label for="inputAddress2">Address 2</label>
+    <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor"/>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="inputCity">City</label>
+      <input type="text" class="form-control" id="inputCity"/>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="inputState">State</label>
+      <select id="inputState" class="form-control">
+        <option selected>Choose...</option>
+        <option>...</option>
+      </select>
+    </div>
+    <div class="form-group col-md-2">
+      <label for="inputZip">Zip</label>
+      <input type="text" class="form-control" id="inputZip"/>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="gridCheck"/>
+      <label class="form-check-label" for="gridCheck">
+        Check me out
+      </label>
+    </div>
+  </div>
   <button type="submit" class="btn btn-primary">Sign in</button>
 </form>
           </div>
         );
       } else {
+        const dissapear = async() => {
+  
+          this.setState({
+              showMe:false,
+              showMe2:true
+        
+          })      
+        }
+        const dissapear2 = async() => {
+          this.setState({
+              showMe2:false,
+              showMe3:true
+        
+          })      
+        }
+        const dissapear3 = async() => {
+          this.setState({
+              showMe3:false,
+              showMe4:true
+        
+        
+          })      
+        }
+        const dissapear_teach = async() => {
+          this.setState({
+              showMe4:false,
+              showMe_teach:true
+          })      
+        }
+        const dissapear_stud = async() => {
+          this.setState({
+              showMe4:false,
+              showMe_stud:true
+          })      
+        }
         return (
+          
           <div>
                              <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,678;1,678&display=swap" rel="stylesheet"></link>         <nav className="navbar navbar-expand-lg navbar-light custom">
-  <a className="navbar-brand" href="#"><img className="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
+  <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
   <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span className="navbar-toggler-icon"></span>
   </button>
@@ -332,7 +417,7 @@ export default class App extends React.Component {
       </li>
 
     </ul>
-    <form className="form-inline my-2 my-lg-0">
+    <form classNameName="form-inline my-2 my-lg-0">
     
     
       <span className="nav-talents">{this.state.talents}</span>
@@ -341,6 +426,9 @@ export default class App extends React.Component {
   </div>
 </nav>
           {this.state.clubs ? 
+
+
+
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
               <Outlet context={this.state} />
@@ -356,12 +444,99 @@ export default class App extends React.Component {
             (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions" className="ctext-primary">
-                <div>BUT FIRST SOME QUESTIONS!</div>
-                <p>what school do you go to?</p>
+                <div>BUT FIRST OSOME QUESTIONS!!</div>
+                {this.state.showMe?
+ <div class="d-flex">
+  <div class="d-inline-block"><Rive  src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
+ <div class="d-inline-block"> 
+ <div class="chat"  onClick={() => dissapear()}  >
+    Hello! My name is Firey
+    </div> 
+    </div> 
+    </div> 
+
+   :null}
+   
+   {this.state.showMe2?
+ <div class="d-flex">
+
+    <div class="d-inline-block"><Rive src='firey_reg.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+   <div class="d-inline-block"> 
+ <div class="chat"  onClick={() => dissapear2()}  >
+    I hope you will get an amazing experience!
+    </div> 
+    </div> 
+    </div> 
+   :null}
+    {this.state.showMe3?
+     <div class="d-flex">
+     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"> 
+ <div class="chat"  onClick={() => dissapear3()}  >
+    Let's set everything up
+    </div> 
+    </div> 
+    </div> 
+
+   :null}
+    {this.state.showMe4?
+     <div class="d-flex">
+
+     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"> 
+ <div class="chat"  >
+    First of all are you a teacher or a student?
+    </div> 
+       <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >teacher</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >student</button>
+    </div> 
+    </div> 
+   :null}
+
+{this.state.showMe_teach?
+     <div class="d-flex">
+
+     <div class="d-inline-block"><Rive src='firey_reg.riv' stateMachines='State Machine 3'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"> 
+ <div class="chat">
+    For what clubs are you a teacher?
+    </div> 
+    <div className="clubs_but">
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    </div>
+    </div> 
+    </div> 
+   :null}
+
+{this.state.showMe_stud?
+     <div class="d-flex">
+
+     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"> 
+ <div class="chat"  >
+    What clubs are you in?
+    </div> 
+    <div className="clubs_but">
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    </div>
+    </div> 
+    </div> 
+   :null}
+                <p>what opp (school) u a part of??</p>
                 <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
                   <option value={0}></option>
-                  <option value={1}>FDR</option>
-                  <option value={2}>Stuyvesant</option>  
+                  <option value={1}>FDR (the OG ngl)</option>
+                  <option value={2}>use api to get other school stuff ig idk</option>  
                 </select>
                 <br />
                 {document.getElementById("school_select") ?
