@@ -38,7 +38,7 @@ html, body, .register, .register>div {
   outline: none;
   border: 3px solid #e6e6e6;  
 }
-body[data-theme="light theme"] {
+body[data-theme="light"] {
   --bg-color: #fff;
   --headings-color: #000;
   --desc-color: #000;
