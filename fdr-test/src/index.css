@@ -165,10 +165,9 @@ abbr[title] {
  border-bottom-right-radius: 6px;
  color: white;
 }
-.d-inline-block{
-  margin-left: 35%;
-}
+
 .chat{
+margin-top:60%;
   background-color:rgb(255, 255, 255);
   border-bottom-color: #FF9600;
   border-left-color: #FFC800;
@@ -180,14 +179,16 @@ abbr[title] {
   color:#1CB0F6;
   font-weight:bold;
   font-size:large;
-  border-radius:50rem;
+  border-radius:20px;
   border-bottom-left-radius:0;
-  left:-730px;
-  top:100px;
-  position: relative;
   }
  
-
+  .name_col1{
+    border-top-left-radius:12px;
+  }
+  .name_col2{
+    border-top-right-radius:12px;
+  }
 .table{
   width:50%;
   max-width:50%;
