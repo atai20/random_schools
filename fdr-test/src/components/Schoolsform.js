@@ -8,8 +8,6 @@ import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
 
-import NoCred from "../lose_social_credit.jpeg";
-import GotCred from "../social-credit.jpg";
 
 import "../App.css";
 
@@ -74,18 +72,5 @@ export default function Schoolsform(props) {
         </div>
         
     );
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
 }
-=======
-=======
->>>>>>> Stashed changes
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> 760ece13dd06d09404edd3925a2e25b81586cf33
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

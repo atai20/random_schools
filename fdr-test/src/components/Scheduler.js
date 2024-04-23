@@ -96,23 +96,11 @@ function Scheduler() {
           <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
      
           <link href="css/styles.css" rel="stylesheet" />
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-<<<<<<< HEAD
         <h1 className='text-center ctext-primary'>Calendar</h1>
         <div className='calendar-container' style={{width: '100%', height: 'auto'}} >
           <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary" />
 
-=======
->>>>>>> 760ece13dd06d09404edd3925a2e25b81586cf33
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
         <h1 className='text-center ctext-primary'><div className='nunito-all'>Challenges and plans</div></h1>
         <div className='nunito-all'>*Select the date to see if there is a challange for the day</div>
         <div className='calendar-container' >
@@ -172,7 +160,7 @@ function Scheduler() {
         </div>
         
     </div>
+    </div>
     );
   }
-  
-  export default Scheduler;
+export default Scheduler;
