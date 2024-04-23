@@ -72,4 +72,18 @@ export default function Resultsform(props) {
         </div>
         
     );
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 }
+=======
+=======
+>>>>>>> Stashed changes
+<<<<<<< HEAD
+}
+=======
+}
+>>>>>>> 760ece13dd06d09404edd3925a2e25b81586cf33
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes

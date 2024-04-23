@@ -211,7 +211,21 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if(this.getosis.current.value.length > 0 && this.getosis.current.value.length == 9 && parseInt((this.state.school_select)) > 0 ) {
+=======
+=======
+>>>>>>> Stashed changes
+<<<<<<< HEAD
+    if(this.getosis.current.value.length > 0 && this.getuname.current.value.length > 0) {
+=======
+    if(this.getosis.current.value.length > 0 && this.getosis.current.value.length == 9 && parseInt((this.state.school_select)) > 0 ) {
+>>>>>>> 760ece13dd06d09404edd3925a2e25b81586cf33
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       if((/^\d+$/.test(this.getosis.current.value))) {
         const docRef = doc(db, `users`, this.state.id);
         updateDoc(docRef, {
