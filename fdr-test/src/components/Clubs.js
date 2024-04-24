@@ -229,6 +229,7 @@ export default function Clubs() {
     const [filter, setFilter] = useState([]);
     const searchRef= useRef();
     async function findPost(e) {
+        setFilter([]);
         const club_filter = /\[(.*?)\]/i;
         const club = searchRef.current.value.match(club_filter);
         //check that the club is in club list of course
@@ -247,7 +248,9 @@ export default function Clubs() {
                     }
                 }
             });
-            console.log(post_filter);
+            // console.log(post_filter);
+            setFilter(post_filter);
+            post_filter = [];
         }
     }
 
@@ -304,7 +307,7 @@ export default function Clubs() {
                     </div> */}
                     <div className="col-md-6 gedf-main">     
                           
-                    {selposts.map((post_arr, index) => { // in future we can probably flatten the array for displaying purposes
+                    {filter.length === 0 ? selposts.map((post_arr, index) => { // in future we can probably flatten the array for displaying purposes
                         return ( // bruh react be like...
                             <div key={index}>
                             {post_arr.map((post, i) => (
@@ -385,7 +388,12 @@ export default function Clubs() {
                             ))}
                     </div>
                     )
-                    })}
+                    }) : 
+                    <div>
+                        {filter.map(post => (
+                            <p>{post.author_id}</p>
+                        ))}
+                    </div>}
              
             </div>
             {/* <div className="col-md-3">
