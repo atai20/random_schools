@@ -83,12 +83,12 @@ abbr[title] {
   
   font-style: normal;
 }
-*{
+/* *{
   font-family: "Nunito", sans-serif;
   font-optical-sizing: auto;
   font-weight: 300;
 
-}
+} */
 .nav-link{
   font-family: "Nunito", sans-serif;
   font-optical-sizing: auto;

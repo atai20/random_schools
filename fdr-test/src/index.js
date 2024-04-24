@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
 import ErrorRoute from './ErrorRoute';
 import Schools from "./components/Schools";
@@ -10,14 +9,14 @@ import Profile from "./components/Profile";
 import Clubs from "./components/Clubs";
 import Intro from "./components/Intro";
 import NewsTemplate from './components/NewsTemplate';
-
-
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Scheduler from './components/Scheduler';
 import Resultsform from './components/Resultsform';
 import Schoolsform from './components/Schoolsform';
 // import Clubform from './components/Clubform';
 import Newsform from './components/Newsform';
+
+import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

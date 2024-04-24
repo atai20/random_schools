@@ -6,12 +6,12 @@ import { db } from "../firebase-config";
 import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
-import "./styles/profiles.css";
 import { FaPlus } from "react-icons/fa";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { GoKebabHorizontal } from "react-icons/go";
 import { FaEllipsisH } from "react-icons/fa";
 import { CiCircleCheck } from "react-icons/ci";
+import "./styles/profiles.css";
 import "../App.css";
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
@@ -200,27 +200,75 @@ export default function Clubs() {
     }
 
     const regexLatexBlock = /\$\$.*\$\$/i;
+    function min_s(x, y, z) {
+		if (x <= y && x <= z) return x;
+		if (y <= x && y <= z) return y;
+		return z;
+	}
+    function distance_metric(a,b) { //similarity of words and phrases (levenshtein algo, the most efficient)
+        let cost;
+		let m = a.length;
+		let n = b.length;
+		if(m < n) {
+			var c = a; a = b; b = c;
+			var o = m; m = n; n = o;
+		}
+		var r = []; r[0] = [];
+		for (let c = 0; c < n + 1; ++c) {
+			r[0][c] = c;
+		}
+		for (let i = 1; i < m + 1; ++i) {
+			r[i] = []; r[i][0] = i;
+			for ( var j = 1; j < n + 1; ++j ) {
+				cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+				r[i][j] = min_s( r[i-1][j] + 1, r[i][j-1] + 1, r[i-1][j-1] + cost );
+			}
+		}
+		return r[r.length-1][r[0].length-1];
+    }
+    const [filter, setFilter] = useState([]);
+    const searchRef= useRef();
+    async function findPost(e) {
+        const club_filter = /\[(.*?)\]/i;
+        const club = searchRef.current.value.match(club_filter);
+        //check that the club is in club list of course
+        if(club !== null) {
+            let post_filter = [];
+            const mod = searchRef.current.value.replace(club_filter, '');
+            await getDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${club[1]}`)).then((p) => {
+                for(const post of p.data().posts) {
+                    if(distance_metric(post.title, mod) < (post.title.length) || distance_metric(post.text, mod) < post.text.length) {
+                        console.log((post.title.length) - distance_metric(post.title, mod), " vs ", distance_metric(post.title, mod));
+                        console.log((post.text.length) - distance_metric(post.text, mod), " vs ", distance_metric(post.text, mod));
+                        post_filter.push(post);
+                    } else {
+                        console.log(distance_metric(post.title, mod));
+                        console.log(distance_metric(post.text, mod));
+                    }
+                }
+            });
+            console.log(post_filter);
+        }
+    }
 
     return (
         <div className="clubs-page">
             <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
-            {/* <h3><Latex displayMode={true}>$$(3\times \\frac{3}{2}) \div (5-3)$$</Latex></h3> */}
-            {/* <h1><Latex displayMode={true}>{fraction}</Latex></h1> */}
-            <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
+            {/* <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
             <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
             <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"/>
             <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script> */}
         
             <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
-                    <a href="#" className="navbar-brand">Bootsbook</a>
+                    <a href="#" className="navbar-brand"></a>
                     <form className="form-inline">
                         <div className="input-group">
-                            <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2"/>
+                            <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
                             <div className="input-group-append">
-                                <button className="btn btn-outline-primary" type="button" id="button-addon2">
+                                <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={findPost}>
                                     <i className="fa fa-search"></i>
                                 </button>
                             </div>
@@ -232,7 +280,7 @@ export default function Clubs() {
 
             <div class="container-fluid gedf-wrapper">
                 <div class="row">
-                    <div class="col-md-3">
+                    {/* <div class="col-md-3">
                         <div class="card">
                             <div class="card-body">
                                 <div class="h5">Talents harvested: 23</div>
@@ -253,7 +301,7 @@ export default function Clubs() {
 
                             </ul>
                         </div>
-                    </div>
+                    </div> */}
                     <div className="col-md-6 gedf-main">     
                           
                     {selposts.map((post_arr, index) => { // in future we can probably flatten the array for displaying purposes
@@ -329,7 +377,7 @@ export default function Clubs() {
                                 <img src={post.img} className="imgofpost" />
                             : null}
                                 </div>                                
-                                <p className="card-text"><Latex displayMode={true}>{post.text}</Latex></p>
+                                <p className="card-text"><Latex className="latex_font" displayMode={true}>{post.text}</Latex></p>
                             </div>
                             <div className="card-footer">
                             </div>
@@ -340,7 +388,7 @@ export default function Clubs() {
                     })}
              
             </div>
-            <div className="col-md-3">
+            {/* <div className="col-md-3">
                 <div className="card gedf-card">
 
                     <div className="card-body">
@@ -362,7 +410,7 @@ export default function Clubs() {
                             <a href="#" className="card-link">Another link</a>
                         </div>
                     </div>
-            </div>
+            </div> */}
         </div>
     </div>
             

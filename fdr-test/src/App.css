@@ -49,6 +49,17 @@ body[data-theme="light"] {
   --lighter-bgs: #d3d4d5;
   border: none !important;
 }
+body[data-theme="light theme"] {
+  --bg-color: #fff;
+  --headings-color: #000;
+  --desc-color: #000;
+  --button-color: #007bff;
+  --div-color: #ededed;
+  --other-color: #ffffff;
+  --mute-text: #a3a3a3;
+  --lighter-bgs: #d3d4d5;
+  border: none !important;
+}
 body[data-theme="dark theme"] {
   --bg-color: #141b21;
   --headings-color: #fafafa;
@@ -215,3 +226,10 @@ nav {
 
 }
 
+.katex-display {
+  font-weight: 100 !important;
+  /* font-size: 50px !important; */
+}
+.katex-display .overlay {
+  background: none;
+}

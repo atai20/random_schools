@@ -1,5 +1,4 @@
 import React, {useEffect} from "react";
-import './App.css';
 import firebase from 'firebase/compat/app';
 import { getApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, signInAnonymously, signInWithPopup, createUserWithEmailAndPassword, GoogleAuthProvider, sendEmailVerification  } from "firebase/auth";
@@ -11,6 +10,7 @@ import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
 import Glogo from "./glogo.png";
 import { JSEncrypt } from "jsencrypt";  
+import './App.css';
 
 const gp = new GoogleAuthProvider();
 const auth = getAuth();
