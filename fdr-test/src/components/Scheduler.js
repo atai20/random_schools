@@ -46,7 +46,7 @@ function Scheduler() {
       });      
     }
     useEffect(() => {
-      document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase());
+      getDoc(doc(db, `users/${ctxprops.id}`)).then((u_d) => document.body.setAttribute("data-theme", u_d.data().theme.toLowerCase()));
       getChallenges();
       schoolInfo();
       fetchAllUsers();
@@ -158,11 +158,11 @@ function Scheduler() {
           </div>
           :null}
         </div>
-        <div className='leaderboard-display'>Leaderboard
+        <div className='leaderboard-display ctext-primary'>Leaderboard
 
 
-        <table class="table" id="leaders">
-  <thead class="thead-dark">
+        <table className="table" id="leaders">
+  <thead className="thead-dark">
     <tr>
       <th scope="col" className='name_col1'>Name</th>
       <th scope="col" className='name_col2'>Score</th>
@@ -172,8 +172,8 @@ function Scheduler() {
         {board.map((obj) => (
          
          <tr>
-         <td>{obj.name}</td>
-         <td>{obj.talents}</td>
+         <td className='ctext-primary'>{obj.name}</td>
+         <td className='ctext-primary'>{obj.talents}</td>
        </tr>
         ))}
         </tbody>

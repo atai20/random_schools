@@ -9,6 +9,7 @@ import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
 import "./App.css";
 
+
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 
 const OutletProvider = ({children}) => {

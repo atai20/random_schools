@@ -55,7 +55,7 @@ export default function Schools(props) {
   },[]);
 
     return (
-        <div>
+        <div className="schools_main ctext-primary">
     <div class="container">
       <header class="blog-header py-3">
         <div class="row flex-nowrap justify-content-between align-items-center">
@@ -63,10 +63,10 @@ export default function Schools(props) {
          
           </div>
           <div class="col-4 text-center">
-            <a class="blog-header-logo text-dark" href="#"> {school.name} news</a>
+            <a class="blog-header-logo ctext-primary" href="#"> {school.name} news</a>
           </div>
           <div class="col-4 d-flex justify-content-end align-items-center">
-            <a class="text-muted" href="#">
+            <a class="text-muted ctext-primary" href="#">
             </a>
             
           </div>
@@ -74,8 +74,7 @@ export default function Schools(props) {
       </header>
 
       <div class="nav-scroller py-1 mb-2">
-        <nav class="nav d-flex justify-content-between">
-  
+        <nav className="nav d-flex justify-content-between" style={{background: 'none'}}>
         </nav>
       </div>
 
@@ -92,19 +91,20 @@ export default function Schools(props) {
 
       <div class="row mb-2">
         {news_text.map((data) => (
-        <div class="col-md-6">
+        <div class="col-md-6 text-block">
           <div class="card flex-md-row mb-4 box-shadow h-md-250">
             <div class="card-body d-flex flex-column align-items-start">
               <strong class="d-inline-block mb-2 text-success">New</strong>
     <div>
     <h3 id="article"class="mb-0">
-    <a class="text-dark" href="#">{data.title}</a>
+    <a class="ctext-primary" href="#">{data.title}</a>
 
     </h3>
  
  <div class="mb-1 text-muted">{convertFromPOSIX(data.date)}</div>
 
- <p class="card-text mb-auto" id="news_desc">{data.text}</p>
+ <p className="card-text mb-auto" id="news_desc">{data.text}</p>
+
  <button onClick={() => {pass("/newsdisplay", {replace: true, state: {title: data.title, content: data.text}})}}>Read more</button>
                 </div>
             </div>

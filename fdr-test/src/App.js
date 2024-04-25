@@ -10,10 +10,7 @@ import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
 import Glogo from "./glogo.png";
 import { JSEncrypt } from "jsencrypt";  
-import 'intro.js/introjs.css';
 import './App.css';
-
-import { Steps, Hints } from 'intro.js-react';
 
 const gp = new GoogleAuthProvider();
 const auth = getAuth();
@@ -99,9 +96,9 @@ export default class App extends React.Component {
             theme: "light",
         }).then(() => {console.log("written");
         sendEmailVerification(auth.currentUser).then(() => {
-          // updateDoc(docRef, {
-          //   verified: true,
-          // })
+            // updateDoc(docRef, {
+            //   verified: true,
+            // })
         })
       }).catch(er => {console.log(er)});
         this.setState({logged: true});
@@ -429,22 +426,22 @@ export default class App extends React.Component {
   <div className="collapse navbar-collapse" id="navbarSupportedContent">
     <ul className="navbar-nav mr-auto">
       <li className="nav-item active">
-        <Link className="nav-link" to={"/"}><div className="nunito-header">Home</div> <span className="sr-only">(current)</span></Link>
+        <Link className="nav-link ctext-primary" to={"/"}><div className="nunito-header">Home</div> <span className="sr-only">(current)</span></Link>
       </li>
       <li className="nav-item">
-        <Link className="nav-link" to={"/clubs"}>Clubs</Link>
+        <Link className="nav-link ctext-primary" to={"/clubs"}>Clubs</Link>
       </li>
       <li className="nav-item">
-      <Link className="nav-link" to={"/schools"}>School</Link>
+      <Link className="nav-link ctext-primary" to={"/schools"}>School</Link>
       </li>
       <li className="nav-item">
-      <Link className="nav-link" to={"/calendar"}>Calendar</Link>
+      <Link className="nav-link ctext-primary" to={"/calendar"}>Calendar</Link>
       </li>
       <li className="nav-item">
-      <Link className="nav-link" to={"/about"}>About</Link>
+      <Link className="nav-link ctext-primary" to={"/about"}>About</Link>
       </li>
       <li className="nav-item">
-        <Link className="nav-link" to={"/profile"}>Profile</Link>
+        <Link className="nav-link ctext-primary" to={"/profile"}>Profile</Link>
       </li>
 
     </ul>
@@ -471,7 +468,8 @@ export default class App extends React.Component {
             (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions" className="ctext-primary">
-                <div class="d-inline-block" className="riv-anim"><Rive src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
+                <div className="d-flex">
+                <div className="d-inline-block riv-anim" ><Rive src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
                 <div className="d-inline-block">
                 <div className="chat" id="firey-chat" >
                   {this.state.currentSlide < steps.length ? 
@@ -486,6 +484,7 @@ export default class App extends React.Component {
                 : <button onClick={this.nextSlide.bind(this)}>Next</button>}
                 </div>:
                 null}
+                </div>
                 </div>
                 </div>
 
