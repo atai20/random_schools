@@ -7304,6 +7304,16 @@ internal-slot@^1.0.4, internal-slot@^1.0.5, internal-slot@^1.0.7:
     hasown "^2.0.0"
     side-channel "^1.0.4"
 
+intro.js-react@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/intro.js-react/-/intro.js-react-1.0.0.tgz"
+  integrity sha512-zR8pbTyX20RnCZpJMc0nuHBpsjcr1wFkj3ZookV6Ly4eE/LGpFTQwPsaA61Cryzwiy/tTFsusf4hPU9NpI9UOg==
+
+intro.js@>=2.5.0:
+  version "7.2.0"
+  resolved "https://registry.npmjs.org/intro.js/-/intro.js-7.2.0.tgz"
+  integrity sha512-qbMfaB70rOXVBceIWNYnYTpVTiZsvQh/MIkfdQbpA9di9VBfj1GigUPfcCv3aOfsbrtPcri8vTLTA4FcEDcHSQ==
+
 ip-address@^9.0.5:
   version "9.0.5"
   resolved "https://registry.npmjs.org/ip-address/-/ip-address-9.0.5.tgz"
@@ -10883,7 +10893,7 @@ react-scripts@5.0.1:
   optionalDependencies:
     fsevents "^2.3.2"
 
-react@*, "react@^16.8.0 || ^17.0.0 || ^18.0.0", react@^18.0.0, react@^18.2.0, "react@>= 16", react@>=16.8:
+react@*, "react@^16.8.0 || ^17.0.0 || ^18.0.0", react@^18.0.0, react@^18.2.0, "react@>= 16", react@>=0.14.0, react@>=16.8:
   version "18.2.0"
   resolved "https://registry.npmjs.org/react/-/react-18.2.0.tgz"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==

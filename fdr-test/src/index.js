@@ -15,7 +15,7 @@ import Resultsform from './components/Resultsform';
 import Schoolsform from './components/Schoolsform';
 // import Clubform from './components/Clubform';
 import Newsform from './components/Newsform';
-
+import 'intro.js/introjs.css';
 import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

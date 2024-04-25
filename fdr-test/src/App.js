@@ -10,7 +10,10 @@ import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
 import Glogo from "./glogo.png";
 import { JSEncrypt } from "jsencrypt";  
+import 'intro.js/introjs.css';
 import './App.css';
+
+import { Steps, Hints } from 'intro.js-react';
 
 const gp = new GoogleAuthProvider();
 const auth = getAuth();
@@ -24,8 +27,7 @@ export default class App extends React.Component {
       super(props);
       this.state = {
         loaded: false,
-        showMe:true,
-        showMe2:false
+        currentSlide: 0,
       }
 
       this.emailInputRef = React.createRef();
@@ -34,6 +36,7 @@ export default class App extends React.Component {
       this.passlog = React.createRef();
       this.getuname = React.createRef();
       this.getosis = React.createRef();
+
 
   }
   
@@ -183,6 +186,8 @@ export default class App extends React.Component {
   }
 
   handleSchoolSelection(e){
+    console.log(e.target.value);
+    // alert("goofy ahh firey animation")
     this.setState({
       school_select: e.target.value,
     })
@@ -234,7 +239,7 @@ export default class App extends React.Component {
         });
         setTimeout(() => {window.location.reload()}, 3000);
       } else {
-        alert("incorrect format");
+        alert("incorrect format of osis (must be 9 digits)");
       }
     } else {
       alert("error");
@@ -263,10 +268,19 @@ export default class App extends React.Component {
     }
     return b3;
   }
-
+  nextSlide() {
+    console.log("clied")
+    this.setState({
+      currentSlide: this.state.currentSlide + 1,
+    })
+  }
+  prevSlide() {
+    this.setState({
+      currentSlide: this.state.currentSlide - 1,
+    })
+  }
 
   render() {
-   
     // this.checkPassword("123456U@");
     if(this.state.loaded) {
       if(!this.state.logged) {
@@ -297,90 +311,61 @@ export default class App extends React.Component {
                 <span id="spanning-error"></span>
               </div>
             </div>
-            <form>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Email</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="Email"/>
-    </div>
-    <div class="form-group col-md-6">
-      <label for="inputPassword4">Password</label>
-      <input type="password" class="form-control" id="inputPassword4" placeholder="Password"/>
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="inputAddress">Address</label>
-    <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St"/>
-  </div>
-  <div class="form-group">
-    <label for="inputAddress2">Address 2</label>
-    <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor"/>
-  </div>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputCity">City</label>
-      <input type="text" class="form-control" id="inputCity"/>
-    </div>
-    <div class="form-group col-md-4">
-      <label for="inputState">State</label>
-      <select id="inputState" class="form-control">
-        <option selected>Choose...</option>
-        <option>...</option>
-      </select>
-    </div>
-    <div class="form-group col-md-2">
-      <label for="inputZip">Zip</label>
-      <input type="text" class="form-control" id="inputZip"/>
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck"/>
-      <label class="form-check-label" for="gridCheck">
-        Check me out
-      </label>
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary">Sign in</button>
-</form>
           </div>
         );
       } else {
-        const dissapear = async() => {
+        const steps = [ //later change from html to react components: inner html is ONLY for testing
+          {
+            'jsx': '<div>im firey</div>',
+            'position': 'right',
+          },
+          {
+            'jsx': '<p>get started or sum shii</p>',
+            'position': 'right',
+          },
+          {
+            'text': 'are you student or teacher',
+            'jsx': `<div>
+              <h1>hellow rold</h1>
+              <button onClick={console.log("yee")}>yeeyyee</button>
+            </div>`, //render stuff
+          }
+        ]
+        // const dissapear = async() => {
   
-          this.setState({
-              showMe:false,
-              showMe2:true
+        //   this.setState({
+        //       showMe:false,
+        //       showMe2:true
         
-          })      
-        }
-        const dissapear2 = async() => {
-          this.setState({
-              showMe2:false,
-              showMe3:true
+        //   })      
+        // }
+        // const dissapear2 = async() => {
+        //   this.setState({
+        //       showMe2:false,
+        //       showMe3:true
         
-          })      
-        }
-        const dissapear3 = async() => {
-          this.setState({
-              showMe3:false,
-              showMe4:true
+        //   })      
+        // }
+        // const dissapear3 = async() => {
+        //   this.setState({
+        //       showMe3:false,
+        //       showMe4:true
         
         
-          })      
-        }
-        const dissapear_teach = async() => {
-          this.setState({
-              showMe4:false,
-              showMe_teach:true
-          })      
-        }
-        const dissapear_stud = async() => {
-          this.setState({
-              showMe4:false,
-              showMe_stud:true
-          })      
-        }
+        //   })      
+        // }
+        // const dissapear_teach = async() => {
+        //   this.setState({
+        //       showMe4:false,
+        //       showMe_teach:true
+        //   })      
+        // }
+        // const dissapear_stud = async() => {
+        //   this.setState({
+        //       showMe4:false,
+        //       showMe_stud:true
+        //   })      
+        // }
         return (
           
           <div>
@@ -423,13 +408,9 @@ export default class App extends React.Component {
   </div>
 </nav>
           {this.state.clubs ? 
-
-
-
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
               <Outlet context={this.state} />
-            
             )
             :
             <div>
@@ -442,9 +423,24 @@ export default class App extends React.Component {
             (
             <div id="popup-questions" className="ctext-primary">
                 <div>BUT FIRST OSOME QUESTIONS!!</div>
-                {this.state.showMe?
+                <div class="d-inline-block" className="riv-anim"><Rive src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
+                <div className="chat" id="firey-chat" >
+                  {this.state.currentSlide < steps.length ? 
+                  <div>
+                  <div dangerouslySetInnerHTML={{__html: steps[this.state.currentSlide].jsx}}></div> {/*only for testing pls */}
+                  {this.state.currentSlide > 0  ? 
+                  <div>
+                    <button onClick={this.prevSlide.bind(this)}>Previous</button>
+                    <button onClick={this.nextSlide.bind(this)}>Next</button>
+                  </div>
+                
+                : <button onClick={this.nextSlide.bind(this)}>Next</button>}
+                </div>:
+                null}
+                </div>
+            {/* {this.state.showMe?
  <div class="d-flex">
-  <div class="d-inline-block"><Rive  src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
+  <div class="d-inline-block" className="riv-anim"><Rive src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
  <div class="d-inline-block"> 
  <div class="chat"  onClick={() => dissapear()}  >
     Hello! My name is Firey
@@ -457,7 +453,7 @@ export default class App extends React.Component {
    {this.state.showMe2?
  <div class="d-flex">
 
-    <div class="d-inline-block"><Rive src='firey_reg.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"><Rive src='firey_reg.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}} className="riv-anim"/></div>
    <div class="d-inline-block"> 
  <div class="chat"  onClick={() => dissapear2()}  >
     I hope you will get an amazing experience!
@@ -471,6 +467,7 @@ export default class App extends React.Component {
     <div class="d-inline-block"> 
  <div class="chat"  onClick={() => dissapear3()}  >
     Let's set everything up
+    
     </div> 
     </div> 
     </div> 
@@ -528,12 +525,12 @@ export default class App extends React.Component {
     </div>
     </div> 
     </div> 
-   :null}
-                <p>what opp (school) u a part of??</p>
+   :null} */}
+                <p>what school are you attending?</p>
                 <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
                   <option value={0}></option>
-                  <option value={1}>FDR (the OG ngl)</option>
-                  <option value={2}>use api to get other school stuff ig idk</option>  
+                  <option value={1}>FDR</option>
+                  <option value={2}>Lagrange James</option>  
                 </select>
                 <br />
                 {document.getElementById("school_select") ?
@@ -542,11 +539,11 @@ export default class App extends React.Component {
                     {this.state.username === null && this.state.osis === null ? (
                     <div>
                         <p>Name</p>
-                        <input type="text" placeholder="name" ref={this.getuname} />
+                        <input type="text" placeholder="name" ref={this.getuname} className="uname_register_input" />
                     </div>
                     ) : null}
                     <p>OSIS</p>
-                    <input type="text" placeholder="osis" ref={this.getosis} />
+                    <input type="text" placeholder="osis" ref={this.getosis} className="osis_register_input"/>
                     <p>clubs you in???</p>
                     {/* <select> */}
                     <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>

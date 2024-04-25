@@ -233,3 +233,28 @@ nav {
 .katex-display .overlay {
   background: none;
 }
+.introjs-helperLayer {
+  opacity: 0 !important;
+  transition: all .3s ease-out !important;
+}
+.myTooltipClass {
+  background-color: #fff !important;
+  width: auto;
+  top: 100px;
+  border: orange 5px solid;
+  border-radius: 15px 15px 15px 0;
+  left: 300px !important;
+}
+.myHighlightClass {
+  box-shadow: none;
+}
+.introjs-tooltip {
+  max-width: 700px !important;
+  display: block !important;
+}
+.introjs-arrow {
+  top: 90% !important;
+}
+.introjs-skipbutton {
+  display: none !important;
+}
