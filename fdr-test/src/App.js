@@ -34,8 +34,8 @@ export default class App extends React.Component {
       this.passwordRef = React.createRef();
       this.emaillog = React.createRef();
       this.passlog = React.createRef();
-      this.getuname = React.createRef();
-      this.getosis = React.createRef();
+      this.getuname = React.createRef("");
+      this.getosis = React.createRef("");
 
 
   }
@@ -185,15 +185,14 @@ export default class App extends React.Component {
     });
   }
 
-  handleSchoolSelection(e){
-    console.log(e.target.value);
-    // alert("goofy ahh firey animation")
-    this.setState({
+  async handleSchoolSelection(e) {
+    await this.setState({
       school_select: e.target.value,
-    })
+    });
+    document.getElementById("school_select").value = e.target.value;
+    // console.log(this.state);
   }
   handleImage = (event) => {
-    
     const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
     const uploadTask = uploadBytesResumable(storageRef, event.target.files[0]);
     uploadTask.on('state_changed', (snap) => {
@@ -216,7 +215,6 @@ export default class App extends React.Component {
   }
 
   updateUserInfo = () => {
-    // console.log(this.state.school_select);
     const checkboxes = document.querySelectorAll(".clubcheck");
     let clubsArr = [];
     for(let i = 0; i < checkboxes.length; i++) {
@@ -224,25 +222,24 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
-    if(this.getosis.current.value.length > 0 && this.getosis.current.value.length == 9 && parseInt((this.state.school_select)) > 0 ) {
-      if((/^\d+$/.test(this.getosis.current.value))) {
-        const docRef = doc(db, `users`, this.state.id);
-        updateDoc(docRef, {
-          name:( this.state.username !== null ? this.state.username : (this.getuname.current.value.replace(/ /g, '') !== "" ? this.getuname.current.value : alert("put in username")) ),
-          osis: this.encrypt(this.getosis.current.value), 
-          clubs: clubsArr,
-          pfp: this.state.pfp,
-          school: parseInt((this.state.school_select)),
-        });
-        this.setState({
-          loaded: true,
-        });
-        setTimeout(() => {window.location.reload()}, 3000);
-      } else {
-        alert("incorrect format of osis (must be 9 digits)");
-      }
+    // console.log(clubsArr);
+    if(parseInt((this.state.school_select)) > 0) {
+      const docRef = doc(db, `users`, this.state.id);
+      updateDoc(docRef, {
+        name:( this.state.username !== null ? this.state.username : this.state.uname_ref_t),
+        osis: this.encrypt(this.state.osis_t), 
+        clubs: clubsArr,
+        pfp: this.state.pfp,
+        school: parseInt((this.state.school_select)),
+        role: this.state.role,
+      });
+      this.setState({
+        loaded: true,
+      });
+      // setTimeout(() => {window.location.reload()}, 3000);
+      
     } else {
-      alert("error");
+      alert(this.state.school_select);
     }
     
   }
@@ -269,19 +266,98 @@ export default class App extends React.Component {
     return b3;
   }
   nextSlide() {
-    console.log("clied")
-    this.setState({
-      currentSlide: this.state.currentSlide + 1,
-    })
+    if(this.getuname.current!== null && this.getuname.current.value.replace(/ /g, '') !== "" ) {
+      this.setState({
+        uname_ref_t: this.getuname.current.value,
+        currentSlide: this.state.currentSlide + 1,
+      })
+    } else {
+      if(this.getosis.current !== null && this.getosis.current.value.length > 0 ) {
+        if(this.getosis.current.value.length === 9 && (/^\d+$/.test(this.getosis.current.value))) {
+          this.setState({
+            osis_t: this.getosis.current.value,
+            currentSlide: this.state.currentSlide + 1,
+          });
+        } else {
+          alert("enter proepr osis")  
+        }
+      } else {
+        this.setState({
+          currentSlide: this.state.currentSlide + 1,
+        });
+      }
+    }
+    
   }
   prevSlide() {
     this.setState({
       currentSlide: this.state.currentSlide - 1,
     })
   }
+  makeAlert(value) {
+    alert(value);
+  }
+  setUserRole(value) {
+    if(value === "student") {
+      this.setState({
+        role: "regular",
+        currentSlide: this.state.currentSlide + 1
+      })
+    } else {
+      this.setState({
+        role: "teacher",
+        currentSlide: this.state.currentSlide + 1,
+      })
+    }
+  }
 
   render() {
-    // this.checkPassword("123456U@");
+    function InitAnim(props) {
+      return (
+        <div>
+        <p>{props.text}</p>
+      </div>
+      )
+    }
+    function QuestionTS(props) {
+      return (
+        <div>
+          <p>{props.question}</p>
+          <button onClick={() => props.setUserPosition("twonnyoneteacher")}>Teacher</button>
+          <button onClick={() => props.setUserPosition("student")}>Student</button>
+        </div>
+      )
+    }
+    function QuestionSchool(props) {
+      return (<div>
+        <p>what school are you attending?</p>
+          <select onChange={(e) => props.schoolSelector(e)} id="school_select">
+            <option value={0}></option>
+            <option value={1}>FDR</option>
+            <option value={2}>Lagrange James</option>  
+          </select>
+      </div>)
+    }
+    const InputRequired = React.forwardRef((props,ref) => {
+      if(props.type === "text") {
+        return (
+          <div>
+            <input type={props.type} placeholder={props.placeholder} ref={ref}  />
+          </div>)
+      } else{
+        return (
+          <div>
+            {props.clubs.map((club,i) => (
+              <div>
+                <input type={props.type} className={props.necessaryClass} id={club} /><label htmlFor={club}>{props.clubs[i]}</label><br />
+              </div>
+            ))}
+            <button onClick={props.finalStep}>Submit</button>
+          </div>
+        )
+      }
+    })
+
     if(this.state.loaded) {
       if(!this.state.logged) {
      
@@ -314,58 +390,31 @@ export default class App extends React.Component {
           </div>
         );
       } else {
-        const steps = [ //later change from html to react components: inner html is ONLY for testing
+        const steps = [
           {
-            'jsx': '<div>im firey</div>',
+            'jsx': <InitAnim text="hello im on fire" />,
             'position': 'right',
           },
           {
-            'jsx': '<p>get started or sum shii</p>',
+            'jsx': <InitAnim text="get started or sum shii" />,
             'position': 'right',
           },
           {
-            'text': 'are you student or teacher',
-            'jsx': `<div>
-              <h1>hellow rold</h1>
-              <button onClick={console.log("yee")}>yeeyyee</button>
-            </div>`, //render stuff
+            'jsx': <QuestionTS question="Student or teacher?" setUserPosition={this.setUserRole.bind(this)} />,
+          },
+          {
+            'jsx': <QuestionSchool schoolSelector={this.handleSchoolSelection.bind(this)} />
+          },
+          {
+            'jsx': <InputRequired type="text" placeholder="Name..." ref={this.getuname} />
+          },
+          {
+            'jsx': <InputRequired type="text" placeholder="OSIS" ref={this.getosis} />
+          },
+          {
+            'jsx': <InputRequired type="checkbox" necessaryClass="clubcheck" clubs={["math", "physics", "CS", "robotics", "key"]} finalStep={this.updateUserInfo.bind(this)} />
           }
         ]
-        // const dissapear = async() => {
-  
-        //   this.setState({
-        //       showMe:false,
-        //       showMe2:true
-        
-        //   })      
-        // }
-        // const dissapear2 = async() => {
-        //   this.setState({
-        //       showMe2:false,
-        //       showMe3:true
-        
-        //   })      
-        // }
-        // const dissapear3 = async() => {
-        //   this.setState({
-        //       showMe3:false,
-        //       showMe4:true
-        
-        
-        //   })      
-        // }
-        // const dissapear_teach = async() => {
-        //   this.setState({
-        //       showMe4:false,
-        //       showMe_teach:true
-        //   })      
-        // }
-        // const dissapear_stud = async() => {
-        //   this.setState({
-        //       showMe4:false,
-        //       showMe_stud:true
-        //   })      
-        // }
         return (
           
           <div>
@@ -422,12 +471,12 @@ export default class App extends React.Component {
             (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions" className="ctext-primary">
-                <div>BUT FIRST OSOME QUESTIONS!!</div>
                 <div class="d-inline-block" className="riv-anim"><Rive src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
+                <div className="d-inline-block">
                 <div className="chat" id="firey-chat" >
                   {this.state.currentSlide < steps.length ? 
                   <div>
-                  <div dangerouslySetInnerHTML={{__html: steps[this.state.currentSlide].jsx}}></div> {/*only for testing pls */}
+                  <div>{steps[this.state.currentSlide].jsx}</div>
                   {this.state.currentSlide > 0  ? 
                   <div>
                     <button onClick={this.prevSlide.bind(this)}>Previous</button>
@@ -438,126 +487,8 @@ export default class App extends React.Component {
                 </div>:
                 null}
                 </div>
-            {/* {this.state.showMe?
- <div class="d-flex">
-  <div class="d-inline-block" className="riv-anim"><Rive src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
- <div class="d-inline-block"> 
- <div class="chat"  onClick={() => dissapear()}  >
-    Hello! My name is Firey
-    </div> 
-    </div> 
-    </div> 
+                </div>
 
-   :null}
-   
-   {this.state.showMe2?
- <div class="d-flex">
-
-    <div class="d-inline-block"><Rive src='firey_reg.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}} className="riv-anim"/></div>
-   <div class="d-inline-block"> 
- <div class="chat"  onClick={() => dissapear2()}  >
-    I hope you will get an amazing experience!
-    </div> 
-    </div> 
-    </div> 
-   :null}
-    {this.state.showMe3?
-     <div class="d-flex">
-     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
-    <div class="d-inline-block"> 
- <div class="chat"  onClick={() => dissapear3()}  >
-    Let's set everything up
-    
-    </div> 
-    </div> 
-    </div> 
-
-   :null}
-    {this.state.showMe4?
-     <div class="d-flex">
-
-     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
-    <div class="d-inline-block"> 
- <div class="chat"  >
-    First of all are you a teacher or a student?
-    </div> 
-       <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >teacher</button>
-    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >student</button>
-    </div> 
-    </div> 
-   :null}
-
-{this.state.showMe_teach?
-     <div class="d-flex">
-
-     <div class="d-inline-block"><Rive src='firey_reg.riv' stateMachines='State Machine 3'style={{height:"400px", width:"300px"}}/></div>
-    <div class="d-inline-block"> 
- <div class="chat">
-    For what clubs are you a teacher?
-    </div> 
-    <div className="clubs_but">
-    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
-    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
-    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
-    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
-    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
-    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
-    </div>
-    </div> 
-    </div> 
-   :null}
-
-{this.state.showMe_stud?
-     <div class="d-flex">
-
-     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
-    <div class="d-inline-block"> 
- <div class="chat"  >
-    What clubs are you in?
-    </div> 
-    <div className="clubs_but">
-    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
-    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
-    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
-    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
-    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
-    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
-    </div>
-    </div> 
-    </div> 
-   :null} */}
-                <p>what school are you attending?</p>
-                <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
-                  <option value={0}></option>
-                  <option value={1}>FDR</option>
-                  <option value={2}>Lagrange James</option>  
-                </select>
-                <br />
-                {document.getElementById("school_select") ?
-                document.getElementById("school_select").value !== 0 ? (
-                  <div>
-                    {this.state.username === null && this.state.osis === null ? (
-                    <div>
-                        <p>Name</p>
-                        <input type="text" placeholder="name" ref={this.getuname} className="uname_register_input" />
-                    </div>
-                    ) : null}
-                    <p>OSIS</p>
-                    <input type="text" placeholder="osis" ref={this.getosis} className="osis_register_input"/>
-                    <p>clubs you in???</p>
-                    {/* <select> */}
-                    <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
-                    <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
-                    <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
-                    <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
-                    <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
-    
-                    <p>upload image (or use default)</p>
-                    <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
-    
-                    <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
-                  </div>
-                ) : null : null}
             </div>
             )
             : 
@@ -585,20 +516,9 @@ export default class App extends React.Component {
 TODO:
 - indicate if registering or logging in     DONE
   -- names, ids, which school u go to, clubs, avatar, ...
-- account page                                                    
-  -- scores (CCP social credit), calendar of events, challenges, news & announcements of club 
-- main page: posts for everyone by admins, voting system
-- help page
-  -- each month a big challenge, each week a small task (social credit)
+
+- main page: voting system
 - status updates: changing roles via email
 
-posts and articles for newcomers
-
-
-password checks:
-    At least 12 characters long or more
-    >= 1 uppercase 
-    >= 1 numbers
-    >= 1 symbols
 */
 
