@@ -105,7 +105,7 @@ export default function Schools(props) {
 
  <p className="card-text mb-auto" id="news_desc">{data.text}</p>
 
- <button onClick={() => {pass("/newsdisplay", {replace: true, state: {title: data.title, content: data.text}})}}>Read more</button>
+ <button onClick={() => {pass("/newsdisplay", {state: {title: data.title, content: data.text}})}}>Read more</button>
                 </div>
             </div>
             {data.img.map((image, ii) => {
