@@ -53,7 +53,8 @@ function Scheduler() {
     },[]);
     function convertFromPOSIX(unix_timestamp) {
       var eps = new Date(unix_timestamp*1000);
-      return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())+1)); //+1 to getDate to adjust to GMT otherwise EST
+      return eps.toLocaleDateString("en-US");
+      // return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())+1)); //+1 to getDate to adjust to GMT otherwise EST
     }
     function convertToPOSIX(dateobj) {
       var future = new Date(dateobj);
@@ -65,7 +66,7 @@ function Scheduler() {
       // console.log(event.target)
       let dub_t = [];
       for(const c of challenge) {
-        if(convertFromPOSIX(c.due_date) === (value.getFullYear()+"-"+(parseInt(value.getMonth())+1)+"-"+(parseInt(value.getDate())))) {
+        if(convertFromPOSIX(c.due_date) === ((parseInt(value.getMonth())+1)+"/"+(parseInt(value.getDate()))+"/"+value.getFullYear() )) {
           dub_t.push({"title": c.title, "content": c.content, "origin": c.origin, "status": c.status, "offsetleft": event.target.offsetLeft, "offsettop": event.target.offsetTop});
         } 
       }
@@ -91,10 +92,8 @@ function Scheduler() {
     }
 
     function DetStatus(props) {
-      // console.log(props.d);
-      // if(convertToPOSIX(props.d) === )
       for(const c of challenge) {
-        if(convertFromPOSIX(c.due_date) === (props.d.getFullYear()+"-"+(parseInt(props.d.getMonth())+1)+"-"+(parseInt(props.d.getDate()))) ) {
+        if(convertFromPOSIX(c.due_date) === ((parseInt(props.d.getMonth())+1)+"/"+(parseInt(props.d.getDate()))+"/"+props.d.getFullYear() ) ) {
           return (
             <div>
               {c.status === "active" ?
@@ -147,8 +146,8 @@ function Scheduler() {
                 
                 }
                   <p className='ctext-primary'>{t_c.title}</p>
-                  <p className='ctext-primary'><Latex displayMode={true}>{t_c.content}</Latex></p>
-                  <p className='ctext-primary'>{t_c.origin.replace(`${ctxprops.school_select}`, `${school.name}`)}</p>
+                  <p className='ctext-primary'><Latex displayMode={true}>{t_c.content || "poll here"}</Latex></p>
+                  <p className='ctext-primary'>{t_c.origin ? t_c.origin.replace(`${ctxprops.school_select}`, `${school.name}`) : "poll type"}</p>
                   
                 </div>
               ))}

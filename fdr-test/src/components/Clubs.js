@@ -11,6 +11,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { GoKebabHorizontal } from "react-icons/go";
 import { FaEllipsisH } from "react-icons/fa";
 import { CiCircleCheck } from "react-icons/ci";
+import { FaVoteYea } from "react-icons/fa";
 import "./styles/profiles.css";
 import "../App.css";
 
@@ -19,20 +20,21 @@ let clubo = "";
 var Latex = require('react-latex');
 
 export default function Clubs() {
-    const current_date = new Date();
     const ctxprops = useOutletContext();
     const [selposts, setPosts] = useState([]);
     const [challenge, setChallenge] = useState([]);
     const [check, setCheck] = useState(false);
-    const [date, setDate] = useState("");
     const [img, setImg] = useState([]);
     const titleRef = useRef("");
     const contentRef = useRef("");
     const titleEditRef = useRef("");
     const contentEditRef = useRef("");
+    const [polls, setPolls] = useState([]);
     let challenges_t = [];
     let posts_t = [];
     let imgs_t = [];
+    let polls_t = [];
+
 
     async function getPosts() {
         const clubs_arr = collection(db, `schools/${ctxprops.school_select}/clubs`); 
@@ -54,6 +56,16 @@ export default function Clubs() {
         setChallenge(challenges_t);
         posts_t = [];
         challenges_t = [];
+        const qt_pi = query(collection(db, "challenges"));
+        const snap_t = await getDocs(qt_pi);
+        snap_t.forEach(poll => {if(poll.data().type === "poll") {
+            let obj_t = {};
+            obj_t.data = poll.data();
+            obj_t.pollid = poll.id;
+            polls_t.push(obj_t);
+        }});
+        // console.log(polls_t);
+        setPolls(polls_t);
     }
     function showCalendar() {
         if(document.getElementById("challenge-checkbox")) {
@@ -63,9 +75,6 @@ export default function Clubs() {
                 setCheck(false);
             }
         }
-    }
-    function getDate(e) {
-        setDate(e.target.value);
     }
     async function uploadImage(e) {
         for(let i = 0; i < e.target.files.length; i++) {
@@ -85,6 +94,9 @@ export default function Clubs() {
         }
         setImg(imgs_t);
     }
+    // const postdateref = useRef();
+    const [datetime, setDatetime] = useState('gg');
+
     async function mkPost() {
         // console.log(img);
         const button_target = document.querySelectorAll(".btnpost")[1];
@@ -118,11 +130,13 @@ export default function Clubs() {
                     }
                 }
             } else { //send to challegnes collection for easier
+                // console.log(datetime);
+                // console.log(convertToPOSIX(datetime));
                 await addDoc(collection(db,"challenges"), {
                     "content": contentRef.current.value,
                     "title": titleRef.current.value,
-                    "due_date": convertToPOSIX(),
-                    "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`,
+                    "due_date": convertToPOSIX(datetime),
+                    "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //TODO: fix this so that its from the proper club or smth
                     "status": "active"
                 })
             }
@@ -171,7 +185,7 @@ export default function Clubs() {
         });
         getPosts();
     }
-    const [ptheme, setptheme]= useState("");
+
     useEffect(() => { //TODO: add theme to localstorage (or cookies) cuz i aint readin allat (firebase reads)
         // getDoc(doc(db, `users/${ctxprops.theme}`))
         document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase())
@@ -189,14 +203,17 @@ export default function Clubs() {
         var b = new Date();
         return (b.getTime() - b.getMilliseconds()) / 1000;
     }
-    function convertToPOSIX() {
+    function convertToPOSIX(input) {
         //date as in the usestate
-        var future = new Date(date);
+        console.log(input);
+        var future = new Date(input.replace(/-/g,'/').replace('T',' '));
         return (future.getTime() - future.getMilliseconds()) / 1000;
     }
     function convertFromPOSIX(unix_timestamp) {
         var eps = new Date(unix_timestamp*1000);
-        return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())+1));
+        return eps.toLocaleDateString("en-US")
+        // eps.toLocaleString('en-US', { timeZone: 'America/New_York' });
+        // return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())));
     }
 
     const regexLatexBlock = /\$\$.*\$\$/i;
@@ -253,17 +270,49 @@ export default function Clubs() {
             post_filter = [];
         }
     }
+    const pollRef = useRef();
+    const polloptsref = useRef();
+    let [ets, setEts] = useState([]);
+    const pollDateRef = useRef();
+    function pollingInputs() { //for some bullshit reason it cannot update within the render, it must be outside
+        console.log(polloptsref.current.value);
+        setEts([...Array(parseInt(polloptsref.current.value)).keys()]);
+    }
+    async function mkPoll() { //sending it to challenges cuz it needs appear on calendar
+        const inps = document.querySelectorAll(".option-poll-input");
+        let ets_t = [];
+        for(const inp of inps) {
+            ets_t.push({opt: inp.value, votes: 0});
+        }
+        await addDoc(collection(db, "challenges"), {
+            "title": pollRef.current.value,
+            "options": ets_t,
+            "due_date": convertToPOSIX(pollDateRef.current.value),
+            "origin": null,
+            "content": null,
+            "status": "active",
+            "type": "poll",
+            "answeredBy": [],
+        });
+    }
+    async function updatePoll(event,a,options,o,poll_id) {
+        o.votes += 1;
+        event.target.innerText = `${o.opt}:${o.votes}`;
+        a.push(ctxprops.id);
+        await updateDoc(doc(db, `challenges/${poll_id}`), {
+            options: options,
+            answeredBy: a
+        });
+        setTimeout(()=>{window.location.reload()},3000);
+    }
+    async function udt(e) {
+        await setDatetime(e.target.value);
+    }
 
     return (
         <div className="clubs-page">
             <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
-            {/* <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
-            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-            <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"/>
-            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script> */}
+            <button className="btn btnpost" data-toggle="modal" data-target="#pollpost">Create New poll</button>
         
             <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
                     <a href="#" className="navbar-brand"></a>
@@ -283,29 +332,23 @@ export default function Clubs() {
 
             <div class="container-fluid gedf-wrapper">
                 <div class="row">
-                    {/* <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="h5">Talents harvested: 23</div>
-                                <div class="h7 text-muted">Today</div>
-                                <div class="h7">description of the last results from leader of club
-                                </div>
-                            </div>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">
-                                    <div class="h6 text-muted">Tasks completed</div>
-                                    <div class="h5">2</div>
-                                </li>
-                                <li class="list-group-item">
-                                    <div class="h6 text-muted">Competitions</div>
-                                    <div class="h5">4</div>
-                                </li>
-                                <li class="list-group-item">main goal: Solve the 10th problem of 2023 DMI(for math team)</li>
-
-                            </ul>
+                    <div className="col-md-6 gedf-main">
+                    {polls.map((poll,index) => (
+                        <div className="card gedf-card poll_div">
+                            <h2>{poll.data.title}</h2>
+                            <h5>Expires: {convertFromPOSIX(poll.data.due_date)}</h5>
+                            {poll.data.answeredBy.includes(ctxprops.id) ? 
+                            poll.data.options.map(opt => (
+                                <div><FaVoteYea style={{width: '13px', height: '13px'}} /><p className="ctext-primary">
+                                    {opt.opt}:{opt.votes}
+                                </p></div>))
+                        : poll.data.options.map(opt => (
+                            <button onClick={(e) => {updatePoll(e,poll.data.answeredBy,poll.data.options,opt,poll.pollid)}} className="btn wbtn">
+                                {opt.opt}
+                            </button>))}
+                            
                         </div>
-                    </div> */}
-                    <div className="col-md-6 gedf-main">     
+                    ))}
                           
                     {filter.length === 0 ? selposts.map((post_arr, index) => { // in future we can probably flatten the array for displaying purposes
                         return ( // bruh react be like...
@@ -396,29 +439,6 @@ export default function Clubs() {
                     </div>}
              
             </div>
-            {/* <div className="col-md-3">
-                <div className="card gedf-card">
-
-                    <div className="card-body">
-                        <h5 className="card-title">Main task of the day</h5>
-                        <h6 className="card-subtitle mb-2 text-muted">complete immediatelly</h6>
-                        <p className="card-text">Eat the potato</p>
-                        <a href="#" className="card-link">right here</a>
-                        <a href="#" className="card-link">That's right</a>
-                    </div>
-                </div>
-                <div className="card gedf-card">
-                        <div className="card-body">
-                            <h5 className="card-title">Another task</h5>
-
-                            <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                            <p className="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a href="#" className="card-link">Card link</a>
-                            <a href="#" className="card-link">Another link</a>
-                        </div>
-                    </div>
-            </div> */}
         </div>
     </div>
             
@@ -445,9 +465,10 @@ export default function Clubs() {
                   <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label className="ctext-primary" htmlFor="challenge-checkbox">Challenge</label>
                   {check ?
                   <div>
-                    <input type="date" onChange={getDate} />
+                    <input type="datetime-local" className="challenge_datetimelocal" value={datetime || "1970-01-01T08:30"} onChange={(e)=>udt(e)}/>
                   </div>
                   : null}
+                  
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btnpost" onClick={mkPost}><FaPlus className="faplus" /> Post</button>
@@ -474,7 +495,7 @@ export default function Clubs() {
                   <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control"  />
                   {check ?
                   <div>
-                    <input type="date" onChange={getDate} />
+                    <input type="date" /> {/*fix later ig */}
                   </div>
                   : null}
                 </div>
@@ -485,9 +506,38 @@ export default function Clubs() {
               </div>
             </div>
           </div>
+
+
+          <div id="pollpost" className="modal" tabIndex="-1" role="dialog">
+            <div className="modal-dialog modal-dialog-centered" role="document">
+              <div className="modal-content cmodal ">   
+                <div className="modal-header">
+                  <h5 className="modal-title cmodal-title">Create Poll</h5>
+                  <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                    <input type="text" placeholder="Enter question/title..." className="form-control" ref={pollRef} />
+                    <label htmlFor="poll-date">When will it expire?</label><input type="datetime-local" id="poll-date" ref={pollDateRef} /> <br />
+                    <label htmlFor="number_of_opts">How many options?</label> <input type="number" min="1" className="form-control" id="number_of_opts" ref={polloptsref} />
+                    <button onClick={pollingInputs}>confirm</button>
+                    {ets.map(i => (
+                        <ol>
+                            <li><input type="text" placeholder="option..." className="form-control option-poll-input" key={i} /></li>
+                        </ol>
+                    ))}
+                 
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btnpost" id="poller" onClick={mkPoll}><CiCircleCheck className="svg-menu" />Create poll</button>
+                  <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
             </div>
         </div>
     )
 }
-
-//test mmmetn

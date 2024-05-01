@@ -52,7 +52,7 @@ body[data-theme="light"] {
   --leaderboard: #212529;
   --calendar-hover: #9bdfff;
   --calendar-now: #ffde00;
-
+  --input-shade: #dcdcdc;
   border: none !important;
 }
 body[data-theme="light theme"] {
@@ -67,7 +67,7 @@ body[data-theme="light theme"] {
   --leaderboard: #212529;
   --calendar-hover: #9bdfff;
   --calendar-now: #ffde00;
-
+  --input-shade: #dcdcdc;
   border: none !important;
 }
 body[data-theme="dark theme"] {
@@ -378,4 +378,11 @@ nav {
   font-optical-sizing: auto;
   font-weight: 300;
   font-style: normal;
+}
+.wbtn {
+  width: 100%;
+  height: auto;
+  padding: 10px;
+  border-radius: 30px;
+  margin: 10px;
 }
