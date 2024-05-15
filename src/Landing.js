@@ -3,11 +3,12 @@ import { Link, Outlet, useOutletContext } from "react-router-dom";
 import firebase from 'firebase/compat/app';
 import { getApp } from "firebase/app";
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
-import { useRive } from '@rive-app/react-canvas';
+import Rive, { useRive } from '@rive-app/react-canvas';
 import { getFirestore, collection, getDocs, addDoc, query,getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
 import "./App.css";
+
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 
@@ -20,6 +21,9 @@ class Landing extends React.Component {
     constructor(props) {
         super(props);
         this.mynews_text = React.createRef();
+        this.state = {
+            showMe:true
+        }
     }
 
     
@@ -34,6 +38,9 @@ class Landing extends React.Component {
     componentDidMount() {
         // getDoc()
     }
+
+    
+   
     //Main feed page
     render() {
         return (
@@ -43,48 +50,54 @@ class Landing extends React.Component {
           
                 
                 <OutletProvider>
-                    {(outletCtxProps) => {
+                    {
+                    
+                    (outletCtxProps) => {
                         const [news_text, setNews] = useState([]);
                         let imgs_t = [];
                         let news_t = [];
-                        const { rive, RiveComponent } = useRive({
-                          src: 'firey.riv',
-                          stateMachines: "State Machine 1",
-                        autoplay: true,
-                        });
-                        const ctxprops = useOutletContext();
+                        const rive = useRive();
+                       
+                       
+                    
+                        // const ctxprops = useOutletContext();
                         const [img, setImg] = useState([]);
                         const add_news_ref = useRef("");
                         const text_news_ref = useRef("");
-                        async function uploadImage(e) {
-                          for(let i = 0; i < e.target.files.length; i++) {
-                              const storageRef = ref(storage, `images/${ctxprops.id}/${e.target.files[i].name}`);
-                              const uploadTask = uploadBytesResumable(storageRef, e.target.files[i]);
-                              await uploadTask.on('state_changed', (snap) => {
-                                  if(snap.state === "running") {
-                                  console.log(snap.state);
-                                  }
-                              }, (err) => {
-                                  console.log("error upload");
-                              }, () => {
-                                  getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-                                      imgs_t.push(url);
-                                  })
-                              });
-                          }
-                          setImg(imgs_t);
-                      }
+                       
+                        const  dissapear = async() => {
+                            this.setState({
+                                showMe:false,
+                                showMe2:true
+                    
+                            })      
+                        }
+                        const  dissapear2 = async() => {
+                            this.setState({
+                                showMe2:false,
+                                showMe3:true
+                    
+                            })      
+                        }
+                        const  dissapear3 = async() => {
+                            this.setState({
+                                showMe3:false,
+                                showMe4:true
 
-                        // console.log(outletCtxProps);
-                        const add_news = async() => {
-                            const docRef2 = await addDoc(collection(db, `schools/${outletCtxProps.school_select}/news`), {
-                                title: add_news_ref.current.value,
-                              text: text_news_ref.current.value,
-                              img:img,
-                              date: serverTimestamp()
-                            });
-                            add_news_ref.current.value = "";
-                            text_news_ref.current.value = "";
+                    
+                            })      
+                        }
+                        const  dissapear_teach = async() => {
+                            this.setState({
+                                showMe4:false,
+                                showMe_teach:true
+                            })      
+                        }
+                        const  dissapear_stud = async() => {
+                            this.setState({
+                                showMe4:false,
+                                showMe_stud:true
+                            })      
                         }
                         const get_news = async() => {
                           const q = query(collection(db,`schools/${outletCtxProps.school_select}/news`));
@@ -97,123 +110,105 @@ class Landing extends React.Component {
                           });
                           setNews(news_t);
                         }
-                        get_news();
+                        // get_news();
                         return (
                         
                         <div>
-<div class="d-flex">
- <div class="d-inline-block"><RiveComponent style={{height:"400px", width:"500px"}}/></div>
- <div class="d-inline-block"> <div class="chat">
+<div className="center_news">
+
+
+ 
+ 
+ {this.state.showMe?
+ <div class="d-flex">
+  <div class="d-inline-block"><Rive  src='firey.riv'ref={rive} style={{height:"400px", width:"300px"}}/></div>
+ <div class="d-inline-block"> 
+ <div class="chat"  onClick={() => dissapear()}  >
     Hello! My name is Firey
-    </div> </div>
-</div>
-{/* <form>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Publish post or make a challenge</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="post description"/>
-      
-      <input type="checkbox" className="posttype_check" id="checker"/><label htmlFor="checker">challenge</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="due date *only for challenge"/>
-    </div>
-</div>
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck"/>
-      <label class="form-check-label" for="gridCheck">
-        Check me out
-      </label>
-    </div>
-  </div>
-  <button className="submit-info" id="submit-info" onClick={this.create_post}>Submit</button>
-</form>
-<h1>write results for week</h1>
-<form>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Email</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="Email"/>
-    </div>
-</div>
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck"/>
-      <label class="form-check-label" for="gridCheck">
-        Check me out
-      </label>
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary">Sign in</button>
-</form>
-<h1>Write results for month</h1>
-<form>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Email</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="Email"/>
-    </div>
-</div>
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck"/>
-      <label class="form-check-label" for="gridCheck">
-        Check me out
-      </label>
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary" onClick={this.create_post}>Sign in</button>
-</form> */}
+    </div> 
+    </div> 
+    </div> 
 
+   :null}
+   
+   {this.state.showMe2?
+ <div class="d-flex">
 
-{/* <h1>Add school</h1>
-<form>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">school name</label>
-      <input type="email" class="form-control" ref={this.mynews_text} id="inputEmail4" placeholder="Email"/>
-    </div>
-</div>
-<div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">description</label>
-      <input type="email" class="form-control" ref={this.mynews_text} id="inputEmail4" placeholder="Email"/>
-    </div>
-</div>
-<div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">image</label>
-      <input type="file" class="form-control" ref={this.mynews_text} src="img/img.png"  id="inputEmail4" placeholder="Email"/>
-    </div>
-</div>
+    <div class="d-inline-block"><Rive src='firey_reg.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+   <div class="d-inline-block"> 
+ <div class="chat"  onClick={() => dissapear2()}  >
+    I hope you will get an amazing experience!
+    </div> 
+    </div> 
+    </div> 
+   :null}
+    {this.state.showMe3?
+     <div class="d-flex">
+     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"> 
+ <div class="chat"  onClick={() => dissapear3()}  >
+    Let's set everything up
+    </div> 
+    </div> 
+    </div> 
 
+   :null}
+    {this.state.showMe4?
+     <div class="d-flex">
+
+     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"> 
+ <div class="chat"  >
+    First of all are you a teacher or a student?
+    </div> 
+       <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >teacher</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >student</button>
+    </div> 
+    </div> 
+   :null}
+
+{this.state.showMe_teach?
+     <div class="d-flex">
+
+     <div class="d-inline-block"><Rive src='firey_reg.riv' stateMachines='State Machine 3'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"> 
+ <div class="chat">
+    For what clubs are you a teacher?
+    </div> 
+    <div className="clubs_but">
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    </div>
+    </div> 
+    </div> 
+   :null}
+
+{this.state.showMe_stud?
+     <div class="d-flex">
+
+     <div class="d-inline-block"><Rive src='firey.riv' stateMachines='State Machine 1'style={{height:"400px", width:"300px"}}/></div>
+    <div class="d-inline-block"> 
+ <div class="chat"  >
+    What clubs are you in?
+    </div> 
+    <div className="clubs_but">
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    <button id="my_teacher_b"class="btn shadow-none" onClick={() => dissapear_teach()}  >Key Club</button>
+    <button id="my_student_b"class="btn shadow-none" onClick={() => dissapear_stud()}  >Robotics club</button>
+    </div>
+    </div> 
+    </div> 
+   :null}
   
-  <button class="btn btn-primary" onClick={this.add_news}>Sign in</button>
-</form>
-
-
-<h1>Give out talent points: 20</h1>
-<form>
-<div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Atai</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="number"/>
+    
     </div>
-</div>
-<div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Giliana</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="number"/>
-    </div>
-</div>
-<div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Sam</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="number"/>
-    </div>
-</div>
-  
-  <button type="submit" class="btn btn-primary" onClick={this.create_post}>Sign in</button>
-</form> */}
 
                         </div>
                         );

@@ -1,15 +1,16 @@
 import React, {useEffect} from "react";
-import './App.css';
 import firebase from 'firebase/compat/app';
 import { getApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, signInAnonymously, signInWithPopup, createUserWithEmailAndPassword, GoogleAuthProvider, sendEmailVerification  } from "firebase/auth";
 import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import {db} from "./firebase-config";
+import Rive, { useRive } from '@rive-app/react-canvas';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
 import Glogo from "./glogo.png";
 import { JSEncrypt } from "jsencrypt";  
+import './App.css';
 
 const gp = new GoogleAuthProvider();
 const auth = getAuth();
@@ -23,15 +24,19 @@ export default class App extends React.Component {
       super(props);
       this.state = {
         loaded: false,
+        currentSlide: 0,
       }
+
       this.emailInputRef = React.createRef();
       this.passwordRef = React.createRef();
       this.emaillog = React.createRef();
       this.passlog = React.createRef();
-      this.getuname = React.createRef();
-      this.getosis = React.createRef();
+      this.getuname = React.createRef("");
+      this.getosis = React.createRef("");
+
 
   }
+  
   logout() {
     const auth = getAuth();
     signOut(auth).then(() => {
@@ -39,6 +44,8 @@ export default class App extends React.Component {
       window.location.reload();
     }).catch((error) => {console.log("no error")})
   }
+
+
   google_auth = async () => {
       await signInWithPopup(auth, gp).then((res) => {
         const user = doc(db, `users`, auth.currentUser.uid);
@@ -70,6 +77,7 @@ export default class App extends React.Component {
         // }
       })
   }
+  
   emailpass_auth = async (email,pass) => {
     if(this.checkPassword(pass)) {
       await createUserWithEmailAndPassword(auth, email, pass).then((res) => {
@@ -88,9 +96,9 @@ export default class App extends React.Component {
             theme: "light",
         }).then(() => {console.log("written");
         sendEmailVerification(auth.currentUser).then(() => {
-          // updateDoc(docRef, {
-          //   verified: true,
-          // })
+            // updateDoc(docRef, {
+            //   verified: true,
+            // })
         })
       }).catch(er => {console.log(er)});
         this.setState({logged: true});
@@ -174,13 +182,14 @@ export default class App extends React.Component {
     });
   }
 
-  handleSchoolSelection(e){
-    this.setState({
+  async handleSchoolSelection(e) {
+    await this.setState({
       school_select: e.target.value,
-    })
+    });
+    document.getElementById("school_select").value = e.target.value;
+    // console.log(this.state);
   }
   handleImage = (event) => {
-    
     const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
     const uploadTask = uploadBytesResumable(storageRef, event.target.files[0]);
     uploadTask.on('state_changed', (snap) => {
@@ -203,7 +212,6 @@ export default class App extends React.Component {
   }
 
   updateUserInfo = () => {
-    // console.log(this.state.school_select);
     const checkboxes = document.querySelectorAll(".clubcheck");
     let clubsArr = [];
     for(let i = 0; i < checkboxes.length; i++) {
@@ -211,25 +219,24 @@ export default class App extends React.Component {
         clubsArr.push(checkboxes[i].id.toString());
       }
     }
-    if(this.getosis.current.value.length > 0) {
-      if((/^\d+$/.test(this.getosis.current.value))) {
-        const docRef = doc(db, `users`, this.state.id);
-        updateDoc(docRef, {
-          name:( this.state.username !== null ? this.state.username : this.getuname.current.value ),
-          osis: this.encrypt(this.getosis.current.value), 
-          clubs: clubsArr,
-          pfp: this.state.pfp,
-          school: parseInt((this.state.school_select)),
-        });
-        this.setState({
-          loaded: true,
-        });
-        setTimeout(() => {window.location.reload()}, 3000);
-      } else {
-        alert("incorrect format");
-      }
+    // console.log(clubsArr);
+    if(parseInt((this.state.school_select)) > 0) {
+      const docRef = doc(db, `users`, this.state.id);
+      updateDoc(docRef, {
+        name:( this.state.username !== null ? this.state.username : this.state.uname_ref_t),
+        osis: this.encrypt(this.state.osis_t), 
+        clubs: clubsArr,
+        pfp: this.state.pfp,
+        school: parseInt((this.state.school_select)),
+        role: this.state.role,
+      });
+      this.setState({
+        loaded: true,
+      });
+      // setTimeout(() => {window.location.reload()}, 3000);
+      
     } else {
-      alert("error");
+      alert(this.state.school_select);
     }
     
   }
@@ -255,13 +262,104 @@ export default class App extends React.Component {
     }
     return b3;
   }
-
+  nextSlide() {
+    if(this.getuname.current!== null && this.getuname.current.value.replace(/ /g, '') !== "" ) {
+      this.setState({
+        uname_ref_t: this.getuname.current.value,
+        currentSlide: this.state.currentSlide + 1,
+      })
+    } else {
+      if(this.getosis.current !== null && this.getosis.current.value.length > 0 ) {
+        if(this.getosis.current.value.length === 9 && (/^\d+$/.test(this.getosis.current.value))) {
+          this.setState({
+            osis_t: this.getosis.current.value,
+            currentSlide: this.state.currentSlide + 1,
+          });
+        } else {
+          alert("enter proepr osis")  
+        }
+      } else {
+        this.setState({
+          currentSlide: this.state.currentSlide + 1,
+        });
+      }
+    }
+    
+  }
+  prevSlide() {
+    this.setState({
+      currentSlide: this.state.currentSlide - 1,
+    })
+  }
+  makeAlert(value) {
+    alert(value);
+  }
+  setUserRole(value) {
+    if(value === "student") {
+      this.setState({
+        role: "regular",
+        currentSlide: this.state.currentSlide + 1
+      })
+    } else {
+      this.setState({
+        role: "teacher",
+        currentSlide: this.state.currentSlide + 1,
+      })
+    }
+  }
 
   render() {
-    // this.checkPassword("123456U@");
+    function InitAnim(props) {
+      return (
+        <div>
+        <p>{props.text}</p>
+      </div>
+      )
+    }
+    function QuestionTS(props) {
+      return (
+        <div>
+          <p>{props.question}</p>
+          <button onClick={() => props.setUserPosition("twonnyoneteacher")}>Teacher</button>
+          <button onClick={() => props.setUserPosition("student")}>Student</button>
+        </div>
+      )
+    }
+    function QuestionSchool(props) {
+      return (<div>
+        <p>what school are you attending?</p>
+          <select onChange={(e) => props.schoolSelector(e)} id="school_select">
+            <option value={0}></option>
+            <option value={1}>FDR</option>
+            <option value={2}>Lagrange James</option>  
+          </select>
+      </div>)
+    }
+    const InputRequired = React.forwardRef((props,ref) => {
+      if(props.type === "text") {
+        return (
+          <div>
+            <input type={props.type} placeholder={props.placeholder} ref={ref}  />
+          </div>)
+      } else{
+        return (
+          <div>
+            {props.clubs.map((club,i) => (
+              <div>
+                <input type={props.type} className={props.necessaryClass} id={club} /><label htmlFor={club}>{props.clubs[i]}</label><br />
+              </div>
+            ))}
+            <button onClick={props.finalStep}>Submit</button>
+          </div>
+        )
+      }
+    })
+
     if(this.state.loaded) {
       if(!this.state.logged) {
+     
         return (
+          
           <div className="register ctext-primary">
             <div className="overlay">
               <div className="modal_register">
@@ -278,22 +376,44 @@ export default class App extends React.Component {
                 <span>OR</span><br />
                 <button onClick={this.google_auth} className="glogo"><img src={Glogo} width={50} height={50}/> login with google</button>
                 <br />
-              
-             
+                <br />
+                <br />
+                <p>OR</p>
                 {/* <button className="btn btn-outline-success my-2 my-sm-0" onClick={this.anon_login}>Become anon</button> */}
 
                 <span id="spanning-error"></span>
               </div>
             </div>
-            <form>
- 
- 
-  <button type="submit" class="btn btn-primary">Sign in</button>
-</form>
           </div>
         );
       } else {
+        const steps = [
+          {
+            'jsx': <InitAnim text="hello im on fire" />,
+            'position': 'right',
+          },
+          {
+            'jsx': <InitAnim text="get started or sum shii" />,
+            'position': 'right',
+          },
+          {
+            'jsx': <QuestionTS question="Student or teacher?" setUserPosition={this.setUserRole.bind(this)} />,
+          },
+          {
+            'jsx': <QuestionSchool schoolSelector={this.handleSchoolSelection.bind(this)} />
+          },
+          {
+            'jsx': <InputRequired type="text" placeholder="Name..." ref={this.getuname} />
+          },
+          {
+            'jsx': <InputRequired type="text" placeholder="OSIS" ref={this.getosis} />
+          },
+          {
+            'jsx': <InputRequired type="checkbox" necessaryClass="clubcheck" clubs={["math", "physics", "CS", "robotics", "key"]} finalStep={this.updateUserInfo.bind(this)} />
+          }
+        ]
         return (
+          
           <div>
                              <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -306,22 +426,22 @@ export default class App extends React.Component {
   <div className="collapse navbar-collapse" id="navbarSupportedContent">
     <ul className="navbar-nav mr-auto">
       <li className="nav-item active">
-        <Link className="nav-link" to={"/"}><div className="nunito-header">Home</div> <span className="sr-only">(current)</span></Link>
+        <Link className="nav-link ctext-primary" to={"/"}><div className="nunito-header">Home</div> <span className="sr-only">(current)</span></Link>
       </li>
       <li className="nav-item">
-        <Link className="nav-link" to={"/clubs"}>Clubs</Link>
+        <Link className="nav-link ctext-primary" to={"/clubs"}>Clubs</Link>
       </li>
       <li className="nav-item">
-      <Link className="nav-link" to={"/schools"}>School</Link>
+      <Link className="nav-link ctext-primary" to={"/schools"}>School</Link>
       </li>
       <li className="nav-item">
-      <Link className="nav-link" to={"/calendar"}>Calendar</Link>
+      <Link className="nav-link ctext-primary" to={"/calendar"}>Calendar</Link>
       </li>
       <li className="nav-item">
-      <Link className="nav-link" to={"/about"}>About</Link>
+      <Link className="nav-link ctext-primary" to={"/about"}>About</Link>
       </li>
       <li className="nav-item">
-        <Link className="nav-link" to={"/profile"}>Profile</Link>
+        <Link className="nav-link ctext-primary" to={"/profile"}>Profile</Link>
       </li>
 
     </ul>
@@ -337,7 +457,6 @@ export default class App extends React.Component {
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
               <Outlet context={this.state} />
-            
             )
             :
             <div>
@@ -349,39 +468,26 @@ export default class App extends React.Component {
             (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions" className="ctext-primary">
-                <div>BUT FIRST SOME QUESTIONS!</div>
-                <p>what school do you go to?</p>
-                <select onChange={this.handleSchoolSelection.bind(this)} id="school_select" >
-                  <option value={0}></option>
-                  <option value={1}>FDR</option>
-                  <option value={2}>Stuyvesant</option>  
-                </select>
-                <br />
-                {document.getElementById("school_select") ?
-                document.getElementById("school_select").value !== 0 ? (
+                <div className="d-flex">
+                <div className="d-inline-block riv-anim" ><Rive src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
+                <div className="d-inline-block">
+                <div className="chat" id="firey-chat" >
+                  {this.state.currentSlide < steps.length ? 
                   <div>
-                    {this.state.username === null && this.state.osis === null ? (
-                    <div>
-                        <p>Name</p>
-                        <input type="text" placeholder="name" ref={this.getuname} />
-                    </div>
-                    ) : null}
-                    <p>OSIS</p>
-                    <input type="text" placeholder="osis" ref={this.getosis} />
-                    <p>clubs you in???</p>
-                    {/* <select> */}
-                    <input type="checkbox" className="clubcheck" id="math" /><label htmlFor="math">Math</label>
-                    <input type="checkbox" className="clubcheck" id="CS" /><label htmlFor="CS">Computer scientce</label>
-                    <input type="checkbox" className="clubcheck" id="key" /><label htmlFor="key">key club</label>
-                    <input type="checkbox" className="clubcheck" id="robotics" /><label htmlFor="robotics">robitcs</label>
-                    <input type="checkbox" className="clubcheck" id="physics" /><label htmlFor="physics">physics</label>
-    
-                    <p>upload image (or use default)</p>
-                    <input type="file" id="avatar_upload" name="avatar" accept="image/png, image/jpeg" onChange={this.handleImage} />             
-    
-                    <button className="submit-info" id="submit-info" onClick={this.updateUserInfo}>Submit</button>
+                  <div>{steps[this.state.currentSlide].jsx}</div>
+                  {this.state.currentSlide > 0  ? 
+                  <div>
+                    <button onClick={this.prevSlide.bind(this)}>Previous</button>
+                    <button onClick={this.nextSlide.bind(this)}>Next</button>
                   </div>
-                ) : null : null}
+                
+                : <button onClick={this.nextSlide.bind(this)}>Next</button>}
+                </div>:
+                null}
+                </div>
+                </div>
+                </div>
+
             </div>
             )
             : 
@@ -409,20 +515,9 @@ export default class App extends React.Component {
 TODO:
 - indicate if registering or logging in     DONE
   -- names, ids, which school u go to, clubs, avatar, ...
-- account page                                                    
-  -- scores (CCP social credit), calendar of events, challenges, news & announcements of club 
-- main page: posts for everyone by admins, voting system
-- help page
-  -- each month a big challenge, each week a small task (social credit)
+
+- main page: voting system
 - status updates: changing roles via email
 
-posts and articles for newcomers
-
-
-password checks:
-    At least 12 characters long or more
-    >= 1 uppercase 
-    >= 1 numbers
-    >= 1 symbols
 */
 

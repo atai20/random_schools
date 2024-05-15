@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
 import ErrorRoute from './ErrorRoute';
 import Schools from "./components/Schools";
@@ -9,9 +8,16 @@ import About from "./components/About";
 import Profile from "./components/Profile";
 import Clubs from "./components/Clubs";
 import Intro from "./components/Intro";
-import Cookie from "./components/Cookie";
+import NewsTemplate from './components/NewsTemplate';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Scheduler from './components/Scheduler';
+import Resultsform from './components/Resultsform';
+import Schoolsform from './components/Schoolsform';
+import Submissions from './components/Submissions';
+// import Clubform from './components/Clubform';
+import Newsform from './components/Newsform';
+import 'intro.js/introjs.css';
+import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -26,6 +32,10 @@ const router = createBrowserRouter([
         element: <Landing />,
       },
       {
+        path: "newsdisplay",
+        element: <NewsTemplate  />
+      },
+      {
         path: "/schools",
         element: <Schools />,
       },
@@ -38,12 +48,20 @@ const router = createBrowserRouter([
         element: <Clubs />,
       },
       {
-        path: "/calendar",
-        element: <Scheduler />,
+        path: "/formnews",
+        element: <Newsform />,
       },
       {
-        path: "/cookie",
-        element: <Cookie />,
+        path: "/formresults",
+        element: <Resultsform />,
+      },
+      {
+        path: "/formschools",
+        element: <Schoolsform />,
+      },
+      {
+        path: "/calendar",
+        element: <Scheduler />,
       },
       {
         path: "/about",
@@ -53,11 +71,15 @@ const router = createBrowserRouter([
       {
         path: "/intro",
         element: <Intro />,
+      },
+      {
+        path: "/submissions",
+        element: <Submissions />
       }
     ]
   },
 ]);
 
 root.render(
-  <RouterProvider router={router} />
+    <RouterProvider router={router} />
 );

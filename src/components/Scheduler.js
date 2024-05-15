@@ -2,10 +2,11 @@ import Calendar from 'react-calendar';
 import React, { useContext, useState,useEffect, useRef } from 'react';
 import { db } from "../firebase-config";
 import { getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query } from "firebase/firestore";
-import "../App.css";
 import { Link, useOutletContext } from "react-router-dom";
 
 import { GoDotFill } from "react-icons/go";
+import Latex from 'react-latex';
+import "../App.css";
 
 
 let challenges_t = [];
@@ -26,11 +27,17 @@ function Scheduler() {
     async function getChallenges() {
       const q = query(collection(db, "challenges"));
       const gd = await getDocs(q);
-      gd.forEach((doc) => {
-        challenges_t.push(doc.data());
+      gd.forEach((document) => {
+        if((getCurrentTime() - parseInt(document.data().due_date)) > 0) {
+          deleteDoc(doc(db, "challenges", document.id));
+        }
+
+        challenges_t.push(document.data());
       });
       setChallenge(challenges_t);
+
       challenges_t = [];
+      
     }
     async function schoolInfo() {
       const schoolRef = doc(db, `schools/${ctxprops.school_select}`);
@@ -39,14 +46,15 @@ function Scheduler() {
       });      
     }
     useEffect(() => {
-      document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase());
+      getDoc(doc(db, `users/${ctxprops.id}`)).then((u_d) => document.body.setAttribute("data-theme", u_d.data().theme.toLowerCase()));
       getChallenges();
       schoolInfo();
       fetchAllUsers();
     },[]);
     function convertFromPOSIX(unix_timestamp) {
       var eps = new Date(unix_timestamp*1000);
-      return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())+1)); //+1 to getDate to adjust to GMT otherwise EST
+      return eps.toLocaleDateString("en-US");
+      // return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())+1)); //+1 to getDate to adjust to GMT otherwise EST
     }
     function convertToPOSIX(dateobj) {
       var future = new Date(dateobj);
@@ -54,10 +62,11 @@ function Scheduler() {
     }
 
     const [currChallenge, setCurrChallenge] = useState([]);
-    function challengeDate(value, event) { //yes it renders twice. will go away after npm build
+    function challengeDate(value, event) { 
+      // console.log(event.target)
       let dub_t = [];
       for(const c of challenge) {
-        if(convertFromPOSIX(c.due_date) === (value.getFullYear()+"-"+(parseInt(value.getMonth())+1)+"-"+(parseInt(value.getDate())))) {
+        if(convertFromPOSIX(c.due_date) === ((parseInt(value.getMonth())+1)+"/"+(parseInt(value.getDate()))+"/"+value.getFullYear() )) {
           dub_t.push({"title": c.title, "content": c.content, "origin": c.origin, "status": c.status, "offsetleft": event.target.offsetLeft, "offsettop": event.target.offsetTop});
         } 
       }
@@ -81,25 +90,44 @@ function Scheduler() {
       setBoard(token_t);
       console.log(board);
     }
-    
+
+    function DetStatus(props) {
+      for(const c of challenge) {
+        if(convertFromPOSIX(c.due_date) === ((parseInt(props.d.getMonth())+1)+"/"+(parseInt(props.d.getDate()))+"/"+props.d.getFullYear() ) ) {
+          return (
+            <div>
+              {c.status === "active" ?
+            <span title="active" style={{fill: "#34eb77", color: "#34eb77"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+            : c.status === "in_review" ? 
+            <span title="in review" style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+          : 
+          <span title="not taking anymore answers" style={{fill: "#eb1c1c", color: "#eb1c1c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+          
+          }
+            </div>
+          )
+        }
+      }
+    }
 
     return (
       <div className='calendar-main'>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+        {/* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
           <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
           <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
           <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
      
-          <link href="css/styles.css" rel="stylesheet" />
+          <link href="css/styles.css" rel="stylesheet" /> */}
+        <h1 className='text-center ctext-primary'>Calendar</h1>
+        <div className='calendar-container' style={{width: '100%', height: 'auto'}} >
+          {/* <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary" /> */}
 
-        
-      
 
         <h1 className='text-center ctext-primary'><div className='nunito-all'>Challenges and plans</div></h1>
         <div className='nunito-all'>*Select the date to see if there is a challange for the day</div>
         <div className='calendar-container' >
-          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="ctext-primary"/>
+          <Calendar onChange={(v,e) => {setCurrDate(v);challengeDate(v,e);setCbtn(v)}} className="maincal ctext-primary" tileContent={({ date, view }) => <DetStatus d={date} v={view} />} />
 
 
           {cbtn !== "" ? 
@@ -107,35 +135,33 @@ function Scheduler() {
             {currChallenge.length !== 0 ? 
             <div>
               {currChallenge.map((t_c) => (
-                <div className='render-challenge' id="challenge-display" style={{left: t_c.offsetleft, top: (t_c.offsettop+20)}}>
+                <div className='render-challenge' id="challenge-display" style={{position: 'absolute', left: t_c.offsetleft, top: (t_c.offsettop+100)}}>
                   {/* <p className='ctext-primary'>{t_c.title}</p> */}
                   {t_c.status === "active" ?
-                  <span style={{fill: "#34eb77", color: "#34eb77"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                  <span title="active" style={{fill: "#34eb77", color: "#34eb77"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
                   : t_c.status === "in_review" ? 
-                  <span style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                  <span title="in review" style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
                 : 
-                <span style={{fill: "#eb1c1c", color: "#eb1c1c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
+                <span title="not taking anymore answers" style={{fill: "#eb1c1c", color: "#eb1c1c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
                 
                 }
                   <p className='ctext-primary'>{t_c.title}</p>
-                  <p className='ctext-primary'>{t_c.content}</p>
-                  <p className='ctext-primary'>{t_c.origin.replace(`${ctxprops.school_select}`, `${school.name}`)}</p>
+                  <p className='ctext-primary'><Latex displayMode={true}>{t_c.content || "poll here"}</Latex></p>
+                  <p className='ctext-primary'>{t_c.origin ? t_c.origin.replace(`${ctxprops.school_select}`, `${school.name}`) : "poll type"}</p>
                   
                 </div>
               ))}
-              <button onClick={() => setCurrChallenge([])} className='btn'>Close</button>
+              <button onClick={() => setCurrChallenge([])} className='cbtn btn' style={{position: 'absolute'}}>Close</button>
             </div>
             :null}
           </div>
           :null}
-          
-   
         </div>
-        <div className='leaderboard-display'>Leaderboard
+        <div className='leaderboard-display ctext-primary'>Leaderboard
 
 
-        <table class="table" id="leaders">
-  <thead class="thead-dark">
+        <table className="table" id="leaders">
+  <thead className="thead-dark">
     <tr>
       <th scope="col" className='name_col1'>Name</th>
       <th scope="col" className='name_col2'>Score</th>
@@ -145,8 +171,8 @@ function Scheduler() {
         {board.map((obj) => (
          
          <tr>
-         <td>{obj.name}</td>
-         <td>{obj.talents}</td>
+         <td className='ctext-primary'>{obj.name}</td>
+         <td className='ctext-primary'>{obj.talents}</td>
        </tr>
         ))}
         </tbody>
@@ -155,7 +181,7 @@ function Scheduler() {
         </div>
         
     </div>
+    </div>
     );
   }
-  
-  export default Scheduler;
+export default Scheduler;
