@@ -386,3 +386,36 @@ nav {
   border-radius: 30px;
   margin: 10px;
 }
+
+
+.mini-view-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three columns of equal width */
+  grid-gap: 20px; /* Gap between grid items */
+  /* You can also use 'grid-template-rows' for defining row heights */
+  justify-items: center; /* Align grid items along the inline (row) axis */
+  align-items: center; /* Align grid items along the block (column) axis */
+  justify-content: center; /* Align the grid along the inline (row) axis */
+  align-content: center; /* Align the grid along the block (column) axis */
+}
+.mini-view-card {
+  background-color: var(--div-color) !important;
+  border-radius: 10px;
+  padding: 10px;
+  grid-column: span 1; /* Span one column */
+  grid-row: span 1; /* Span one row */
+  max-width: 300px;
+  max-height: fit-content;
+  overflow: scroll;
+}
+
+@media (max-width: 768px) {
+  .mini-view-grid {
+      grid-template-columns: repeat(2, 1fr); /* Two columns on smaller screens */
+  }
+}
+@media (max-width: 480px) {
+  .mini-view-grid {
+      grid-template-columns: 1fr; /* Single column on even smaller screens */
+  }
+}

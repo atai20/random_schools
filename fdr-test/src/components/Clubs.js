@@ -275,7 +275,7 @@ export default function Clubs() {
     async function updateChallengesWithPostID(challenge_id, post_id) { //so far it will only work for one hashtag
         let nc = challenge_id.filter(c => c !== null);
         let obj_target = g_c.find(o => o.challenge_id === nc[0]);
-        if(!obj_target.chal_data.submissions.includes(post_id)) {
+        if(obj_target && !obj_target.chal_data.submissions.includes(post_id)) {
             obj_target.chal_data.submissions.push(post_id);
             await updateDoc(doc(db, `challenges/${nc[0]}`), {
                 "submissions": obj_target.chal_data.submissions
@@ -391,7 +391,7 @@ export default function Clubs() {
                                         <img className="rounded-circle" width="45" src={post_obj.posts_data.author_pfp} alt=""/>
                                     </div>
                                     <div className="ml-2">  
-                                    <div className="h5 m-0">{post_obj.posts_data.author_id}</div>
+                                    <div className="h5 m-0">{post_obj.posts_data.author}</div>
                                         <div className="h7">From {post_obj.posts_data.from_club} club</div>
                                     </div>
                                 </div>
@@ -445,12 +445,13 @@ export default function Clubs() {
                                         <div><Latex displayMode={true}>{regexLatexBlock.test(post_obj.posts_data.text) ? post_obj.posts_data.text.match(regexLatexBlock)[0] :''}</Latex></div>
                                         {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
                                         if(i %2===0) {
-                                            updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c : null)), selposts[i].postid );
+                                            updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), selposts[i].postid );
                                             return (
                                                 <div>
                                                     <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
                                                         {header: hash, 
                                                         challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substr(1) ? c.chal_data : null)), 
+                                                        school_select: ctxprops.school_select,
                                                         }}) }}>{hash}</span>
                                                     </div>
                                             )
