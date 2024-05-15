@@ -309,6 +309,9 @@ export default function Clubs() {
         await setDatetime(e.target.value);
     }
 
+    // console.log(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test("hello world #aplangexam"));
+    // console.log("hello world #aplangexam".match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i));
+
     return (
         <div className="clubs-page">
             <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
@@ -423,7 +426,17 @@ export default function Clubs() {
                                 <img src={post.img} className="imgofpost" />
                             : null}
                                 </div>                                
-                                <p className="card-text"><Latex className="latex_font" displayMode={true}>{post.text}</Latex></p>
+                                <p className="card-text">
+                                {/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post.text) ? 
+                                <div>
+                                    {post.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}
+                                    {post.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => (
+                                    <div>
+                                        {i % 2===0 ? <span style={{color: '#72bcd4'}}>{hash}</span>:null}                                        
+                                    </div>
+                                ))}</div>
+                            :post.text}    
+                                </p>
                             </div>
                             <div className="card-footer">
                             </div>
