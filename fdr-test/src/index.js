@@ -13,6 +13,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Scheduler from './components/Scheduler';
 import Resultsform from './components/Resultsform';
 import Schoolsform from './components/Schoolsform';
+import Submissions from './components/Submissions';
 // import Clubform from './components/Clubform';
 import Newsform from './components/Newsform';
 import 'intro.js/introjs.css';
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: "/intro",
         element: <Intro />,
+      },
+      {
+        path: "/submissions",
+        element: <Submissions />
       }
     ]
   },

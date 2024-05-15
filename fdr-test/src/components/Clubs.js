@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useRef} from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import firebase from 'firebase/compat/app'; 
+import { Link, useOutletContext, useNavigate } from "react-router-dom";
 import { getAuth, deleteUser, signOut } from "firebase/auth";
 import { doc, deleteDoc, getDoc, addDoc, updateDoc, query, where, collection, getDocs, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase-config";
@@ -20,6 +21,7 @@ let clubo = "";
 var Latex = require('react-latex');
 
 export default function Clubs() {
+    const pass = useNavigate();
     const ctxprops = useOutletContext();
     const [selposts, setPosts] = useState([]);
     const [challenge, setChallenge] = useState([]);
@@ -36,20 +38,14 @@ export default function Clubs() {
     let polls_t = [];
 
 
-    async function getPosts() {
-        const clubs_arr = collection(db, `schools/${ctxprops.school_select}/clubs`); 
+    async function getPosts(club) {
+        const clubs_arr = collection(db, `schools/${ctxprops.school_select}/clubs/${club}/posts`); 
         const q = query(clubs_arr);
         const snap = await getDocs(q);
         snap.forEach(doc => {
             if(ctxprops.clubs.includes(doc.id)) {
-                posts_t.push(doc.data().posts);
-            } else {
-                doc.data().posts.map((post) => {
-                    if(post.type === "challenge") {
-                        console.log("this should also be visible: ", post);
-                        challenges_t.push(post);
-                    }
-                })
+                console.log(doc.data());
+                posts_t.push({post_data: doc.data().posts, postid: doc.id});
             }
         });
         setPosts(posts_t);
@@ -106,7 +102,7 @@ export default function Clubs() {
             if(!check) {
                 for(let i = 0; i < clubsArr.length; i++) {
                     if(clubsArr[i].checked) {
-                        selposts[i].unshift(
+                        selposts[i].post_data.unshift(
                             {
                                 "author": ctxprops.username,
                                 "author_id": ctxprops.id,
@@ -118,11 +114,12 @@ export default function Clubs() {
                                 "type": (check ? "challenge" : "regular"),
                                 "due_date": (check ? convertToPOSIX() : null ),
                                 "from_club": clubsArr[i].id, //trust me I know, it can be fixed later, I am just too lazy to do allat rn
-                                "origin": `${ctxprops.school_select}/${clubsArr[i].id}`
+                                "origin": `${ctxprops.school_select}/${clubsArr[i].id}`,
+                                "post_id": firebase.firestore().collection(`schools/${ctxprops.school_select}/clubs`).doc().id,
                             }
                         )
                         if(selposts.length !== 0) {
-                            const reify = selposts[i].map(post => post);
+                            const reify = selposts[i].post_data.map(post => post);
                             await updateDoc(doc(db,`schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
                                 posts: reify,
                             })
@@ -148,12 +145,12 @@ export default function Clubs() {
     }
     const [editId, setEditId] = useState("");
     async function editPost(postId) {
-        console.log(postId);
+        console.log(selposts);
         // console.log(img);
         const club_index = parseInt(postId.substring(7, postId.indexOf(":")));
         const inner_index = parseInt(postId.substring(postId.indexOf(":")+1));
-        titleEditRef.current.value = selposts[club_index][inner_index].title;
-        contentEditRef.current.value = selposts[club_index][inner_index].text;
+        titleEditRef.current.value = selposts[club_index].post_data[inner_index].title;
+        contentEditRef.current.value = selposts[club_index].post_data[inner_index].text;
         setEditId(club_index.toString()+":"+inner_index.toString());
     }
     async function sendEdit() {
@@ -161,14 +158,14 @@ export default function Clubs() {
         const club_index = parseInt(editId.substring(0,editId.indexOf(":")));
         const inner_index = parseInt(editId.substring(editId.indexOf(":")+1));
 
-        selposts[club_index][inner_index]["title"] = titleEditRef.current.value;
-        selposts[club_index][inner_index]["text"] = contentEditRef.current.value;
+        selposts[club_index].post_data[inner_index]["title"] = titleEditRef.current.value;
+        selposts[club_index].post_data[inner_index]["text"] = contentEditRef.current.value;
         if(img.length !== 0) {
-            selposts[club_index][inner_index]["img"] = img;
+            selposts[club_index].post_data[inner_index]["img"] = img;
         }
 
-        await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${selposts[club_index][inner_index]["from_club"]}`), {
-            posts: selposts[parseInt(club_index)]
+        await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${selposts[club_index].post_data[inner_index]["from_club"]}`), {
+            posts: selposts[parseInt(club_index)].post_data
         });
         setTimeout(() => {
             // window.location.reload();
@@ -179,9 +176,9 @@ export default function Clubs() {
         const club_name = postId.substring(7,postId.indexOf(":"));
         const club_index = postId.substring(postId.indexOf(":")+1, postId.indexOf(","));
         const inner_index = postId.substring(postId.indexOf(",")+1);
-        selposts[parseInt(club_index)].splice(parseInt(inner_index), 1)
+        selposts[parseInt(club_index)].post_data.splice(parseInt(inner_index), 1)
         await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${club_name}`), {
-            posts: selposts[parseInt(club_index)]
+            posts: selposts[parseInt(club_index)].post_data
         });
         getPosts();
     }
@@ -190,6 +187,7 @@ export default function Clubs() {
         // getDoc(doc(db, `users/${ctxprops.theme}`))
         document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase())
         getPosts();
+        getChallenges();
     }, []);
     const [toggle, setToggle] = useState("");
     const indToggle = (e) => {
@@ -270,6 +268,28 @@ export default function Clubs() {
             post_filter = [];
         }
     }
+    const [g_c, setG_c] = useState([]);
+    async function getChallenges() {
+        let challenges_t = [];
+        const q = query(collection(db, "challenges"));
+        const gd = await getDocs(q);
+        gd.forEach((document) => {
+            if((getCurrentTime() - parseInt(document.data().due_date)) > 0) {
+                deleteDoc(doc(db, "challenges", document.id));
+            }
+            challenges_t.push({chal_data: document.data(), challenge_id: document.id});
+        });
+        setG_c(challenges_t);
+
+        challenges_t = [];
+    }
+    async function updateChallengesWithPostID(challenge_id, post_id) { //so far it will only work for one hashtag
+        let nc = challenge_id.filter(c => c !== null);
+        await updateDoc(doc(db, `challenges/${nc}`), {
+            'submissions': post_id
+        })
+    }
+
     const pollRef = useRef();
     const polloptsref = useRef();
     let [ets, setEts] = useState([]);
@@ -356,7 +376,7 @@ export default function Clubs() {
                     {filter.length === 0 ? selposts.map((post_arr, index) => { // in future we can probably flatten the array for displaying purposes
                         return ( // bruh react be like...
                             <div key={index}>
-                            {post_arr.map((post, i) => (
+                            {post_arr.post_data.map((post, i) => (
                             <div className="card gedf-card" id={"postid-"+index.toString()+":"+i.toString()}>
                             <div className="card-header">
                                 <div className="d-flex justify-content-between align-items-center">
@@ -428,14 +448,25 @@ export default function Clubs() {
                                 </div>                                
                                 <p className="card-text">
                                 {/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post.text) ? 
-                                <div>
-                                    {post.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}
-                                    {post.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => (
-                                    <div>
-                                        {i % 2===0 ? <span style={{color: '#72bcd4'}}>{hash}</span>:null}                                        
-                                    </div>
-                                ))}</div>
+                                        <div>
+                                        {post.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
+                                        <div><Latex displayMode={true}>{regexLatexBlock.test(post.text) ? post.text.match(regexLatexBlock)[0] :''}</Latex></div>
+                                        {post.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+                                        if(i %2===0) {
+                                            updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substr(1) ? c.challenge_id : null)), selposts[i].postid );
+                                            return (
+                                                <div>
+                                                    <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
+                                                        {header: hash, 
+                                                        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substr(1) ? c.chal_data : null)), 
+                                                        }}) }}>{hash}</span>
+                                                    </div>
+                                            )
+                                        }
+                                        
+                                })}</div>
                             :post.text}    
+
                                 </p>
                             </div>
                             <div className="card-footer">
