@@ -390,7 +390,7 @@ nav {
 
 .mini-view-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Three columns of equal width */
+  grid-template-columns: repeat(3, 1fr); 
   grid-gap: 20px; /* Gap between grid items */
   /* You can also use 'grid-template-rows' for defining row heights */
   justify-items: center; /* Align grid items along the inline (row) axis */
@@ -407,6 +407,7 @@ nav {
   max-width: 300px;
   max-height: fit-content;
   overflow: scroll;
+  margin: 20px;
 }
 
 @media (max-width: 768px) {

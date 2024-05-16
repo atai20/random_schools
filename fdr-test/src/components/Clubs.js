@@ -273,13 +273,19 @@ export default function Clubs() {
         challenges_t = [];
     }
     async function updateChallengesWithPostID(challenge_id, post_id) { //so far it will only work for one hashtag
+        // console.log(post_id)
         let nc = challenge_id.filter(c => c !== null);
         let obj_target = g_c.find(o => o.challenge_id === nc[0]);
-        if(obj_target && !obj_target.chal_data.submissions.includes(post_id)) {
-            obj_target.chal_data.submissions.push(post_id);
-            await updateDoc(doc(db, `challenges/${nc[0]}`), {
-                "submissions": obj_target.chal_data.submissions
-            })
+        if(obj_target !== undefined) {
+            if(!(obj_target.chal_data.submissions.includes(post_id))) { //wtf why this dumass javascript not working
+                obj_target.chal_data.submissions.push(post_id);
+                await updateDoc(doc(db, `challenges/${nc[0]}`), {
+                    "submissions": obj_target.chal_data.submissions,
+                })
+            } else {
+                // console.log(obj_target.chal_data.submissions.includes("KCiweuB3owmSZ5NgroNu"));
+            }
+            
         }
     }
 
@@ -444,17 +450,28 @@ export default function Clubs() {
                                         {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
                                         <div><Latex displayMode={true}>{regexLatexBlock.test(post_obj.posts_data.text) ? post_obj.posts_data.text.match(regexLatexBlock)[0] :''}</Latex></div>
                                         {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+                                            // console.log(i);
                                         if(i %2===0) {
-                                            updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), selposts[i].postid );
+                                            if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+
+                                                updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
                                             return (
                                                 <div>
                                                     <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
                                                         {header: hash, 
-                                                        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substr(1) ? c.chal_data : null)), 
+                                                        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
                                                         school_select: ctxprops.school_select,
                                                         }}) }}>{hash}</span>
                                                     </div>
                                             )
+                                            } else {
+                                               console.log("fake hash detected")
+                                                return (
+                                                    <div>
+                                                    <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                                                    </div>
+                                                )
+                                            }
                                         }
                                         
                                 })}</div>

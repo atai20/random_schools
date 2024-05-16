@@ -32,8 +32,9 @@ export default function Submissions(props) {
                 </div>);
             }
           })}
-          {refPost.map(post => (
             <div className="mini-view-grid">
+
+          {refPost.map(post => (
                 <div className="mini-view-card">
                     <p>{post.title}</p><br/>
                     <p>{post.text}</p>
@@ -71,8 +72,9 @@ export default function Submissions(props) {
                 : null}
                     </div>  
                 </div>
-            </div>
           ))}
+            </div>
+
         </div>
     )
 }
