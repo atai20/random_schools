@@ -38,14 +38,15 @@ export default function Clubs() {
     let polls_t = [];
 
 
-    async function getPosts(club) {
+    async function getPosts() {
         const clubs_arr = collection(db, `schools/${ctxprops.school_select}/clubs`); 
         const q = query(clubs_arr);
         const snap = await getDocs(q);
         snap.forEach(doc => {
+            // console.log(doc.data());
             posts_t.push({posts_data: doc.data(), postid: doc.id});
         });
-        // console.log(posts_t);
+        console.log(posts_t);
         setPosts(posts_t);
         setChallenge(challenges_t);
         posts_t = [];
@@ -60,8 +61,6 @@ export default function Clubs() {
         }});
         // console.log(polls_t);
         setPolls(polls_t);
-
-        
     }
     function showCalendar() {
         if(document.getElementById("challenge-checkbox")) {
@@ -201,7 +200,7 @@ export default function Clubs() {
         // return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())));
     }
 
-    const regexLatexBlock = /\$\$.*\$\$/i;
+    
     function min_s(x, y, z) {
 		if (x <= y && x <= z) return x;
 		if (y <= x && y <= z) return y;
@@ -273,13 +272,19 @@ export default function Clubs() {
         challenges_t = [];
     }
     async function updateChallengesWithPostID(challenge_id, post_id) { //so far it will only work for one hashtag
+        // console.log(post_id)
         let nc = challenge_id.filter(c => c !== null);
         let obj_target = g_c.find(o => o.challenge_id === nc[0]);
-        if(!obj_target.chal_data.submissions.includes(post_id)) {
-            obj_target.chal_data.submissions.push(post_id);
-            await updateDoc(doc(db, `challenges/${nc[0]}`), {
-                "submissions": obj_target.chal_data.submissions
-            })
+        if(obj_target !== undefined) {
+            if(!(obj_target.chal_data.submissions.includes(post_id))) { //wtf why this dumass javascript not working
+                obj_target.chal_data.submissions.push(post_id);
+                await updateDoc(doc(db, `challenges/${nc[0]}`), {
+                    "submissions": obj_target.chal_data.submissions,
+                })
+            } else {
+                // console.log(obj_target.chal_data.submissions.includes("KCiweuB3owmSZ5NgroNu"));
+            }
+            
         }
     }
 
@@ -324,7 +329,8 @@ export default function Clubs() {
 
     // console.log(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test("hello world #aplangexam"));
     // console.log("hello world #aplangexam".match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i));
-
+    const regexLatexBlock = /\$\$.*\$\$/i;
+    // console.log(regexLatexBlock.test("here is math: $$ \oint_{C}\mathbf{F}d\mathbf{r} $$"));
     return (
         <div className="clubs-page">
             <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
@@ -391,7 +397,7 @@ export default function Clubs() {
                                         <img className="rounded-circle" width="45" src={post_obj.posts_data.author_pfp} alt=""/>
                                     </div>
                                     <div className="ml-2">  
-                                    <div className="h5 m-0">{post_obj.posts_data.author_id}</div>
+                                    <div className="h5 m-0">{post_obj.posts_data.author}</div>
                                         <div className="h7">From {post_obj.posts_data.from_club} club</div>
                                     </div>
                                 </div>
@@ -438,27 +444,80 @@ export default function Clubs() {
                                 <img src={post_obj.posts_data.img} className="imgofpost" />
                             : null}
                                 </div>                                
-                                <p className="card-text">
-                                {/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ? 
-                                        <div>
-                                        {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
-                                        <div><Latex displayMode={true}>{regexLatexBlock.test(post_obj.posts_data.text) ? post_obj.posts_data.text.match(regexLatexBlock)[0] :''}</Latex></div>
-                                        {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+                                <p className="card-text"> {/**coudl possilby shorten by latexing here and writing only a single condition for hashes */}
+                                { /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) && regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
+                                <div>
+                                        <div><Latex displayMode={true}>{post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}</Latex></div>
+                                        {/* {console.log(post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i))} */}
+                                {/*  */}
+                                    {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+                                            // console.log(i);
                                         if(i %2===0) {
-                                            updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c : null)), selposts[i].postid );
+                                            if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+
+                                                updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
                                             return (
                                                 <div>
                                                     <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
                                                         {header: hash, 
-                                                        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substr(1) ? c.chal_data : null)), 
+                                                        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
+                                                        school_select: ctxprops.school_select,
                                                         }}) }}>{hash}</span>
                                                     </div>
                                             )
+                                            } else {
+                                               console.log("fake hash detected")
+                                                return (
+                                                    <div>
+                                                    <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                                                    </div>
+                                                )
+                                            }
+                                        }
+                                        
+                                })}
+                                    
+                                </div>   
+                            : regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
+                                <div>
+                                    <p>there is only latex</p>
+                                   <Latex displayMode={true}>{post_obj.posts_data.text.replace(/\n/g, '').match(regexLatexBlock)[0]}</Latex>
+                                </div>
+                            : /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ?
+                            <div>
+                                <div>
+                                        <p>there is hash tonl;y</p>
+                                        {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
+                                        {/* <div><Latex displayMode={true}>{post_obj.posts_data.text}</Latex></div> */}
+                                        {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+                                            // console.log(i);
+                                        if(i %2===0) {
+                                            if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+
+                                                updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
+                                            return (
+                                                <div>
+                                                    <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
+                                                        {header: hash, 
+                                                        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
+                                                        school_select: ctxprops.school_select,
+                                                        }}) }}>{hash}</span>
+                                                    </div>
+                                            )
+                                            } else {
+                                               console.log("fake hash detected")
+                                                return (
+                                                    <div>
+                                                    <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                                                    </div>
+                                                )
+                                            }
                                         }
                                         
                                 })}</div>
-                            :post_obj.posts_data.text}    
-
+                            </div>
+                        
+                        : <p>ther is none!!!!!!!!</p>}
                                 </p>
                             </div>
                             <div className="card-footer">
