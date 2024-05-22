@@ -92,77 +92,73 @@ export default function Clubs() {
  // const postdateref = useRef();
  const [datetime, setDatetime] = useState('gg');
 
- async function mkPost() {
- // console.log(img);
- const button_target = document.querySelectorAll(".btnpost")[1];
- button_target.textContent = "Posting...";
- const clubsArr = document.querySelectorAll(".posttoclub");
- if(contentRef.current.value !== "" && titleRef.current.value !== "") {
- if(!check) {
- for(let i = 0; i < clubsArr.length; i++) {
- if(clubsArr[i].checked) {
- await addDoc(collection(db, `schools/${ctxprops.school_select}/clubs`), {
- "author": ctxprops.username,
- "author_id": ctxprops.id,
- "author_pfp": ctxprops.pfp,
- "date": getCurrentTime(),//${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}
- "img": img,
- "text": contentRef.current.value,
- "title": titleRef.current.value,
- "type": (check ? "challenge" : "regular"),
- "due_date": (check ? convertToPOSIX() : null ),
- "from_club": clubsArr[i].id,
- "origin": `${ctxprops.school_select}/${clubsArr[i].id}`,
- })
-
- // if(selposts.length !== 0) {
- // const reify = selposts[i].post_data.map(post => post);
- // await updateDoc(doc(db,`schools/${ctxprops.school_select}/clubs/${clubsArr[i].id.toString()}`), {
- // posts: reify,
- // })
- // }
- }
- }
- } else { //send to challegnes collection for easier
- await addDoc(collection(db,"challenges"), {
- "content": contentRef.current.value,
- "title": titleRef.current.value,
- "due_date": convertToPOSIX(datetime),
- "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //TODO: fix this so that its from the proper club or smth
- "status": "active",
- "submissions": [],
- })
- }
- } else {
- console.log(contentRef.current.value);
- console.log(titleRef.current.value);
- }
- // setTimeout(() => {getPosts(); },3000); 
+ async function mkPost(e) {
+    e.target.disabled = true;
+    console.log(e.target.disabled);
+    // console.log(img);
+    const button_target = document.querySelectorAll(".btnpost")[1];
+    button_target.textContent = "Posting...";
+    const clubsArr = document.querySelectorAll(".posttoclub");
+    if(contentRef.current.value !== "" && titleRef.current.value !== "") {
+    if(!check) {
+    for(let i = 0; i < clubsArr.length; i++) {
+        if(clubsArr[i].checked) {
+            await addDoc(collection(db, `schools/${ctxprops.school_select}/clubs`), {
+                "author": ctxprops.username,
+                "author_id": ctxprops.id,
+                "author_pfp": ctxprops.pfp,
+                "date": getCurrentTime(),//${current_date.getFullYear()}-${(current_date.getMonth()+1) < 10 ? "0"+(current_date.getMonth()+1).toString() : current_date.getMonth()}-${current_date.getDate()}
+                "img": img,
+                "text": contentRef.current.value,
+                "title": titleRef.current.value,
+                "type": (check ? "challenge" : "regular"),
+                "due_date": (check ? convertToPOSIX() : null ),
+                "from_club": clubsArr[i].id,
+                "origin": `${ctxprops.school_select}/${clubsArr[i].id}`,
+            })
+        }
+    }
+    } else { //send to challegnes collection for easier
+        await addDoc(collection(db,"challenges"), {
+        "content": contentRef.current.value,
+        "title": titleRef.current.value,
+        "due_date": convertToPOSIX(datetime),
+        "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //TODO: fix this so that its from the proper club or smth
+        "status": "active",
+        "submissions": [],
+        })
+    }
+    } else {
+    console.log(contentRef.current.value);
+    console.log(titleRef.current.value);
+    }
+    // setTimeout(() => {getPosts(); },3000); 
  }
  const [editId, setEditId] = useState("");
- async function editPost(postId) {
- // console.log(postId);
- const post_index_id = postId.substring(postId.indexOf("-")+1,postId.indexOf(":"));
- const post_id_r = postId.substring(postId.indexOf(":")+1); 
- titleEditRef.current.value = selposts[parseInt(post_index_id)].posts_data.title;
- contentEditRef.current.value = selposts[parseInt(post_index_id)].posts_data.text;
- setEditId({pir: post_id_r, pii: post_index_id});
+ async function editPost(ev, postId) {
+    ev.target.disabled = true;
+    // console.log(postId);
+    const post_index_id = postId.substring(postId.indexOf("-")+1,postId.indexOf(":"));
+    const post_id_r = postId.substring(postId.indexOf(":")+1); 
+    titleEditRef.current.value = selposts[parseInt(post_index_id)].posts_data.title;
+    contentEditRef.current.value = selposts[parseInt(post_index_id)].posts_data.text;
+    setEditId({pir: post_id_r, pii: post_index_id});
  }
  async function sendEdit() {
- document.getElementById("editor").innerText = 'updating...';
- selposts[parseInt(editId.pii)].posts_data.title = titleEditRef.current.value;
- selposts[parseInt(editId.pii)].posts_data.text = contentEditRef.current.value;
- if(img.length !== 0) {
- selposts[parseInt(editId.pii)].posts_data.img = img; //ONE
- }
- await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${editId.pir}`), {
- "title": titleEditRef.current.value,
- "text": contentEditRef.current.value,
- "img": selposts[parseInt(editId.pii)].posts_data.img
- });
- setTimeout(() => {
- getPosts();
- },3000);
+    document.getElementById("editor").innerText = 'updating...';
+    selposts[parseInt(editId.pii)].posts_data.title = titleEditRef.current.value;
+    selposts[parseInt(editId.pii)].posts_data.text = contentEditRef.current.value;
+    if(img.length !== 0) {
+    selposts[parseInt(editId.pii)].posts_data.img = img; //ONE
+    }
+    await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${editId.pir}`), {
+    "title": titleEditRef.current.value,
+    "text": contentEditRef.current.value,
+    "img": selposts[parseInt(editId.pii)].posts_data.img
+    });
+    setTimeout(() => {
+    getPosts();
+    },3000);
  }
  async function deletePost(postId) {
  selposts.splice(parseInt(postId.substring(postId.indexOf("-")+1,postId.indexOf(":"))), 1);
@@ -202,90 +198,104 @@ export default function Clubs() {
 
  
  function min_s(x, y, z) {
- if (x <= y && x <= z) return x;
- if (y <= x && y <= z) return y;
- return z;
+    if (x <= y && x <= z) return x;
+    if (y <= x && y <= z) return y;
+    return z;
  }
  function distance_metric(a,b) { //similarity of words and phrases (levenshtein algo, the most efficient)
- let cost;
- let m = a.length;
- let n = b.length;
- if(m < n) {
- var c = a; a = b; b = c;
- var o = m; m = n; n = o;
- }
- var r = []; r[0] = [];
- for(let c = 0; c < n + 1; ++c) {
- r[0][c] = c;
- }
- for(let i = 1; i < m + 1; ++i) {
- r[i] = []; r[i][0] = i;
- for ( var j = 1; j < n + 1; ++j ) {
- cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
- r[i][j] = min_s( r[i-1][j] + 1, r[i][j-1] + 1, r[i-1][j-1] + cost );
- }
- }
- return r[r.length-1][r[0].length-1];
+    let cost;
+    let m = a.length;
+    let n = b.length;
+    if(m < n) {
+        var c = a; a = b; b = c;
+        var o = m; m = n; n = o;
+    }
+    var r = []; r[0] = [];
+    for(let c = 0; c < n + 1; ++c) {
+        r[0][c] = c;
+    }
+    for(let i = 1; i < m + 1; ++i) {
+        r[i] = []; r[i][0] = i;
+        for ( var j = 1; j < n + 1; ++j ) {
+            cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+            r[i][j] = min_s( r[i-1][j] + 1, r[i][j-1] + 1, r[i-1][j-1] + cost );
+        }
+    }
+    return r[r.length-1][r[0].length-1];
  }
  const [filter, setFilter] = useState([]);
  const searchRef= useRef();
  async function findPost(e) {
- setFilter([]);
- const club_filter = /\[(.*?)\]/i;
- const club = searchRef.current.value.match(club_filter);
- //check that the club is in club list of course
- if(club !== null) {
- let post_filter = [];
- const mod = searchRef.current.value.replace(club_filter, '');
- await getDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${club[1]}`)).then((p) => {
- for(const post of p.data().posts) {
- if(distance_metric(post.title, mod) < (post.title.length) || distance_metric(post.text, mod) < post.text.length) {
- console.log((post.title.length) - distance_metric(post.title, mod), " vs ", distance_metric(post.title, mod));
- console.log((post.text.length) - distance_metric(post.text, mod), " vs ", distance_metric(post.text, mod));
- post_filter.push(post);
- } else {
- console.log(distance_metric(post.title, mod));
- console.log(distance_metric(post.text, mod));
- }
- }
- });
- // console.log(post_filter);
- setFilter(post_filter);
- post_filter = [];
- }
+    setFilter([]);
+    const club_filter = /\[(.*?)\]/i;
+    const club = searchRef.current.value.match(club_filter);
+    //TODO: make club check if in list
+    if(club !== null) {
+        let post_filter = [];
+        const mod = searchRef.current.value.replace(club_filter, '');
+        const q = query(collection(db, `schools/${ctxprops.school_select}/clubs`), where("from_club", "==", club[1]));
+        const g = await getDocs(q);
+        g.forEach(doc => {
+            // console.log(doc.data())
+            if(distance_metric(doc.data().title, mod) <=doc.data().title.length || distance_metric(doc.data().text, mod) <= doc.data().text.length) {
+                console.log("success");
+                post_filter.push(doc.data());
+            } else {
+                console.log(distance_metric(doc.data().title, mod));
+                console.log(distance_metric(doc.data().text, mod));
+            }
+        })
+
+        // await getDoc(doc(db, `schools/${ctxprops.school_select}/clubs`)).then((p) => {
+        //     for(const post of p.data().posts) {
+        //         if(distance_metric(post.title, mod) < (post.title.length) || distance_metric(post.text, mod) < post.text.length) {
+        //             console.log((post.title.length) - distance_metric(post.title, mod), " vs ", distance_metric(post.title, mod));
+        //             console.log((post.text.length) - distance_metric(post.text, mod), " vs ", distance_metric(post.text, mod));
+        //             post_filter.push(post);
+        //         } else {
+        //             console.log(distance_metric(post.title, mod));
+        //             console.log(distance_metric(post.text, mod));
+        //         }
+        //     }
+        // });
+        // console.log(post_filter);
+        setFilter(post_filter);
+        console.log(post_filter);
+        post_filter = [];
+    }
  }
  const [g_c, setG_c] = useState([]);
  async function getChallenges() {
- let challenges_t = [];
- const q = query(collection(db, "challenges"));
- const gd = await getDocs(q);
- gd.forEach((document) => {
- if((getCurrentTime() - parseInt(document.data().due_date)) > 0) {
- // deleteDoc(doc(db, "challenges", document.id));
- console.log("expiring")
- }
- challenges_t.push({chal_data: document.data(), challenge_id: document.id});
- });
- setG_c(challenges_t);
- console.log(challenges_t);
+    let challenges_t = [];
+    const q = query(collection(db, "challenges"));
+    const gd = await getDocs(q);
+    gd.forEach((document) => {
+        if((getCurrentTime() - parseInt(document.data().due_date)) > 0) {
+        // deleteDoc(doc(db, "challenges", document.id));
+        console.log("expiring")
+        }
+        challenges_t.push({chal_data: document.data(), challenge_id: document.id});
+    });
+    setG_c(challenges_t);
+    console.log(challenges_t);
 
- challenges_t = [];
+    challenges_t = [];
  }
  async function updateChallengesWithPostID(challenge_id, post_id) { //so far it will only work for one hashtag
  // console.log(post_id)
- let nc = challenge_id.filter(c => c !== null);
- let obj_target = g_c.find(o => o.challenge_id === nc[0]);
- if(obj_target !== undefined) {
- if(!(obj_target.chal_data.submissions.includes(post_id))) { //wtf why this dumass javascript not working
- obj_target.chal_data.submissions.push(post_id);
- await updateDoc(doc(db, `challenges/${nc[0]}`), {
- "submissions": obj_target.chal_data.submissions,
- })
- } else {
- // console.log(obj_target.chal_data.submissions.includes("KCiweuB3owmSZ5NgroNu"));
- }
- 
- }
+    let nc = challenge_id.filter(c => c !== null);
+    let obj_target = g_c.find(o => o.challenge_id === nc[0]);
+    if(obj_target !== undefined) {
+        if(!(obj_target.chal_data.submissions.includes(post_id))) { //wtf why this dumass javascript not working
+            obj_target.chal_data.submissions.push(post_id);
+            await updateDoc(doc(db, `challenges/${nc[0]}`), {
+            "submissions": obj_target.chal_data.submissions,
+            })
+        } else {
+        // console.log(obj_target.chal_data.submissions.includes("KCiweuB3owmSZ5NgroNu"));
+        }
+    
+    }
  }
 
  const pollRef = useRef();
@@ -293,38 +303,40 @@ export default function Clubs() {
  let [ets, setEts] = useState([]);
  const pollDateRef = useRef();
  function pollingInputs() { //for some bullshit reason it cannot update within the render, it must be outside
- console.log(polloptsref.current.value);
- setEts([...Array(parseInt(polloptsref.current.value)).keys()]);
+    console.log(polloptsref.current.value);
+    setEts([...Array(parseInt(polloptsref.current.value)).keys()]);
  }
  async function mkPoll() { //sending it to challenges cuz it needs appear on calendar
- const inps = document.querySelectorAll(".option-poll-input");
- let ets_t = [];
- for(const inp of inps) {
- ets_t.push({opt: inp.value, votes: 0});
- }
- await addDoc(collection(db, "challenges"), {
- "title": pollRef.current.value,
- "options": ets_t,
- "due_date": convertToPOSIX(pollDateRef.current.value),
- "origin": null,
- "content": null,
- "status": "active",
- "type": "poll",
- "answeredBy": [],
- });
+    const inps = document.querySelectorAll(".option-poll-input");
+    let ets_t = [];
+    for(const inp of inps) {
+        ets_t.push({opt: inp.value, votes: 0});
+    }
+    await addDoc(collection(db, "challenges"), {
+        "title": pollRef.current.value,
+        "options": ets_t,
+        "due_date": convertToPOSIX(pollDateRef.current.value),
+        "origin": null,
+        "content": null,
+        "status": "active",
+        "type": "poll",
+        "answeredBy": [],
+    });
  }
  async function updatePoll(event,a,options,o,poll_id) {
- o.votes += 1;
- event.target.innerText = `${o.opt}:${o.votes}`;
- a.push(ctxprops.id);
- await updateDoc(doc(db, `challenges/${poll_id}`), {
- options: options,
- answeredBy: a
- });
- setTimeout(()=>{window.location.reload()},3000);
+    // event.target.disabled = true;
+    document.querySelectorAll(".wbtn").forEach(el => el.setAttribute("disabled", "true"));
+    o.votes += 1;
+    event.target.innerText = `${o.opt}:${o.votes}`;
+    a.push(ctxprops.id);
+    await updateDoc(doc(db, `challenges/${poll_id}`), {
+        options: options,
+        answeredBy: a
+    });
+    setTimeout(()=>{window.location.reload()},3000);
  }
  async function udt(e) {
- await setDatetime(e.target.value);
+    await setDatetime(e.target.value);
  }
 
  // console.log(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test("hello world #aplangexam"));
@@ -337,17 +349,17 @@ export default function Clubs() {
  <button className="btn btnpost" data-toggle="modal" data-target="#pollpost">Create New poll</button>
  
  <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
- <a href="#" className="navbar-brand"></a>
- <form className="form-inline">
- <div className="input-group">
- <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
- <div className="input-group-append">
- <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={findPost}>
- <i className="fa fa-search"></i>
- </button>
- </div>
- </div>
- </form>
+    <a href="#" className="navbar-brand"></a>
+    <form className="form-inline">
+        <div className="input-group">
+            <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
+            <div className="input-group-append">
+                <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => findPost(e)}>
+                <i className="fa fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </form>
  </nav>
 
 
@@ -387,7 +399,7 @@ export default function Clubs() {
  {toggle === ("btnid-"+index.toString()+":"+post_obj.postid) ? 
  <div className="dropdown dropdown-menu-right">
  <div className="h6 dropdown-header">Configuration</div>
- <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
+ <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={(ev) => editPost(ev, "postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
  <button className="warning-hover" onClick={()=>deletePost("postid-"+index.toString()+":"+post_obj.postid)}>Delete</button>
  </div>
  : null}
@@ -566,7 +578,7 @@ export default function Clubs() {
  
  </div>
  <div className="modal-footer">
- <button type="button" className="btn btnpost" onClick={mkPost}><FaPlus className="faplus" /> Post</button>
+ <button type="button" className="btn btnpost" onClick={(e) => mkPost(e)}><FaPlus className="faplus" /> Post</button>
  <button type="button" className="btn" data-dismiss="modal">Close</button>
  </div>
  </div>
