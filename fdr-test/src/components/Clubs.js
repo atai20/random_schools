@@ -120,12 +120,12 @@ export default function Clubs() {
     }
     } else { //send to challegnes collection for easier
         await addDoc(collection(db,"challenges"), {
-        "content": contentRef.current.value,
-        "title": titleRef.current.value,
-        "due_date": convertToPOSIX(datetime),
-        "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //TODO: fix this so that its from the proper club or smth
-        "status": "active",
-        "submissions": [],
+            "content": contentRef.current.value,
+            "title": titleRef.current.value,
+            "due_date": convertToPOSIX(datetime),
+            "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //TODO: fix this so that its from the proper club or smth
+            "status": "active",
+            "submissions": [],
         })
     }
     } else {
@@ -135,8 +135,7 @@ export default function Clubs() {
     // setTimeout(() => {getPosts(); },3000); 
  }
  const [editId, setEditId] = useState("");
- async function editPost(ev, postId) {
-    ev.target.disabled = true;
+ async function editPost(postId) {
     // console.log(postId);
     const post_index_id = postId.substring(postId.indexOf("-")+1,postId.indexOf(":"));
     const post_id_r = postId.substring(postId.indexOf(":")+1); 
@@ -144,7 +143,8 @@ export default function Clubs() {
     contentEditRef.current.value = selposts[parseInt(post_index_id)].posts_data.text;
     setEditId({pir: post_id_r, pii: post_index_id});
  }
- async function sendEdit() {
+ async function sendEdit(e) {
+    e.target.disabled = true;
     document.getElementById("editor").innerText = 'updating...';
     selposts[parseInt(editId.pii)].posts_data.title = titleEditRef.current.value;
     selposts[parseInt(editId.pii)].posts_data.text = contentEditRef.current.value;
@@ -185,9 +185,9 @@ export default function Clubs() {
  }
  function convertToPOSIX(input) {
  //date as in the usestate
- console.log(input);
- var future = new Date(input.replace(/-/g,'/').replace('T',' '));
- return (future.getTime() - future.getMilliseconds()) / 1000;
+    console.log(input);
+    var future = new Date(input.replace(/-/g,'/').replace('T',' '));
+    return (future.getTime() - future.getMilliseconds()) / 1000;
  }
  function convertFromPOSIX(unix_timestamp) {
  var eps = new Date(unix_timestamp*1000);
@@ -306,7 +306,8 @@ export default function Clubs() {
     console.log(polloptsref.current.value);
     setEts([...Array(parseInt(polloptsref.current.value)).keys()]);
  }
- async function mkPoll() { //sending it to challenges cuz it needs appear on calendar
+ async function mkPoll(e) { //sending it to challenges cuz it needs appear on calendar
+    e.target.disabled = true;
     const inps = document.querySelectorAll(".option-poll-input");
     let ets_t = [];
     for(const inp of inps) {
@@ -315,7 +316,7 @@ export default function Clubs() {
     await addDoc(collection(db, "challenges"), {
         "title": pollRef.current.value,
         "options": ets_t,
-        "due_date": convertToPOSIX(pollDateRef.current.value),
+        "due_date": convertToPOSIX(datetime),
         "origin": null,
         "content": null,
         "status": "active",
@@ -336,7 +337,8 @@ export default function Clubs() {
     setTimeout(()=>{window.location.reload()},3000);
  }
  async function udt(e) {
-    await setDatetime(e.target.value);
+    // console.log(e.target.value);
+    await setDatetime(e.target.value+"T00:00");
  }
 
  // console.log(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test("hello world #aplangexam"));
@@ -399,7 +401,8 @@ export default function Clubs() {
  {toggle === ("btnid-"+index.toString()+":"+post_obj.postid) ? 
  <div className="dropdown dropdown-menu-right">
  <div className="h6 dropdown-header">Configuration</div>
- <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={(ev) => editPost(ev, "postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
+ <p>{post_obj.postid}</p>
+ <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
  <button className="warning-hover" onClick={()=>deletePost("postid-"+index.toString()+":"+post_obj.postid)}>Delete</button>
  </div>
  : null}
@@ -492,13 +495,11 @@ export default function Clubs() {
  </div> 
  : regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
  <div>
- <p>there is only latex</p>
  <Latex displayMode={true}>{post_obj.posts_data.text.replace(/\n/g, '').match(regexLatexBlock)[0]}</Latex>
  </div>
  : /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ?
  <div>
  <div>
- <p>there is hash tonl;y</p>
  {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
  {/* <div><Latex displayMode={true}>{post_obj.posts_data.text}</Latex></div> */}
  {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
@@ -572,7 +573,7 @@ export default function Clubs() {
  <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label className="ctext-primary" htmlFor="challenge-checkbox">Challenge</label>
  {check ?
  <div>
- <input type="datetime-local" className="challenge_datetimelocal" value={datetime || "1970-01-01T08:30"} onChange={(e)=>udt(e)}/>
+ <input type="datetime-local" className="challenge_datetimelocal"  />
  </div>
  : null}
  
@@ -585,63 +586,67 @@ export default function Clubs() {
  </div>
  </div>
  <div id="editpost" className="modal" tabIndex="-1" role="dialog">
- <div className="modal-dialog modal-dialog-centered" role="document">
- <div className="modal-content cmodal "> 
- <div className="modal-header">
- <h5 className="modal-title cmodal-title">Edit post</h5>
- <button type="button" className="close" data-dismiss="modal" aria-label="Close">
- <span aria-hidden="true">&times;</span>
- </button>
- </div>
- <div className="modal-body">
- <label className="ctext-primary">Title</label>
- <input type="text" className="form-control" placeholder="title" ref={titleEditRef} />
- <label className="ctext-primary">Content</label>
- <textarea ref={contentEditRef} className="form-control" placeholder="write here..."></textarea>
- <label className="ctext-primary">Replace Image</label>
- <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control" />
- {check ?
- <div>
- <input type="date" /> {/*fix later ig */}
- </div>
- : null}
- </div>
- <div className="modal-footer">
- <button type="button" className="btn btnpost" id="editor" onClick={sendEdit}><CiCircleCheck className="svg-menu" />Make edit</button>
- <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
- </div>
- </div>
- </div>
+    <div className="modal-dialog modal-dialog-centered" role="document">
+        <div className="modal-content cmodal "> 
+            <div className="modal-header">
+                <h5 className="modal-title cmodal-title">Edit post</h5>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div className="modal-body">
+                <label className="ctext-primary">Title</label>
+                <input type="text" className="form-control" placeholder="title" ref={titleEditRef} />
+                <label className="ctext-primary">Content</label>
+                <textarea ref={contentEditRef} className="form-control" placeholder="write here..."></textarea>
+                <label className="ctext-primary">Replace Image</label>
+                <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control" />
+                {check ?
+                <div>
+                <input type="date" /> {/*fix later ig */}
+                </div>
+                : null}
+                </div>
+                <div className="modal-footer">
+                <button type="button" className="btn btnpost" id="editor" onClick={(e) => sendEdit(e)}><CiCircleCheck className="svg-menu" />Make edit</button>
+                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
  </div>
 
 
  <div id="pollpost" className="modal" tabIndex="-1" role="dialog">
- <div className="modal-dialog modal-dialog-centered" role="document">
- <div className="modal-content cmodal "> 
- <div className="modal-header">
- <h5 className="modal-title cmodal-title">Create Poll</h5>
- <button type="button" className="close" data-dismiss="modal" aria-label="Close">
- <span aria-hidden="true">&times;</span>
- </button>
- </div>
- <div className="modal-body">
- <input type="text" placeholder="Enter question/title..." className="form-control" ref={pollRef} />
- <label htmlFor="poll-date">When will it expire?</label><input type="datetime-local" id="poll-date" ref={pollDateRef} /> <br />
- <label htmlFor="number_of_opts">How many options?</label> <input type="number" min="1" className="form-control" id="number_of_opts" ref={polloptsref} />
- <button onClick={pollingInputs}>confirm</button>
- {ets.map(i => (
- <ol>
- <li><input type="text" placeholder="option..." className="form-control option-poll-input" key={i} /></li>
- </ol>
- ))}
- 
- </div>
- <div className="modal-footer">
- <button type="button" className="btn btnpost" id="poller" onClick={mkPoll}><CiCircleCheck className="svg-menu" />Create poll</button>
- <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
- </div>
- </div>
- </div>
+    <div className="modal-dialog modal-dialog-centered" role="document">
+        <div className="modal-content cmodal "> 
+            <div className="modal-header">
+                <h5 className="modal-title cmodal-title">Create Poll</h5>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div className="modal-body">
+                <input type="text" placeholder="Enter question/title..." className="form-control" ref={pollRef} />
+                
+                <label htmlFor="poll-date">When will it expire?</label>
+                <input type="date" id="poll-date" ref={pollDateRef} onChange={(e) => udt(e)} /> 
+                <br />
+
+                <label htmlFor="number_of_opts">How many options?</label> <input type="number" min="1" className="form-control" id="number_of_opts" ref={polloptsref} />
+                <button onClick={pollingInputs}>confirm</button>
+                {ets.map(i => (
+                <ol>
+                <li><input type="text" placeholder="option..." className="form-control option-poll-input" key={i} /></li>
+                </ol>
+                ))}
+                
+                </div>
+                <div className="modal-footer">
+                <button type="button" className="btn btnpost" id="poller" onClick={(e) => mkPoll(e)}><CiCircleCheck className="svg-menu" />Create poll</button>
+                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
  </div>
 
  </div>
