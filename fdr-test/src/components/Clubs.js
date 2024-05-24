@@ -183,12 +183,18 @@ async function getPostsCount() {
 useEffect(() => { 
     document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase());
     // console.log(getPostsCount().then(v => v));
+    getChallenges();
     getPostsCount().then( v => setDocCount(v));
 }, []);
+
+const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
+useEffect(() => {
+    getPostsCached.then(data_p => setPosts(data_p));
+})
 useEffect(() => {
     console.log(docCount);
-}, [docCount]);
-const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
+    console.log(selposts);
+}, [docCount, selposts]);
 
 
 
@@ -258,9 +264,9 @@ const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
         const g = await getDocs(q);
         g.forEach(doc => {
             // console.log(doc.data())
-            if(distance_metric(doc.data().title, mod) < doc.data().title.length || distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod) < doc.data().text.length) {
-                console.log(distance_metric(doc.data().title, mod), " dmetric_title vs ", doc.data().title.length);
-                console.log(distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod), "dmetric_text vs ", doc.data().text.length);
+            if(distance_metric(doc.data().title, mod) < doc.data().title.length || distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod) <= doc.data().text.length/1.618) {
+                // console.log(distance_metric(doc.data().title, mod), " dmetric_title vs ", (doc.data().title.length/1.618));
+                // console.log(distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod), "dmetric_text vs ", (doc.data().text.length/1.618));
                 post_filter.push({"post_data": doc.data(), "post_id": doc.id});
             } else {
                 console.log(distance_metric(doc.data().title, mod));
@@ -320,15 +326,15 @@ const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
     }
  }
 
- const pollRef = useRef();
- const polloptsref = useRef();
- let [ets, setEts] = useState([]);
- const pollDateRef = useRef();
- function pollingInputs() { //for some bullshit reason it cannot update within the render, it must be outside
+const pollRef = useRef();
+const polloptsref = useRef();
+let [ets, setEts] = useState([]);
+const pollDateRef = useRef();
+function pollingInputs() { //for some bullshit reason it cannot update within the render, it must be outside
     console.log(polloptsref.current.value);
     setEts([...Array(parseInt(polloptsref.current.value)).keys()]);
- }
- async function mkPoll(e) { //sending it to challenges cuz it needs appear on calendar
+}
+async function mkPoll(e) { //sending it to challenges cuz it needs appear on calendar
     e.target.disabled = true;
     const inps = document.querySelectorAll(".option-poll-input");
     let ets_t = [];
@@ -345,8 +351,8 @@ const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
         "type": "poll",
         "answeredBy": [],
     });
- }
- async function updatePoll(event,a,options,o,poll_id) {
+}
+async function updatePoll(event,a,options,o,poll_id) {
     // event.target.disabled = true;
     document.querySelectorAll(".wbtn").forEach(el => el.setAttribute("disabled", "true"));
     o.votes += 1;
@@ -357,46 +363,34 @@ const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
         answeredBy: a
     });
     setTimeout(()=>{window.location.reload()},3000);
- }
- async function udt(e) {
-    // console.log(e.target.value);
+}
+async function udt(e) {
+// console.log(e.target.value);
     await setDatetime(e.target.value+"T00:00");
- }
+}
 
- // console.log(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test("hello world #aplangexam"));
- // console.log("hello world #aplangexam".match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i));
- const regexLatexBlock = /\$\$.*\$\$/i;
-//  console.log(getPostsCached);
- // console.log(regexLatexBlock.test("here is math: $$ \oint_{C}\mathbf{F}d\mathbf{r} $$"));
-//  getPostsCached.then((posts) => {
-    
-//  })
- return (
+const regexLatexBlock = /\$\$.*\$\$/i;
+
+return (
     <div> 
         <div className="clubs-page">
-            {/* {getPostsCached.then(posts => {
-                posts.map(post => (
-                    <div>{post.postid}</div>
-                ))
-            })} */}
         <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
         <button className="btn btnpost" data-toggle="modal" data-target="#pollpost">Create New poll</button>
-        
         <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
-           <a href="#" className="navbar-brand"></a>
-           <div className="input-group">
-                   <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
-                   <div className="input-group-append">
-                       <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => findPost(e)}>
-                           <i className="fa fa-search"></i>
-                       </button>
-                   </div>
-               </div>
+            <a href="#" className="navbar-brand"></a>
+            <div className="input-group">
+                    <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
+                    <div className="input-group-append">
+                        <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => findPost(e)}>
+                            <i className="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
         </nav>
-       
-       
-       
-        <div class="container-fluid gedf-wrapper">
+        
+        
+        
+        {/* <div class="container-fluid gedf-wrapper">
         <div class="row">
         <div className="col-md-6 gedf-main">
         {polls.map((poll,index) => (
@@ -414,7 +408,7 @@ const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
         </button>))}
         
         </div>
-        ))}
+        ))} */}
         
         {filter.length === 0 ? selposts.map((post_obj, index) => { // in future we can probably flatten the array for displaying purposes
         return ( // bruh react be like...
@@ -490,78 +484,75 @@ const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
         : null}
         </div> 
         <p className="card-text"> {/**coudl possilby shorten by latexing here and writing only a single condition for hashes */}
-        { /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) && regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
-        <div>
-        <div><Latex displayMode={true}>{post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}</Latex></div>
-        {/* {console.log(post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i))} */}
-        {/* */}
-        {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
-        // console.log(i);
-        if(i %2===0) {
-        if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
-       
-        updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
-        return (
-        <div>
-        <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
-        {header: hash, 
-        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
-        school_select: ctxprops.school_select,
-        }}) }}>{hash}</span>
-        </div>
-        )
-        } else {
-        console.log("fake hash detected")
-        return (
-        <div>
-        <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
-        </div>
-        )
-        }
-        }
-        
-        })}
-        
-        </div> 
-        : regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
-        <div>
-        <Latex displayMode={true}>{post_obj.posts_data.text.replace(/\n/g, '').match(regexLatexBlock)[0]}</Latex>
-        </div>
-        : /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ?
-        <div>
-        <div>
-        {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
-        {/* <div><Latex displayMode={true}>{post_obj.posts_data.text}</Latex></div> */}
-        {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
-        // console.log(i);
-        if(i %2===0) {
-        if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
-       
-        updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
-        return (
-        <div>
-        <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
-        {header: hash, 
-        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
-        school_select: ctxprops.school_select,
-        uid: ctxprops.id
-        }}) }}>{hash}</span>
-        </div>
-        )
-        } else {
-        console.log("fake hash detected")
-        return (
-        <div>
-        <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
-        </div>
-        )
-        }
-        }
-        
-        })}</div>
-        </div>
-        
-        : <p>ther is none!!!!!!!!</p>}
+            { /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) && regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
+            <div>
+            <div><Latex displayMode={true}>{post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}</Latex></div>
+            {/* {console.log(post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i))} */}
+            {/* */}
+            {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+            // console.log(i);
+                if(i %2===0) {
+                    if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+            
+                        updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
+                        return (
+                            <div>
+                            <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
+                            {header: hash, 
+                            challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
+                            school_select: ctxprops.school_select,
+                            }}) }}>{hash}</span>
+                            </div>
+                         )
+                    } else {
+                        console.log("fake hash detected")
+                        return (
+                        <div>
+                        <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                        </div>
+                        )
+                    }
+                }
+            })}
+            </div> 
+            : regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
+                <div>
+                    <Latex displayMode={true}>{post_obj.posts_data.text.replace(/\n/g, '').match(regexLatexBlock)[0]}</Latex>
+                </div>
+            : /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ?
+            <div>
+            <div>
+            {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
+            {/* <div><Latex displayMode={true}>{post_obj.posts_data.text}</Latex></div> */}
+            {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+            // console.log(i);
+            if(i %2===0) {
+                if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+            
+                    updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
+                    return (
+                        <div>
+                        <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
+                        {header: hash, 
+                        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
+                        school_select: ctxprops.school_select,
+                        uid: ctxprops.id
+                        }}) }}>{hash}</span>
+                        </div>
+                    )
+                 } else {
+                    return (
+                        <div>
+                            <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                        </div>
+                    )
+                }
+            }
+            
+            })}</div>
+            </div>
+            
+            : <div>{post_obj.posts_data.text}</div>}
         </p>
         </div>
         <div className="card-footer">
@@ -577,8 +568,6 @@ const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
         ))}
         </div>}
         
-        </div>
-        </div>
         </div>
         
         <div className="override-flex">
@@ -617,71 +606,74 @@ const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
         </div>
         </div>
         <div id="editpost" className="modal" tabIndex="-1" role="dialog">
-           <div className="modal-dialog modal-dialog-centered" role="document">
-               <div className="modal-content cmodal "> 
-                   <div className="modal-header">
-                       <h5 className="modal-title cmodal-title">Edit post</h5>
-                       <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                       <span aria-hidden="true">&times;</span>
-                       </button>
-                       </div>
-                       <div className="modal-body">
-                       <label className="ctext-primary">Title</label>
-                       <input type="text" className="form-control" placeholder="title" ref={titleEditRef} />
-                       <label className="ctext-primary">Content</label>
-                       <textarea ref={contentEditRef} className="form-control" placeholder="write here..."></textarea>
-                       <label className="ctext-primary">Replace Image</label>
-                       <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control" />
-                       {check ?
-                       <div>
-                       <input type="date" /> {/*fix later ig */}
-                       </div>
-                       : null}
-                       </div>
-                       <div className="modal-footer">
-                       <button type="button" className="btn btnpost" id="editor" onClick={(e) => sendEdit(e)}><CiCircleCheck className="svg-menu" />Make edit</button>
-                       <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                   </div>
-               </div>
-           </div>
+            <div className="modal-dialog modal-dialog-centered" role="document">
+                <div className="modal-content cmodal "> 
+                    <div className="modal-header">
+                        <h5 className="modal-title cmodal-title">Edit post</h5>
+                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div className="modal-body">
+                        <label className="ctext-primary">Title</label>
+                        <input type="text" className="form-control" placeholder="title" ref={titleEditRef} />
+                        <label className="ctext-primary">Content</label>
+                        <textarea ref={contentEditRef} className="form-control" placeholder="write here..."></textarea>
+                        <label className="ctext-primary">Replace Image</label>
+                        <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control" />
+                        {check ?
+                        <div>
+                        <input type="date" /> {/*fix later ig */}
+                        </div>
+                        : null}
+                        </div>
+                        <div className="modal-footer">
+                        <button type="button" className="btn btnpost" id="editor" onClick={(e) => sendEdit(e)}><CiCircleCheck className="svg-menu" />Make edit</button>
+                        <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
         </div>
-       
-       
+        
+        
         <div id="pollpost" className="modal" tabIndex="-1" role="dialog">
-           <div className="modal-dialog modal-dialog-centered" role="document">
-               <div className="modal-content cmodal "> 
-                   <div className="modal-header">
-                       <h5 className="modal-title cmodal-title">Create Poll</h5>
-                       <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                       <span aria-hidden="true">&times;</span>
-                       </button>
-                       </div>
-                       <div className="modal-body">
-                       <input type="text" placeholder="Enter question/title..." className="form-control" ref={pollRef} />
-                       
-                       <label htmlFor="poll-date">When will it expire?</label>
-                       <input type="date" id="poll-date" ref={pollDateRef} onChange={(e) => udt(e)} /> 
-                       <br />
-       
-                       <label htmlFor="number_of_opts">How many options?</label> <input type="number" min="1" className="form-control" id="number_of_opts" ref={polloptsref} />
-                       <button onClick={pollingInputs}>confirm</button>
-                       {ets.map(i => (
-                       <ol>
-                       <li><input type="text" placeholder="option..." className="form-control option-poll-input" key={i} /></li>
-                       </ol>
-                       ))}
-                       
-                       </div>
-                       <div className="modal-footer">
-                       <button type="button" className="btn btnpost" id="poller" onClick={(e) => mkPoll(e)}><CiCircleCheck className="svg-menu" />Create poll</button>
-                       <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                   </div>
-               </div>
-           </div>
+            <div className="modal-dialog modal-dialog-centered" role="document">
+                <div className="modal-content cmodal "> 
+                    <div className="modal-header">
+                        <h5 className="modal-title cmodal-title">Create Poll</h5>
+                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div className="modal-body">
+                        <input type="text" placeholder="Enter question/title..." className="form-control" ref={pollRef} />
+                        
+                        <label htmlFor="poll-date">When will it expire?</label>
+                        <input type="date" id="poll-date" ref={pollDateRef} onChange={(e) => udt(e)} /> 
+                        <br />
+        
+                        <label htmlFor="number_of_opts">How many options?</label> <input type="number" min="1" className="form-control" id="number_of_opts" ref={polloptsref} />
+                        <button onClick={pollingInputs}>confirm</button>
+                        {ets.map(i => (
+                        <ol>
+                        <li><input type="text" placeholder="option..." className="form-control option-poll-input" key={i} /></li>
+                        </ol>
+                        ))}
+                        
+                        </div>
+                        <div className="modal-footer">
+                        <button type="button" className="btn btnpost" id="poller" onClick={(e) => mkPoll(e)}><CiCircleCheck className="svg-menu" />Create poll</button>
+                        <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
         </div>
-       
-        </div>
+        
         </div>
     </div>
- )
+    )
 }
+
+/*
+
+*/
