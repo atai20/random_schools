@@ -1,8 +1,8 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect, useRef, useMemo} from "react";
 import firebase from 'firebase/compat/app'; 
 import { Link, useOutletContext, useNavigate } from "react-router-dom";
 import { getAuth, deleteUser, signOut } from "firebase/auth";
-import { doc, deleteDoc, getDoc, addDoc, updateDoc, query, where, collection, getDocs, serverTimestamp } from "firebase/firestore";
+import { doc, deleteDoc, getDoc, addDoc, updateDoc, query, where, collection, getDocs, serverTimestamp, getCountFromServer } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
@@ -32,36 +32,40 @@ export default function Clubs() {
  const titleEditRef = useRef("");
  const contentEditRef = useRef("");
  const [polls, setPolls] = useState([]);
+ const [docCount, setDocCount] = useState(0);
  let challenges_t = [];
  let posts_t = [];
  let imgs_t = [];
  let polls_t = [];
 
 
- async function getPosts() {
+async function getPosts(stored_items_length) {
+    //if stored_items_length (as a prop) is different then prevoius renders then we rerun. otherwise data is cached
+    console.log(stored_items_length);
     const clubs_arr = collection(db, `schools/${ctxprops.school_select}/clubs`); 
     const q = query(clubs_arr);
     const snap = await getDocs(q);
     snap.forEach(doc => {
     // console.log(doc.data());
-    posts_t.push({posts_data: doc.data(), postid: doc.id});
+        posts_t.push({posts_data: doc.data(), postid: doc.id});
     });
     console.log(posts_t);
     setPosts(posts_t);
     setChallenge(challenges_t);
-    posts_t = [];
+    // posts_t = [];
     challenges_t = [];
     const qt_pi = query(collection(db, "challenges"));
     const snap_t = await getDocs(qt_pi);
     snap_t.forEach(poll => {if(poll.data().type === "poll") {
-    let obj_t = {};
-    obj_t.data = poll.data();
-    obj_t.pollid = poll.id;
-    polls_t.push(obj_t);
+        let obj_t = {};
+        obj_t.data = poll.data();
+        obj_t.pollid = poll.id;
+        polls_t.push(obj_t);
     }});
-    // console.log(polls_t);
     setPolls(polls_t);
- }
+    return posts_t;
+    // polls_t = [];
+}
  function showCalendar() {
     if(document.getElementById("challenge-checkbox")) {
         if(document.getElementById("challenge-checkbox").checked) {
@@ -71,28 +75,28 @@ export default function Clubs() {
         }
     }
  }
- async function uploadImage(e) {
+async function uploadImage(e) {
     for(let i = 0; i < e.target.files.length; i++) {
         const storageRef = ref(storage, `images/${ctxprops.id}/${e.target.files[i].name}`);
         const uploadTask = uploadBytesResumable(storageRef, e.target.files[i]);
         await uploadTask.on('state_changed', (snap) => {
         if(snap.state === "running") {
-        console.log(snap.state);
+            console.log(snap.state);
         }
         }, (err) => {
-        console.log("error upload");
+            console.log("error upload");
         }, () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-        imgs_t.push(url);
+            getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+            imgs_t.push(url);
         })
         });
     }
     setImg(imgs_t);
- }
+}
  // const postdateref = useRef();
- const [datetime, setDatetime] = useState('gg');
+const [datetime, setDatetime] = useState('gg');
 
- async function mkPost(e) {
+async function mkPost(e) {
     e.target.disabled = true;
     console.log(e.target.disabled);
     // console.log(img);
@@ -133,45 +137,61 @@ export default function Clubs() {
     console.log(contentRef.current.value);
     console.log(titleRef.current.value);
     }
-    // setTimeout(() => {getPosts(); },3000); 
- }
- const [editId, setEditId] = useState("");
- async function editPost(postId) {
+// setTimeout(() => {getPosts(); },3000); 
+}
+const [editId, setEditId] = useState("");
+async function editPost(postId) {
     // console.log(postId);
     const post_index_id = postId.substring(postId.indexOf("-")+1,postId.indexOf(":"));
     const post_id_r = postId.substring(postId.indexOf(":")+1); 
     titleEditRef.current.value = selposts[parseInt(post_index_id)].posts_data.title;
     contentEditRef.current.value = selposts[parseInt(post_index_id)].posts_data.text;
     setEditId({pir: post_id_r, pii: post_index_id});
- }
- async function sendEdit(e) {
+}
+async function sendEdit(e) {
     e.target.disabled = true;
     document.getElementById("editor").innerText = 'updating...';
     selposts[parseInt(editId.pii)].posts_data.title = titleEditRef.current.value;
     selposts[parseInt(editId.pii)].posts_data.text = contentEditRef.current.value;
     if(img.length !== 0) {
-    selposts[parseInt(editId.pii)].posts_data.img = img; //ONE
+        selposts[parseInt(editId.pii)].posts_data.img = img; //ONE
     }
     await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${editId.pir}`), {
-    "title": titleEditRef.current.value,
-    "text": contentEditRef.current.value,
-    "img": selposts[parseInt(editId.pii)].posts_data.img
+        "title": titleEditRef.current.value,
+        "text": contentEditRef.current.value,
+        "img": selposts[parseInt(editId.pii)].posts_data.img
     });
     setTimeout(() => {
-    getPosts();
+        getPosts();
     },3000);
+}
+async function deletePost(postId) {
+    selposts.splice(parseInt(postId.substring(postId.indexOf("-")+1,postId.indexOf(":"))), 1);
+    await deleteDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${postId.substring(postId.indexOf(":")+1)}`))
+    // getPosts();
  }
- async function deletePost(postId) {
- selposts.splice(parseInt(postId.substring(postId.indexOf("-")+1,postId.indexOf(":"))), 1);
- await deleteDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${postId.substring(postId.indexOf(":")+1)}`))
- getPosts();
- }
+async function getPostsCount() {
+    const coll = collection(db, `schools/${ctxprops.school_select}/clubs`);
+    const snapshot = await getCountFromServer(coll);
+    return snapshot.data().count;
+    // console.log('count: ', snapshot.data().count);
+}
 
- useEffect(() => { 
- document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase())
- getPosts();
- getChallenges();
- }, []);
+
+
+// const getPostsCached = useMemo(()=> getPosts(getPostsCount()), [getPostsCount()]);
+useEffect(() => { 
+    document.body.setAttribute("data-theme", ctxprops.theme.toLowerCase());
+    // console.log(getPostsCount().then(v => v));
+    getPostsCount().then( v => setDocCount(v));
+}, []);
+useEffect(() => {
+    console.log(docCount);
+}, [docCount]);
+const getPostsCached = useMemo(() => getPosts(docCount), [docCount]);
+
+
+
  const [toggle, setToggle] = useState("");
  const indToggle = (e) => {
  if(toggle === e.target.id) {
@@ -346,311 +366,322 @@ export default function Clubs() {
  // console.log(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test("hello world #aplangexam"));
  // console.log("hello world #aplangexam".match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i));
  const regexLatexBlock = /\$\$.*\$\$/i;
+//  console.log(getPostsCached);
  // console.log(regexLatexBlock.test("here is math: $$ \oint_{C}\mathbf{F}d\mathbf{r} $$"));
+//  getPostsCached.then((posts) => {
+    
+//  })
  return (
- <div className="clubs-page">
- <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
- <button className="btn btnpost" data-toggle="modal" data-target="#pollpost">Create New poll</button>
- 
- <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
-    <a href="#" className="navbar-brand"></a>
-    <div className="input-group">
-            <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
-            <div className="input-group-append">
-                <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => findPost(e)}>
-                    <i className="fa fa-search"></i>
-                </button>
-            </div>
+    <div> 
+        <div className="clubs-page">
+            {/* {getPostsCached.then(posts => {
+                posts.map(post => (
+                    <div>{post.postid}</div>
+                ))
+            })} */}
+        <button className="btn btnpost" data-toggle="modal" data-target="#makepost">Make new Post</button>
+        <button className="btn btnpost" data-toggle="modal" data-target="#pollpost">Create New poll</button>
+        
+        <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
+           <a href="#" className="navbar-brand"></a>
+           <div className="input-group">
+                   <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
+                   <div className="input-group-append">
+                       <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => findPost(e)}>
+                           <i className="fa fa-search"></i>
+                       </button>
+                   </div>
+               </div>
+        </nav>
+       
+       
+       
+        <div class="container-fluid gedf-wrapper">
+        <div class="row">
+        <div className="col-md-6 gedf-main">
+        {polls.map((poll,index) => (
+        <div className="card gedf-card poll_div">
+        <h2>{poll.data.title}</h2>
+        <h5>Expires: {convertFromPOSIX(poll.data.due_date)}</h5>
+        {poll.data.answeredBy.includes(ctxprops.id) ? 
+        poll.data.options.map(opt => (
+        <div><FaVoteYea style={{width: '13px', height: '13px'}} /><p className="ctext-primary">
+        {opt.opt}:{opt.votes}
+        </p></div>))
+        : poll.data.options.map(opt => (
+        <button onClick={(e) => {updatePoll(e,poll.data.answeredBy,poll.data.options,opt,poll.pollid)}} className="btn wbtn">
+        {opt.opt}
+        </button>))}
+        
         </div>
- </nav>
-
-
-
- <div class="container-fluid gedf-wrapper">
- <div class="row">
- <div className="col-md-6 gedf-main">
- {polls.map((poll,index) => (
- <div className="card gedf-card poll_div">
- <h2>{poll.data.title}</h2>
- <h5>Expires: {convertFromPOSIX(poll.data.due_date)}</h5>
- {poll.data.answeredBy.includes(ctxprops.id) ? 
- poll.data.options.map(opt => (
- <div><FaVoteYea style={{width: '13px', height: '13px'}} /><p className="ctext-primary">
- {opt.opt}:{opt.votes}
- </p></div>))
- : poll.data.options.map(opt => (
- <button onClick={(e) => {updatePoll(e,poll.data.answeredBy,poll.data.options,opt,poll.pollid)}} className="btn wbtn">
- {opt.opt}
- </button>))}
- 
- </div>
- ))}
- 
- {filter.length === 0 ? selposts.map((post_obj, index) => { // in future we can probably flatten the array for displaying purposes
- return ( // bruh react be like...
- <div>
- <div className="card gedf-card" id={"postid-"+post_obj.postid}>
- <div className="card-header">
- <div className="d-flex justify-content-between align-items-center">
- <div key={index} className="d-flex justify-content-between align-items-center">
- {ctxprops.role === "site_admin" || ctxprops.id === post_obj.posts_data.author_id ? 
- <div className="dropdown">
- <button className=" cbtn btn-link dropdown-toggle" id={"btnid-"+index.toString()+":"+post_obj.postid} onClick={indToggle} > 
- <FaEllipsisH className="svg-menu" id={"btnid-"+index.toString()+":"+post_obj.postid} onClick={indToggle} />
- </button>
- {toggle === ("btnid-"+index.toString()+":"+post_obj.postid) ? 
- <div className="dropdown dropdown-menu-right">
- <div className="h6 dropdown-header">Configuration</div>
- <p>{post_obj.postid}</p>
- <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
- <button className="warning-hover" onClick={()=>deletePost("postid-"+index.toString()+":"+post_obj.postid)}>Delete</button>
- </div>
- : null}
- </div>
- : null}
- <div class="mr-2">
- <img className="rounded-circle" width="45" src={post_obj.posts_data.author_pfp} alt=""/>
- </div>
- <div className="ml-2"> 
- <div className="h5 m-0">{post_obj.posts_data.author}</div>
- <div className="h7">From {post_obj.posts_data.from_club} club</div>
- </div>
- </div>
- </div>
- </div>
- <div className="card-body cbg">
- <div className="cmute-text h7 mb-2"> <i className="fa fa-clock-o"></i>{convertFromPOSIX(post_obj.posts_data.date)}
- {/* {post.type === "challenge" ?
- <p>due date: {convertFromPOSIX(post.due_date)}</p> 
- :null} */}
- </div>
- <a className="card-link" href="#"><h5 className="card-title">{post_obj.posts_data.title}</h5></a>
- 
- <div>
- {typeof post_obj.posts_data.img === "object" && post_obj.posts_data.img.length > 1 ? 
- <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false" data-interval="false">
- <div className="carousel-inner">
- {post_obj.posts_data.img.map((image, ii) => {
- if(ii === 0) {
- return (<div className="carousel-item active">
- <img src={image} className="imgofpost d-block w-100" />
- </div>)
- } else {
- return (<div className="carousel-item">
- <img src={image} className="imgofpost d-block w-100" />
- </div>)
- }
- })}
- </div>
- <a className="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
- <span className="carousel-control-prev-icon" aria-hidden="true"></span>
- <span className="sr-only">Previous</span>
- </a>
- <a className="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
- <span className="carousel-control-next-icon" aria-hidden="true"></span>
- <span className="sr-only">Next</span>
- </a>
- </div>
- : null}
- {post_obj.posts_data.img.length === 1 ? 
- <img src={post_obj.posts_data.img[0]} className="imgofpost d-block w-100" />
- :null}
- {!(typeof post_obj.posts_data.img === "object") ? 
- <img src={post_obj.posts_data.img} className="imgofpost" />
- : null}
- </div> 
- <p className="card-text"> {/**coudl possilby shorten by latexing here and writing only a single condition for hashes */}
- { /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) && regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
- <div>
- <div><Latex displayMode={true}>{post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}</Latex></div>
- {/* {console.log(post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i))} */}
- {/* */}
- {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
- // console.log(i);
- if(i %2===0) {
- if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
-
- updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
- return (
- <div>
- <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
- {header: hash, 
- challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
- school_select: ctxprops.school_select,
- }}) }}>{hash}</span>
- </div>
- )
- } else {
- console.log("fake hash detected")
- return (
- <div>
- <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
- </div>
- )
- }
- }
- 
- })}
- 
- </div> 
- : regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
- <div>
- <Latex displayMode={true}>{post_obj.posts_data.text.replace(/\n/g, '').match(regexLatexBlock)[0]}</Latex>
- </div>
- : /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ?
- <div>
- <div>
- {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
- {/* <div><Latex displayMode={true}>{post_obj.posts_data.text}</Latex></div> */}
- {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
- // console.log(i);
- if(i %2===0) {
- if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
-
- updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
- return (
- <div>
- <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
- {header: hash, 
- challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
- school_select: ctxprops.school_select,
- uid: ctxprops.id
- }}) }}>{hash}</span>
- </div>
- )
- } else {
- console.log("fake hash detected")
- return (
- <div>
- <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
- </div>
- )
- }
- }
- 
- })}</div>
- </div>
- 
- : <p>ther is none!!!!!!!!</p>}
- </p>
- </div>
- <div className="card-footer">
- </div>
- </div> 
- 
- </div>
- )
- }) : 
- <div>
- {filter.map(post => (
- <p>{post.post_id}</p>
- ))}
- </div>}
- 
- </div>
- </div>
- </div>
- 
- <div className="override-flex">
- <div id="makepost" className="modal " tabIndex="-1" role="dialog">
- <div className="modal-dialog modal-dialog-centered" role="document">
- <div className="modal-content cmodal-content cmodal">
- <div className="modal-header">
- <h5 className="modal-title cmodal-title">Make post</h5>
- <button type="button" className="close" data-dismiss="modal" aria-label="Close">
- <span aria-hidden="true">&times;</span>
- </button>
- </div>
- <div className="modal-body">
- <label className="ctext-primary">Title</label>
- <input type="text" className="form-control" placeholder="title" ref={titleRef} />
- <label className="ctext-primary">Content</label>
- <textarea ref={contentRef} className="form-control" placeholder="write here..."></textarea>
- <input type="file" onChange={uploadImage} className="form-control" multiple />
- <label className="ctext-primary">Post to</label>
- {Array.from(ctxprops.clubs).sort().map((club, index) => ( //clubs need to be alphabetically ordered to sync with firebase
- <div className="ctext-primary"><input key={index} type="checkbox" className="posttoclub" id={club} /><label>{club}</label></div>
- ))}
- <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label className="ctext-primary" htmlFor="challenge-checkbox">Challenge</label>
- {check ?
- <div>
- <input type="date" className="challenge_datetimelocal"  />
- </div>
- : null}
- 
- </div>
- <div className="modal-footer">
- <button type="button" className="btn btnpost" onClick={(e) => mkPost(e)}><FaPlus className="faplus" /> Post</button>
- <button type="button" className="btn" data-dismiss="modal">Close</button>
- </div>
- </div>
- </div>
- </div>
- <div id="editpost" className="modal" tabIndex="-1" role="dialog">
-    <div className="modal-dialog modal-dialog-centered" role="document">
-        <div className="modal-content cmodal "> 
-            <div className="modal-header">
-                <h5 className="modal-title cmodal-title">Edit post</h5>
-                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-                </div>
-                <div className="modal-body">
-                <label className="ctext-primary">Title</label>
-                <input type="text" className="form-control" placeholder="title" ref={titleEditRef} />
-                <label className="ctext-primary">Content</label>
-                <textarea ref={contentEditRef} className="form-control" placeholder="write here..."></textarea>
-                <label className="ctext-primary">Replace Image</label>
-                <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control" />
-                {check ?
-                <div>
-                <input type="date" /> {/*fix later ig */}
-                </div>
-                : null}
-                </div>
-                <div className="modal-footer">
-                <button type="button" className="btn btnpost" id="editor" onClick={(e) => sendEdit(e)}><CiCircleCheck className="svg-menu" />Make edit</button>
-                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
+        ))}
+        
+        {filter.length === 0 ? selposts.map((post_obj, index) => { // in future we can probably flatten the array for displaying purposes
+        return ( // bruh react be like...
+        <div>
+        <div className="card gedf-card" id={"postid-"+post_obj.postid}>
+        <div className="card-header">
+        <div className="d-flex justify-content-between align-items-center">
+        <div key={index} className="d-flex justify-content-between align-items-center">
+        {ctxprops.role === "site_admin" || ctxprops.id === post_obj.posts_data.author_id ? 
+        <div className="dropdown">
+        <button className=" cbtn btn-link dropdown-toggle" id={"btnid-"+index.toString()+":"+post_obj.postid} onClick={indToggle} > 
+        <FaEllipsisH className="svg-menu" id={"btnid-"+index.toString()+":"+post_obj.postid} onClick={indToggle} />
+        </button>
+        {toggle === ("btnid-"+index.toString()+":"+post_obj.postid) ? 
+        <div className="dropdown dropdown-menu-right">
+        <div className="h6 dropdown-header">Configuration</div>
+        <p>{post_obj.postid}</p>
+        <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
+        <button className="warning-hover" onClick={()=>deletePost("postid-"+index.toString()+":"+post_obj.postid)}>Delete</button>
+        </div>
+        : null}
+        </div>
+        : null}
+        <div class="mr-2">
+        <img className="rounded-circle" width="45" src={post_obj.posts_data.author_pfp} alt=""/>
+        </div>
+        <div className="ml-2"> 
+        <div className="h5 m-0">{post_obj.posts_data.author}</div>
+        <div className="h7">From {post_obj.posts_data.from_club} club</div>
+        </div>
+        </div>
+        </div>
+        </div>
+        <div className="card-body cbg">
+        <div className="cmute-text h7 mb-2"> <i className="fa fa-clock-o"></i>{convertFromPOSIX(post_obj.posts_data.date)}
+        {/* {post.type === "challenge" ?
+        <p>due date: {convertFromPOSIX(post.due_date)}</p> 
+        :null} */}
+        </div>
+        <a className="card-link" href="#"><h5 className="card-title">{post_obj.posts_data.title}</h5></a>
+        
+        <div>
+        {typeof post_obj.posts_data.img === "object" && post_obj.posts_data.img.length > 1 ? 
+        <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false" data-interval="false">
+        <div className="carousel-inner">
+        {post_obj.posts_data.img.map((image, ii) => {
+        if(ii === 0) {
+        return (<div className="carousel-item active">
+        <img src={image} className="imgofpost d-block w-100" />
+        </div>)
+        } else {
+        return (<div className="carousel-item">
+        <img src={image} className="imgofpost d-block w-100" />
+        </div>)
+        }
+        })}
+        </div>
+        <a className="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span className="sr-only">Previous</span>
+        </a>
+        <a className="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+        <span className="carousel-control-next-icon" aria-hidden="true"></span>
+        <span className="sr-only">Next</span>
+        </a>
+        </div>
+        : null}
+        {post_obj.posts_data.img.length === 1 ? 
+        <img src={post_obj.posts_data.img[0]} className="imgofpost d-block w-100" />
+        :null}
+        {!(typeof post_obj.posts_data.img === "object") ? 
+        <img src={post_obj.posts_data.img} className="imgofpost" />
+        : null}
+        </div> 
+        <p className="card-text"> {/**coudl possilby shorten by latexing here and writing only a single condition for hashes */}
+        { /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) && regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
+        <div>
+        <div><Latex displayMode={true}>{post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}</Latex></div>
+        {/* {console.log(post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i))} */}
+        {/* */}
+        {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+        // console.log(i);
+        if(i %2===0) {
+        if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+       
+        updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
+        return (
+        <div>
+        <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
+        {header: hash, 
+        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
+        school_select: ctxprops.school_select,
+        }}) }}>{hash}</span>
+        </div>
+        )
+        } else {
+        console.log("fake hash detected")
+        return (
+        <div>
+        <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+        </div>
+        )
+        }
+        }
+        
+        })}
+        
+        </div> 
+        : regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
+        <div>
+        <Latex displayMode={true}>{post_obj.posts_data.text.replace(/\n/g, '').match(regexLatexBlock)[0]}</Latex>
+        </div>
+        : /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ?
+        <div>
+        <div>
+        {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
+        {/* <div><Latex displayMode={true}>{post_obj.posts_data.text}</Latex></div> */}
+        {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+        // console.log(i);
+        if(i %2===0) {
+        if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+       
+        updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
+        return (
+        <div>
+        <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
+        {header: hash, 
+        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
+        school_select: ctxprops.school_select,
+        uid: ctxprops.id
+        }}) }}>{hash}</span>
+        </div>
+        )
+        } else {
+        console.log("fake hash detected")
+        return (
+        <div>
+        <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+        </div>
+        )
+        }
+        }
+        
+        })}</div>
+        </div>
+        
+        : <p>ther is none!!!!!!!!</p>}
+        </p>
+        </div>
+        <div className="card-footer">
+        </div>
+        </div> 
+        
+        </div>
+        )
+        }) : 
+        <div>
+        {filter.map(post => (
+        <p>{post.post_id}</p>
+        ))}
+        </div>}
+        
+        </div>
+        </div>
+        </div>
+        
+        <div className="override-flex">
+        <div id="makepost" className="modal " tabIndex="-1" role="dialog">
+        <div className="modal-dialog modal-dialog-centered" role="document">
+        <div className="modal-content cmodal-content cmodal">
+        <div className="modal-header">
+        <h5 className="modal-title cmodal-title">Make post</h5>
+        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div className="modal-body">
+        <label className="ctext-primary">Title</label>
+        <input type="text" className="form-control" placeholder="title" ref={titleRef} />
+        <label className="ctext-primary">Content</label>
+        <textarea ref={contentRef} className="form-control" placeholder="write here..."></textarea>
+        <input type="file" onChange={uploadImage} className="form-control" multiple />
+        <label className="ctext-primary">Post to</label>
+        {Array.from(ctxprops.clubs).sort().map((club, index) => ( //clubs need to be alphabetically ordered to sync with firebase
+        <div className="ctext-primary"><input key={index} type="checkbox" className="posttoclub" id={club} /><label>{club}</label></div>
+        ))}
+        <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label className="ctext-primary" htmlFor="challenge-checkbox">Challenge</label>
+        {check ?
+        <div>
+        <input type="date" className="challenge_datetimelocal"  />
+        </div>
+        : null}
+        
+        </div>
+        <div className="modal-footer">
+        <button type="button" className="btn btnpost" onClick={(e) => mkPost(e)}><FaPlus className="faplus" /> Post</button>
+        <button type="button" className="btn" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+        </div>
+        </div>
+        <div id="editpost" className="modal" tabIndex="-1" role="dialog">
+           <div className="modal-dialog modal-dialog-centered" role="document">
+               <div className="modal-content cmodal "> 
+                   <div className="modal-header">
+                       <h5 className="modal-title cmodal-title">Edit post</h5>
+                       <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                       </button>
+                       </div>
+                       <div className="modal-body">
+                       <label className="ctext-primary">Title</label>
+                       <input type="text" className="form-control" placeholder="title" ref={titleEditRef} />
+                       <label className="ctext-primary">Content</label>
+                       <textarea ref={contentEditRef} className="form-control" placeholder="write here..."></textarea>
+                       <label className="ctext-primary">Replace Image</label>
+                       <input type="file" accept="img/png, img/jpeg" onChange={uploadImage} className="form-control" />
+                       {check ?
+                       <div>
+                       <input type="date" /> {/*fix later ig */}
+                       </div>
+                       : null}
+                       </div>
+                       <div className="modal-footer">
+                       <button type="button" className="btn btnpost" id="editor" onClick={(e) => sendEdit(e)}><CiCircleCheck className="svg-menu" />Make edit</button>
+                       <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                   </div>
+               </div>
+           </div>
+        </div>
+       
+       
+        <div id="pollpost" className="modal" tabIndex="-1" role="dialog">
+           <div className="modal-dialog modal-dialog-centered" role="document">
+               <div className="modal-content cmodal "> 
+                   <div className="modal-header">
+                       <h5 className="modal-title cmodal-title">Create Poll</h5>
+                       <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                       </button>
+                       </div>
+                       <div className="modal-body">
+                       <input type="text" placeholder="Enter question/title..." className="form-control" ref={pollRef} />
+                       
+                       <label htmlFor="poll-date">When will it expire?</label>
+                       <input type="date" id="poll-date" ref={pollDateRef} onChange={(e) => udt(e)} /> 
+                       <br />
+       
+                       <label htmlFor="number_of_opts">How many options?</label> <input type="number" min="1" className="form-control" id="number_of_opts" ref={polloptsref} />
+                       <button onClick={pollingInputs}>confirm</button>
+                       {ets.map(i => (
+                       <ol>
+                       <li><input type="text" placeholder="option..." className="form-control option-poll-input" key={i} /></li>
+                       </ol>
+                       ))}
+                       
+                       </div>
+                       <div className="modal-footer">
+                       <button type="button" className="btn btnpost" id="poller" onClick={(e) => mkPoll(e)}><CiCircleCheck className="svg-menu" />Create poll</button>
+                       <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                   </div>
+               </div>
+           </div>
+        </div>
+       
+        </div>
         </div>
     </div>
- </div>
-
-
- <div id="pollpost" className="modal" tabIndex="-1" role="dialog">
-    <div className="modal-dialog modal-dialog-centered" role="document">
-        <div className="modal-content cmodal "> 
-            <div className="modal-header">
-                <h5 className="modal-title cmodal-title">Create Poll</h5>
-                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-                </div>
-                <div className="modal-body">
-                <input type="text" placeholder="Enter question/title..." className="form-control" ref={pollRef} />
-                
-                <label htmlFor="poll-date">When will it expire?</label>
-                <input type="date" id="poll-date" ref={pollDateRef} onChange={(e) => udt(e)} /> 
-                <br />
-
-                <label htmlFor="number_of_opts">How many options?</label> <input type="number" min="1" className="form-control" id="number_of_opts" ref={polloptsref} />
-                <button onClick={pollingInputs}>confirm</button>
-                {ets.map(i => (
-                <ol>
-                <li><input type="text" placeholder="option..." className="form-control option-poll-input" key={i} /></li>
-                </ol>
-                ))}
-                
-                </div>
-                <div className="modal-footer">
-                <button type="button" className="btn btnpost" id="poller" onClick={(e) => mkPoll(e)}><CiCircleCheck className="svg-menu" />Create poll</button>
-                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
- </div>
-
- </div>
- </div>
  )
 }

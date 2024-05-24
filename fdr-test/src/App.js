@@ -508,7 +508,7 @@ export default class App extends React.Component {
         )
       }
     } else {
-      <div>
+      <div className="ctext-primary"> 
         <h1>Loading...</h1>
       </div>
     }  
