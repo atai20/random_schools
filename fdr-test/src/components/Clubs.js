@@ -126,6 +126,7 @@ export default function Clubs() {
             "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //TODO: fix this so that its from the proper club or smth
             "status": "active",
             "submissions": [],
+            "creator": ctxprops.id
         })
     }
     } else {
@@ -237,9 +238,10 @@ export default function Clubs() {
         const g = await getDocs(q);
         g.forEach(doc => {
             // console.log(doc.data())
-            if(distance_metric(doc.data().title, mod) <=doc.data().title.length || distance_metric(doc.data().text, mod) <= doc.data().text.length) {
-                console.log("success");
-                post_filter.push(doc.data());
+            if(distance_metric(doc.data().title, mod) < doc.data().title.length || distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod) < doc.data().text.length) {
+                console.log(distance_metric(doc.data().title, mod), " dmetric_title vs ", doc.data().title.length);
+                console.log(distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod), "dmetric_text vs ", doc.data().text.length);
+                post_filter.push({"post_data": doc.data(), "post_id": doc.id});
             } else {
                 console.log(distance_metric(doc.data().title, mod));
                 console.log(distance_metric(doc.data().text, mod));
@@ -352,16 +354,14 @@ export default function Clubs() {
  
  <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
     <a href="#" className="navbar-brand"></a>
-    <form className="form-inline">
-        <div className="input-group">
+    <div className="input-group">
             <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
             <div className="input-group-append">
                 <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => findPost(e)}>
-                <i className="fa fa-search"></i>
+                    <i className="fa fa-search"></i>
                 </button>
             </div>
         </div>
-    </form>
  </nav>
 
 
@@ -514,6 +514,7 @@ export default function Clubs() {
  {header: hash, 
  challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
  school_select: ctxprops.school_select,
+ uid: ctxprops.id
  }}) }}>{hash}</span>
  </div>
  )
@@ -542,7 +543,7 @@ export default function Clubs() {
  }) : 
  <div>
  {filter.map(post => (
- <p>{post.author_id}</p>
+ <p>{post.post_id}</p>
  ))}
  </div>}
  
@@ -573,7 +574,7 @@ export default function Clubs() {
  <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label className="ctext-primary" htmlFor="challenge-checkbox">Challenge</label>
  {check ?
  <div>
- <input type="datetime-local" className="challenge_datetimelocal"  />
+ <input type="date" className="challenge_datetimelocal"  />
  </div>
  : null}
  

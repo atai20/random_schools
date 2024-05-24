@@ -19,17 +19,17 @@ export default function Submissions(props) {
         setRefPost(rp_t);
     }
     useEffect(() => {
-        getRefPosts();
+        getRefPosts(); //ummmm get challenge posts
     },[]);
     return (
         <div className="ctext-primary center-text">
           <h1 className="newsreader-title">{loc.state.header}</h1>
+        
           {loc.state.challenge_data.map(challenge => {
             if(challenge !== null) {
-                return (
-                <div>
-                    <p>{challenge.content}</p>
-                </div>);
+                if(loc.state.uid === challenge.creator) {
+                    console.log("gotem")
+                }
             }
           })}
             <div className="mini-view-grid">

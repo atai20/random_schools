@@ -238,7 +238,11 @@ export default class App extends React.Component {
     } else {
       alert(this.state.school_select);
     }
-    
+    this.setState({loaded: false});
+    setTimeout(() => {
+      window.location.reload();
+      this.setState({loaded: true})
+    }, 3000);
   }
 
   checkPassword(pass_string) { // for registration
