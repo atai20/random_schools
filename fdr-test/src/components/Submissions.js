@@ -10,7 +10,7 @@ export default function Submissions(props) {
     // console.log(loc.state);
     async function getRefPosts() {
         let nc = loc.state.challenge_data.filter(c => c !== null);
-        const q = query(collection(db, `schools/${loc.state.school_select}/clubs`), where(documentId(), 'in', nc[0].submissions));
+        const q = query(collection(db, `schools/${loc.state.school_select}/posts`), where(documentId(), 'in', nc[0].submissions));
         const q_g = await getDocs(q);
         let rp_t = [];
         q_g.forEach(element => {
@@ -21,6 +21,7 @@ export default function Submissions(props) {
     useEffect(() => {
         getRefPosts(); //ummmm get challenge posts
     },[]);
+    // console.log(refPost);
     return (
         <div className="ctext-primary center-text">
           <h1 className="newsreader-title">{loc.state.header}</h1>

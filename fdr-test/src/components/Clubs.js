@@ -21,28 +21,28 @@ let clubo = "";
 var Latex = require('react-latex');
 
 export default function Clubs() {
- const pass = useNavigate();
- const ctxprops = useOutletContext();
- const [selposts, setPosts] = useState([]);
- const [challenge, setChallenge] = useState([]);
- const [check, setCheck] = useState(false);
- const [img, setImg] = useState([]);
- const titleRef = useRef("");
- const contentRef = useRef("");
- const titleEditRef = useRef("");
- const contentEditRef = useRef("");
- const [polls, setPolls] = useState([]);
- const [docCount, setDocCount] = useState(0);
- let challenges_t = [];
- let posts_t = [];
- let imgs_t = [];
- let polls_t = [];
+    const pass = useNavigate();
+    const ctxprops = useOutletContext();
+    const [selposts, setPosts] = useState([]);
+    const [challenge, setChallenge] = useState([]);
+    const [check, setCheck] = useState(false);
+    const [img, setImg] = useState([]);
+    const titleRef = useRef("");
+    const contentRef = useRef("");
+    const titleEditRef = useRef("");
+    const contentEditRef = useRef("");
+    const [polls, setPolls] = useState([]);
+    const [docCount, setDocCount] = useState(0);
+    let challenges_t = [];
+    let posts_t = [];
+    let imgs_t = [];
+    let polls_t = [];
 
 
 async function getPosts(stored_items_length) {
     //if stored_items_length (as a prop) is different then prevoius renders then we rerun. otherwise data is cached
     console.log(stored_items_length);
-    const clubs_arr = collection(db, `schools/${ctxprops.school_select}/clubs`); 
+    const clubs_arr = collection(db, `schools/${ctxprops.school_select}/posts`); 
     const q = query(clubs_arr);
     const snap = await getDocs(q);
     snap.forEach(doc => {
@@ -84,7 +84,7 @@ async function uploadImage(e) {
             console.log(snap.state);
         }
         }, (err) => {
-            console.log("error upload");
+            console.log("error upload:", err);
         }, () => {
             getDownloadURL(uploadTask.snapshot.ref).then((url) => {
             imgs_t.push(url);
@@ -107,7 +107,7 @@ async function mkPost(e) {
     if(!check) {
     for(let i = 0; i < clubsArr.length; i++) {
         if(clubsArr[i].checked) {
-            await addDoc(collection(db, `schools/${ctxprops.school_select}/clubs`), {
+            await addDoc(collection(db, `schools/${ctxprops.school_select}/posts`), {
                 "author": ctxprops.username,
                 "author_id": ctxprops.id,
                 "author_pfp": ctxprops.pfp,
@@ -137,7 +137,7 @@ async function mkPost(e) {
     console.log(contentRef.current.value);
     console.log(titleRef.current.value);
     }
-// setTimeout(() => {getPosts(); },3000); 
+setTimeout(() => {getPosts(); },3000); 
 }
 const [editId, setEditId] = useState("");
 async function editPost(postId) {
@@ -156,7 +156,7 @@ async function sendEdit(e) {
     if(img.length !== 0) {
         selposts[parseInt(editId.pii)].posts_data.img = img; //ONE
     }
-    await updateDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${editId.pir}`), {
+    await updateDoc(doc(db, `schools/${ctxprops.school_select}/posts/${editId.pir}`), {
         "title": titleEditRef.current.value,
         "text": contentEditRef.current.value,
         "img": selposts[parseInt(editId.pii)].posts_data.img
@@ -167,11 +167,11 @@ async function sendEdit(e) {
 }
 async function deletePost(postId) {
     selposts.splice(parseInt(postId.substring(postId.indexOf("-")+1,postId.indexOf(":"))), 1);
-    await deleteDoc(doc(db, `schools/${ctxprops.school_select}/clubs/${postId.substring(postId.indexOf(":")+1)}`))
+    await deleteDoc(doc(db, `schools/${ctxprops.school_select}/posts/${postId.substring(postId.indexOf(":")+1)}`))
     // getPosts();
  }
 async function getPostsCount() {
-    const coll = collection(db, `schools/${ctxprops.school_select}/clubs`);
+    const coll = collection(db, `schools/${ctxprops.school_select}/posts`);
     const snapshot = await getCountFromServer(coll);
     return snapshot.data().count;
     // console.log('count: ', snapshot.data().count);
@@ -229,7 +229,7 @@ useEffect(() => {
     if (y <= x && y <= z) return y;
     return z;
  }
- function distance_metric(a,b) { //similarity of words and phrases (levenshtein algo, the most efficient)
+ function distance_metric(a,b) { //distance between words(levenshtein algo, the most efficient)
     let cost;
     let m = a.length;
     let n = b.length;
@@ -250,9 +250,9 @@ useEffect(() => {
     }
     return r[r.length-1][r[0].length-1];
  }
- const [filter, setFilter] = useState([]);
- const searchRef= useRef();
- async function findPost(e) {
+const [filter, setFilter] = useState([]);
+const searchRef= useRef();
+async function findPost(e) {
     setFilter([]);
     const club_filter = /\[(.*?)\]/i;
     const club = searchRef.current.value.match(club_filter);
@@ -260,17 +260,20 @@ useEffect(() => {
     if(club !== null) {
         let post_filter = [];
         const mod = searchRef.current.value.replace(club_filter, '');
-        const q = query(collection(db, `schools/${ctxprops.school_select}/clubs`), where("from_club", "==", club[1]));
+        const q = query(collection(db, `schools/${ctxprops.school_select}/posts`), where("from_club", "==", club[1]));
         const g = await getDocs(q);
         g.forEach(doc => {
             // console.log(doc.data())
-            if(distance_metric(doc.data().title, mod) < doc.data().title.length || distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod) <= doc.data().text.length/1.618) {
-                // console.log(distance_metric(doc.data().title, mod), " dmetric_title vs ", (doc.data().title.length/1.618));
-                // console.log(distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod), "dmetric_text vs ", (doc.data().text.length/1.618));
+            if((doc.data().title.length/distance_metric(doc.data().title, mod)) >= 2 ) {
+                console.log((doc.data().title.length/distance_metric(doc.data().title, mod)));
+                console.log((distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod)/(doc.data().text.length)));
                 post_filter.push({"post_data": doc.data(), "post_id": doc.id});
             } else {
-                console.log(distance_metric(doc.data().title, mod));
-                console.log(distance_metric(doc.data().text, mod));
+                // console.log(distance_metric(doc.data().title, mod));
+                // console.log(distance_metric(doc.data().text, mod));
+                console.log((doc.data().title.length/distance_metric(doc.data().title, mod)), " ", distance_metric(doc.data().title, mod));
+                console.log((distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod)/(doc.data().text.length)), " ", distance_metric(doc.data().text.replace(regexLatexBlock, ''), mod));
+                console.log()
             }
         })
 
@@ -291,26 +294,26 @@ useEffect(() => {
         console.log(post_filter);
         post_filter = [];
     }
- }
- const [g_c, setG_c] = useState([]);
- async function getChallenges() {
-    let challenges_t = [];
-    const q = query(collection(db, "challenges"));
-    const gd = await getDocs(q);
-    gd.forEach((document) => {
-        if((getCurrentTime() - parseInt(document.data().due_date)) > 0) {
-        // deleteDoc(doc(db, "challenges", document.id));
-        console.log("expiring")
-        }
-        challenges_t.push({chal_data: document.data(), challenge_id: document.id});
-    });
-    setG_c(challenges_t);
-    console.log(challenges_t);
+}
+const [g_c, setG_c] = useState([]);
+async function getChallenges() {
+let challenges_t = [];
+const q = query(collection(db, "challenges"));
+const gd = await getDocs(q);
+gd.forEach((document) => {
+    if((getCurrentTime() - parseInt(document.data().due_date)) > 0) {
+    // deleteDoc(doc(db, "challenges", document.id));
+    console.log("expiring")
+    }
+    challenges_t.push({chal_data: document.data(), challenge_id: document.id});
+});
+setG_c(challenges_t);
+console.log(challenges_t);
 
-    challenges_t = [];
- }
- async function updateChallengesWithPostID(challenge_id, post_id) { //so far it will only work for one hashtag
- // console.log(post_id)
+challenges_t = [];
+}
+async function updateChallengesWithPostID(challenge_id, post_id) { //so far it will only work for one hashtag
+    // console.log(post_id)
     let nc = challenge_id.filter(c => c !== null);
     let obj_target = g_c.find(o => o.challenge_id === nc[0]);
     if(obj_target !== undefined) {
@@ -322,9 +325,9 @@ useEffect(() => {
         } else {
         // console.log(obj_target.chal_data.submissions.includes("KCiweuB3owmSZ5NgroNu"));
         }
-    
+
     }
- }
+}
 
 const pollRef = useRef();
 const polloptsref = useRef();
@@ -379,9 +382,22 @@ return (
         <nav className="navbar cinline-nav"> {/*navbar-light bg-white */}
             <a href="#" className="navbar-brand"></a>
             <div className="input-group">
-                    <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
+                    
+
+<div class="dropdown">
+<input type="text"
+    id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+    className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" ref={searchRef} />
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <p className="dropdown-item">Usage: [club name]your input here</p>
+  </div>
+  
+</div>
                     <div className="input-group-append">
-                        <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => findPost(e)}>
+                        <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => findPost(e)}
+                        >
+
+
                             <i className="fa fa-search"></i>
                         </button>
                     </div>
