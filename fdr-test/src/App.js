@@ -9,7 +9,11 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { Link, Outlet, useLocation, redirect } from 'react-router-dom';
 import Defaultpfp from "./default.png";
 import Glogo from "./glogo.png";
-import { JSEncrypt } from "jsencrypt";  
+import Transplogo from "./transplogo.webp";
+import { JSEncrypt } from "jsencrypt"; 
+import $ from 'jquery'; 
+
+import "./Appc.scss";
 import './App.css';
 
 const gp = new GoogleAuthProvider();
@@ -18,6 +22,7 @@ const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 
 let avatar_fileref = "";
 const schools_ref = collection(db, "schools");
+let glob_sub = [];
 
 export default class App extends React.Component {
   constructor(props) {
@@ -34,7 +39,7 @@ export default class App extends React.Component {
       this.getuname = React.createRef("");
       this.getosis = React.createRef("");
 
-
+      this.subject_set_ref = React.createRef();
   }
   
   logout() {
@@ -160,6 +165,7 @@ export default class App extends React.Component {
           school_select: data.data().school,
           talents: data.data().talents,
           theme: data.data().theme,
+          subjects: data.data().subjects ? data.data().subjects : null
         });
       } 
     });
@@ -212,6 +218,7 @@ export default class App extends React.Component {
   }
 
   updateUserInfo = () => {
+    console.log(this.state.subject_set);
     const checkboxes = document.querySelectorAll(".clubcheck");
     let clubsArr = [];
     for(let i = 0; i < checkboxes.length; i++) {
@@ -229,6 +236,7 @@ export default class App extends React.Component {
         pfp: this.state.pfp,
         school: parseInt((this.state.school_select)),
         role: this.state.role,
+        subjects: this.state.subject_set
       });
       this.setState({
         loaded: true,
@@ -280,7 +288,7 @@ export default class App extends React.Component {
             currentSlide: this.state.currentSlide + 1,
           });
         } else {
-          alert("enter proepr osis")  
+          alert("enter proepr osis");
         }
       } else {
         this.setState({
@@ -288,7 +296,6 @@ export default class App extends React.Component {
         });
       }
     }
-    
   }
   prevSlide() {
     this.setState({
@@ -311,8 +318,27 @@ export default class App extends React.Component {
       })
     }
   }
+  subjectInjection() {
+    let iz_t=[];
+    const d = document.querySelectorAll(".subject_check");
+    for(let i=0; i < d.length; i++) {
+      if(d[i].checked) {
+        iz_t.push(d[i].id.toString());
+      }
+    }
+    this.setState({subject_set: iz_t, 
+      currentSlide: this.state.currentSlide + 1})
+  }
 
   render() {
+    const inputField = document.querySelector('.chosen-value');
+      const dropdown = document.querySelector('.value-list');
+      if(inputField !== null && dropdown !== null) {
+        const dropdownArray = [... document.querySelectorAll('li')];
+      console.log(typeof dropdownArray)
+      dropdown.classList.toggle('open');
+        
+      } 
     function InitAnim(props) {
       return (
         <div>
@@ -324,33 +350,107 @@ export default class App extends React.Component {
       return (
         <div>
           <p>{props.question}</p>
-          <button onClick={() => props.setUserPosition("twonnyoneteacher")}>Teacher</button>
-          <button onClick={() => props.setUserPosition("student")}>Student</button>
+          <button className="btn-white" onClick={() => props.setUserPosition("twonnyoneteacher")}>Teacher</button>
+          <button className="btn-white" onClick={() => props.setUserPosition("student")}>Student</button>
         </div>
       )
     }
     function QuestionSchool(props) {
+      
       return (<div>
         <p>what school are you attending?</p>
-          <select onChange={(e) => props.schoolSelector(e)} id="school_select">
+        <div className="selectors-custom">
+        <input class="chosen-value" type="text" placeholder="Type to filter"/>
+        <ul className="value-list">
+        <li>Alabama</li>  
+    <li>Alaska</li>
+    <li>Arizona</li>
+    <li>Arkansas</li>
+    <li>California</li>
+    <li>Colorado</li>
+    <li>Connecticut</li>
+    <li>Delaware</li>
+    <li>Florida</li>
+    <li>Georgia</li>
+    <li>Hawaii</li>
+    <li>Idaho</li>
+    <li>Illinois</li>
+    <li>Indiana</li>
+    <li>Iowa</li>
+    <li>Kansas</li>
+    <li>Kentucky</li>
+    <li>Louisiana</li>
+    <li>Maine</li>
+    <li>Maryland</li>
+    <li>Massachusetts</li>
+    <li>Michigan</li>
+    <li>Minnesota</li>
+    <li>Mississippi</li>
+    <li>Missouri</li>
+    <li>Montana</li>
+    <li>Nebraska</li>
+    <li>Nevada</li>
+    <li>New Hampshire</li>
+    <li>New Jersey</li>
+    <li>New Mexico</li>
+    <li>New York</li>
+    <li>North Carolina</li>
+    <li>North Dakota</li>
+    <li>Ohio</li>
+    <li>Oklahoma</li>
+    <li>Oregon</li>
+    <li>Pennsylvania</li>
+    <li>Rhode Island</li>
+    <li>South Carolina</li>
+    <li>South Dakota</li>
+    <li>Tennessee</li>
+    <li>Texas</li>
+    <li>Utah</li>
+    <li>Vermont</li>
+    <li>Virginia</li>
+    <li>Washington</li>
+    <li>West Virginia</li>
+    <li>Wisconsin</li>
+    <li>Wyoming</li>
+        </ul>
+        </div>
+          {/* <select onChange={(e) => props.schoolSelector(e)} id="school_select">
             <option value={0}></option>
             <option value={1}>FDR</option>
             <option value={2}>Lagrange James</option>  
-          </select>
+          </select> */}
       </div>)
     }
     const InputRequired = React.forwardRef((props,ref) => {
       if(props.type === "text") {
         return (
           <div>
+            <p>{props.header}</p>
             <input type={props.type} placeholder={props.placeholder} ref={ref}  />
           </div>)
-      } else{
+      } else if(props.necessaryClass === "subject_check") {
+        // props.subjectInject(props.clubs);
+        return (
+            <div >
+              <p>{props.header}</p>
+              {props.clubs.map((subject,i) => (
+                <div >
+                  <input type={props.type} className={props.necessaryClass} id={subject}/>
+                  {/* <button type={props.type} className={props.necessaryClass} class="btn" id={subject} onClick={(e) => props.subjectInject(e)}>{subject}</button> */}
+                  <label htmlFor={subject}>{subject}</label><br />
+                </div>
+              ))}
+              <button className="btn btn-success" onClick={props.subjectInject}>Save</button>
+            </div>
+        )
+      } else {
+        
         return (
           <div>
+            <p>{props.header}</p>
             {props.clubs.map((club,i) => (
               <div>
-                <input type={props.type} className={props.necessaryClass} id={club} /><label htmlFor={club}>{props.clubs[i]}</label><br />
+                <input type={props.type} className={props.necessaryClass} id={club}  /><label htmlFor={club}>{props.clubs[i]}</label><br />
               </div>
             ))}
             <button onClick={props.finalStep}>Submit</button>
@@ -361,24 +461,54 @@ export default class App extends React.Component {
 
     if(this.state.loaded) {
       if(!this.state.logged) {
-     
+        
         return (
-          
-          <div className="register ctext-primary">
+          <div className="register" >
             <div className="overlay">
               <div className="modal_register">
                 <h3>Register</h3>
-                <input className="form-control mr-sm-2" type="email" name="email" id="email" ref={this.emailInputRef} placeholder="Email" />
-                <input className="form-control mr-sm-2" type="password" name="password" id="pass" ref={this.passwordRef} placeholder="Password" />
-                <button className="btn btn-outline-success my-2 my-sm-0 ctext-primary" onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>Register</button>
+                <div className="register-group">
+                  <input className="register-inp" required type="email" autoComplete="off" name="email" id="email" ref={this.emailInputRef} />
+                  <label className="register-label">Email</label>
+                  
+                </div>
+                <div className="register-group">
+                <input className="register-inp" type="password" name="password" id="pass" ref={this.passwordRef} required autoComplete="off" />
+                  <label className="register-label">Password</label>
+                </div>
+
+                <button 
+                className="register_button_official" 
+                onClick={() => this.emailpass_auth(this.emailInputRef.current.value,this.passwordRef.current.value)}>
+                 <p> Register</p></button>
                 <br />
                 <br />
                 <h3>Login</h3>
-                <input className="form-control mr-sm-2" type="email" ref={this.emaillog} placeholder="Email"/>
-                <input className="form-control mr-sm-2" type="password" ref={this.passlog} placeholder="Password" />
-                <button className="btn btn-outline-success my-2 my-sm-0" onClick={() => this.manLogin(this.emaillog.current.value,this.passlog.current.value)}>Login</button><br />
+                <div className="register-group">
+                  <input className="register-inp" type="email" ref={this.emaillog} placeholder="Email" required autoComplete="off"/>
+                  <label className="register-label">Email</label>
+              </div>
+              <div className="register-group">
+                  <input className="register-inp" type="password" ref={this.passlog} placeholder="Password" required autoComplete="off" />
+                  <label className="register-label">Password</label>
+                </div>
+                <button className="animated-button" 
+                onClick={() => this.manLogin(this.emaillog.current.value,this.passlog.current.value)}>
+                  <svg viewBox="0 0 24 24" class="arr-2" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+    ></path>
+  </svg>
+  <span class="text">Login</span>
+  <span class="circle"></span>
+  <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+    ></path>
+  </svg>
+                  </button><br />
                 <span>OR</span><br />
-                <button onClick={this.google_auth} className="glogo"><img src={Glogo} width={50} height={50}/> login with google</button>
+                <button onClick={this.google_auth} className="glogo"><img src={Transplogo} width={20} height={20}/> login with google</button>
                 <br />
                 <br />
                 <br />
@@ -393,7 +523,7 @@ export default class App extends React.Component {
       } else {
         const steps = [
           {
-            'jsx': <InitAnim text="hello im on fire" />,
+            'jsx': <InitAnim text="hello im on fire (send help)" />,
             'position': 'right',
           },
           {
@@ -407,13 +537,18 @@ export default class App extends React.Component {
             'jsx': <QuestionSchool schoolSelector={this.handleSchoolSelection.bind(this)} />
           },
           {
-            'jsx': <InputRequired type="text" placeholder="Name..." ref={this.getuname} />
+            'jsx': <InputRequired header="ur name?" type="text" placeholder="Name..." ref={this.getuname} />
           },
           {
-            'jsx': <InputRequired type="text" placeholder="OSIS" ref={this.getosis} />
+            'jsx': this.state.role === "regular" ? <InputRequired header="what is osis" type="text" placeholder="OSIS" ref={this.getosis} /> : 
+            <InputRequired header="what class u teach?" type="checkbox" 
+            necessaryClass="subject_check" 
+            clubs={["math", "physics", "CS", "robotics", "english", "history"]} 
+            subjectInject={this.subjectInjection.bind(this)} />,
+              //fetch dis from opendata eventually <InputRequired header="what class u teach?" type="checkbox" necessaryClass="subject_check" clubs={["math", "physics", "CS", "robotics", "english", "history"]} subjectInject={this.subjectInjection.bind(this)} />,
           },
           {
-            'jsx': <InputRequired type="checkbox" necessaryClass="clubcheck" clubs={["math", "physics", "CS", "robotics", "key"]} finalStep={this.updateUserInfo.bind(this)} />
+            'jsx': <InputRequired header="what clubs u in?" type="checkbox" necessaryClass="clubcheck" clubs={["math", "physics", "CS", "robotics", "key"]} finalStep={this.updateUserInfo.bind(this)} />
           }
         ]
         return (
@@ -457,10 +592,14 @@ export default class App extends React.Component {
     </form>
   </div>
 </nav>
+{/* {console.log(this.state)} */}
           {this.state.clubs ? 
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
-              <Outlet context={this.state} />
+              <div>
+                {console.log(this.state)}
+                <Outlet context={this.state} />
+              </div>
             )
             :
             <div>
@@ -473,19 +612,27 @@ export default class App extends React.Component {
             (
             <div id="popup-questions" className="ctext-primary">
                 <div className="d-flex">
-                <div className="d-inline-block riv-anim" ><Rive src='firey.riv' style={{height:"400px", width:"300px"}}/></div>
+                <div className="d-inline-block riv-anim" >
+                  {/* {console.log(this.state.role)} */}
+                  {this.state.role === "teacher" ? 
+                  <Rive src='firey_reg.riv' style={{height: "400px", width: "300px"}} />
+                  : null
+                }
+                {this.state.role === "regular" ? 
+                <Rive src='firey.riv' style={{height:"400px", width:"300px"}}/> : null}
+                </div>
                 <div className="d-inline-block">
                 <div className="chat" id="firey-chat" >
                   {this.state.currentSlide < steps.length ? 
                   <div>
                   <div>{steps[this.state.currentSlide].jsx}</div>
-                  {this.state.currentSlide > 0  ? 
+                  {this.state.currentSlide > 0 ? 
                   <div>
-                    <button onClick={this.prevSlide.bind(this)}>Previous</button>
-                    <button onClick={this.nextSlide.bind(this)}>Next</button>
+                    <button className="prevslidebtn"  onClick={this.prevSlide.bind(this)}>Previous</button>
+                    <button className="nextslidebtn" onClick={this.nextSlide.bind(this)}>Next</button>
                   </div>
                 
-                : <button onClick={this.nextSlide.bind(this)}>Next</button>}
+                : <button className="nextslidebtn" onClick={this.nextSlide.bind(this)}>Next</button>} {/**<button onClick={this.nextSlide.bind(this)}>Next</button> */}
                 </div>:
                 null}
                 </div>

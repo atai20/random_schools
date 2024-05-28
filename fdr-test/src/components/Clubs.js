@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef, useMemo} from "react";
 import firebase from 'firebase/compat/app'; 
 import { Link, useOutletContext, useNavigate } from "react-router-dom";
 import { getAuth, deleteUser, signOut } from "firebase/auth";
-import { doc, deleteDoc, getDoc, addDoc, updateDoc, query, where, collection, getDocs, serverTimestamp, getCountFromServer } from "firebase/firestore";
+import { doc, deleteDoc, getDoc, addDoc, updateDoc, query, where, collection, getDocs, serverTimestamp, getCountFromServer, orderBy } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
@@ -13,8 +13,32 @@ import { GoKebabHorizontal } from "react-icons/go";
 import { FaEllipsisH } from "react-icons/fa";
 import { CiCircleCheck } from "react-icons/ci";
 import { FaVoteYea } from "react-icons/fa";
+import $ from 'jquery';
+import { FaRegCheckCircle, FaCheck } from "react-icons/fa";
+import { CiCircleRemove } from "react-icons/ci";
+import { GoDotFill } from "react-icons/go";
+import { RxHamburgerMenu } from "react-icons/rx";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+  } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
 import "./styles/profiles.css";
 import "../App.css";
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let clubo = "";
@@ -41,14 +65,17 @@ export default function Clubs() {
 
 async function getPosts(stored_items_length) {
     //if stored_items_length (as a prop) is different then prevoius renders then we rerun. otherwise data is cached
-    console.log(stored_items_length);
+    // console.log(stored_items_length);
     const clubs_arr = collection(db, `schools/${ctxprops.school_select}/posts`); 
-    const q = query(clubs_arr);
+    const q = query(clubs_arr, orderBy('date'));
     const snap = await getDocs(q);
     snap.forEach(doc => {
     // console.log(doc.data());
         posts_t.push({posts_data: doc.data(), postid: doc.id});
     });
+    posts_t.sort(function(a,b) {
+        return b.posts_data.date - a.posts_data.date;
+    })
     console.log(posts_t);
     setPosts(posts_t);
     setChallenge(challenges_t);
@@ -98,7 +125,7 @@ const [datetime, setDatetime] = useState('gg');
 
 async function mkPost(e) {
     e.target.disabled = true;
-    console.log(e.target.disabled);
+    // console.log(e.target.disabled);
     // console.log(img);
     const button_target = document.querySelectorAll(".btnpost")[1];
     button_target.textContent = "Posting...";
@@ -130,12 +157,12 @@ async function mkPost(e) {
             "origin": `${ctxprops.school_select}/${clubsArr[0].id.toString()}`, //TODO: fix this so that its from the proper club or smth
             "status": "active",
             "submissions": [],
-            "creator": ctxprops.id
+            "creator": ctxprops.id,
         })
     }
     } else {
-    console.log(contentRef.current.value);
-    console.log(titleRef.current.value);
+    // console.log(contentRef.current.value);
+    // console.log(titleRef.current.value);
     }
 setTimeout(() => {getPosts(); },3000); 
 }
@@ -163,6 +190,8 @@ async function sendEdit(e) {
     });
     setTimeout(() => {
         getPosts();
+        window.$("#editpost").modal("hide");
+        $("#editor").removeAttr("disabled");
     },3000);
 }
 async function deletePost(postId) {
@@ -192,44 +221,44 @@ useEffect(() => {
     getPostsCached.then(data_p => setPosts(data_p));
 })
 useEffect(() => {
-    console.log(docCount);
-    console.log(selposts);
+    // console.log(docCount);
+    // console.log(selposts);
 }, [docCount, selposts]);
 
 
 
- const [toggle, setToggle] = useState("");
- const indToggle = (e) => {
- if(toggle === e.target.id) {
- setToggle("");
- } else {
- setToggle(e.target.id);
+const [toggle, setToggle] = useState("");
+const indToggle = (e) => {
+    if(toggle === e.target.id) {
+        setToggle("");
+    } else {
+        setToggle(e.target.id);
+    }
+}
+function getCurrentTime() {
+    var b = new Date();
+    return (b.getTime() - b.getMilliseconds()) / 1000;
  }
- }
- function getCurrentTime() {
- var b = new Date();
- return (b.getTime() - b.getMilliseconds()) / 1000;
- }
- function convertToPOSIX(input) {
+function convertToPOSIX(input) {
  //date as in the usestate
-    console.log(input);
+    // console.log(input);
     var future = new Date(input.replace(/-/g,'/').replace('T',' '));
     return (future.getTime() - future.getMilliseconds()) / 1000;
- }
- function convertFromPOSIX(unix_timestamp) {
- var eps = new Date(unix_timestamp*1000);
- return eps.toLocaleDateString("en-US")
+}
+function convertFromPOSIX(unix_timestamp) {
+    var eps = new Date(unix_timestamp*1000);
+    return eps.toLocaleDateString("en-US")
  // eps.toLocaleString('en-US', { timeZone: 'America/New_York' });
  // return (eps.getFullYear() + "-" + (parseInt(eps.getMonth())+1) + "-" + (parseInt(eps.getDate())));
- }
+}
 
  
- function min_s(x, y, z) {
+function min_s(x, y, z) {
     if (x <= y && x <= z) return x;
     if (y <= x && y <= z) return y;
     return z;
- }
- function distance_metric(a,b) { //distance between words(levenshtein algo, the most efficient)
+}
+function distance_metric(a,b) { //distance between words(levenshtein algo, the most efficient)
     let cost;
     let m = a.length;
     let n = b.length;
@@ -249,7 +278,7 @@ useEffect(() => {
         }
     }
     return r[r.length-1][r[0].length-1];
- }
+}
 const [filter, setFilter] = useState([]);
 const searchRef= useRef();
 async function findPost(e) {
@@ -276,22 +305,8 @@ async function findPost(e) {
                 console.log()
             }
         })
-
-        // await getDoc(doc(db, `schools/${ctxprops.school_select}/clubs`)).then((p) => {
-        //     for(const post of p.data().posts) {
-        //         if(distance_metric(post.title, mod) < (post.title.length) || distance_metric(post.text, mod) < post.text.length) {
-        //             console.log((post.title.length) - distance_metric(post.title, mod), " vs ", distance_metric(post.title, mod));
-        //             console.log((post.text.length) - distance_metric(post.text, mod), " vs ", distance_metric(post.text, mod));
-        //             post_filter.push(post);
-        //         } else {
-        //             console.log(distance_metric(post.title, mod));
-        //             console.log(distance_metric(post.text, mod));
-        //         }
-        //     }
-        // });
-        // console.log(post_filter);
         setFilter(post_filter);
-        console.log(post_filter);
+        // console.log(post_filter);
         post_filter = [];
     }
 }
@@ -303,16 +318,16 @@ const gd = await getDocs(q);
 gd.forEach((document) => {
     if((getCurrentTime() - parseInt(document.data().due_date)) > 0) {
     // deleteDoc(doc(db, "challenges", document.id));
-    console.log("expiring")
+    // console.log("expiring")
     }
     challenges_t.push({chal_data: document.data(), challenge_id: document.id});
 });
 setG_c(challenges_t);
-console.log(challenges_t);
+// console.log(challenges_t);
 
 challenges_t = [];
 }
-async function updateChallengesWithPostID(challenge_id, post_id) { //so far it will only work for one hashtag
+async function updateChallengesWithPostID(challenge_id, postref, post_id) { //so far it will only work for one hashtag
     // console.log(post_id)
     let nc = challenge_id.filter(c => c !== null);
     let obj_target = g_c.find(o => o.challenge_id === nc[0]);
@@ -320,12 +335,16 @@ async function updateChallengesWithPostID(challenge_id, post_id) { //so far it w
         if(!(obj_target.chal_data.submissions.includes(post_id))) { //wtf why this dumass javascript not working
             obj_target.chal_data.submissions.push(post_id);
             await updateDoc(doc(db, `challenges/${nc[0]}`), {
-            "submissions": obj_target.chal_data.submissions,
+                "submissions": obj_target.chal_data.submissions,
             })
         } else {
-        // console.log(obj_target.chal_data.submissions.includes("KCiweuB3owmSZ5NgroNu"));
+            // console.log(obj_target.chal_data.submissions);
         }
-
+    }
+    if(postref.accepted === undefined) {
+        await updateDoc(doc(db, `schools/${ctxprops.school_select}/posts/${post_id}`), {
+            "accepted": ""
+        })
     }
 }
 
@@ -334,7 +353,7 @@ const polloptsref = useRef();
 let [ets, setEts] = useState([]);
 const pollDateRef = useRef();
 function pollingInputs() { //for some bullshit reason it cannot update within the render, it must be outside
-    console.log(polloptsref.current.value);
+    // console.log(polloptsref.current.value);
     setEts([...Array(parseInt(polloptsref.current.value)).keys()]);
 }
 async function mkPoll(e) { //sending it to challenges cuz it needs appear on calendar
@@ -372,7 +391,36 @@ async function udt(e) {
     await setDatetime(e.target.value+"T00:00");
 }
 
+async function teacherVerify(pd, post_id, user_id) {
+    if(pd.teacherVerified) {
+        alert("already verified. it cannot be verified more than once");
+    } else {
+        updateDoc(doc(db, `schools/${ctxprops.school_select}/posts/${post_id}`), {
+            'teacherVerified': true,
+        })
+        await getDoc(doc(db, `users/${user_id}`)).then((user) => {
+        
+            updateDoc(doc(db, `users/${user_id}`), {
+                talents: (user.data().talents + 21)
+            })
+        })
+    }
+}
+
 const regexLatexBlock = /\$\$.*\$\$/i;
+const options_bar = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Poll results so far',
+      },
+    },
+};
+const [imgSizeURL, setImgSizeURL] = useState("");
 
 return (
     <div> 
@@ -403,224 +451,297 @@ return (
                     </div>
                 </div>
         </nav>
-        
-        
-        
-        {/* <div class="container-fluid gedf-wrapper">
-        <div class="row">
-        <div className="col-md-6 gedf-main">
-        {polls.map((poll,index) => (
-        <div className="card gedf-card poll_div">
-        <h2>{poll.data.title}</h2>
-        <h5>Expires: {convertFromPOSIX(poll.data.due_date)}</h5>
-        {poll.data.answeredBy.includes(ctxprops.id) ? 
-        poll.data.options.map(opt => (
-        <div><FaVoteYea style={{width: '13px', height: '13px'}} /><p className="ctext-primary">
-        {opt.opt}:{opt.votes}
-        </p></div>))
-        : poll.data.options.map(opt => (
-        <button onClick={(e) => {updatePoll(e,poll.data.answeredBy,poll.data.options,opt,poll.pollid)}} className="btn wbtn">
-        {opt.opt}
-        </button>))}
-        
-        </div>
-        ))} */}
-        
-        {filter.length === 0 ? selposts.map((post_obj, index) => { // in future we can probably flatten the array for displaying purposes
-        return ( // bruh react be like...
-        <div>
-        <div className="card gedf-card" id={"postid-"+post_obj.postid}>
-        <div className="card-header">
-        <div className="d-flex justify-content-between align-items-center">
-        <div key={index} className="d-flex justify-content-between align-items-center">
-        {ctxprops.role === "site_admin" || ctxprops.id === post_obj.posts_data.author_id ? 
-        <div className="dropdown">
-        <button className=" cbtn btn-link dropdown-toggle" id={"btnid-"+index.toString()+":"+post_obj.postid} onClick={indToggle} > 
-        <FaEllipsisH className="svg-menu" id={"btnid-"+index.toString()+":"+post_obj.postid} onClick={indToggle} />
-        </button>
-        {toggle === ("btnid-"+index.toString()+":"+post_obj.postid) ? 
-        <div className="dropdown dropdown-menu-right">
-        <div className="h6 dropdown-header">Configuration</div>
-        <p>{post_obj.postid}</p>
-        <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
-        <button className="warning-hover" onClick={()=>deletePost("postid-"+index.toString()+":"+post_obj.postid)}>Delete</button>
-        </div>
-        : null}
-        </div>
-        : null}
-        <div class="mr-2">
-        <img className="rounded-circle" width="45" src={post_obj.posts_data.author_pfp} alt=""/>
-        </div>
-        <div className="ml-2"> 
-        <div className="h5 m-0">{post_obj.posts_data.author}</div>
-        <div className="h7">From {post_obj.posts_data.from_club} club</div>
-        </div>
-        </div>
-        </div>
-        </div>
-        <div className="card-body cbg">
-        <div className="cmute-text h7 mb-2"> <i className="fa fa-clock-o"></i>{convertFromPOSIX(post_obj.posts_data.date)}
-        {/* {post.type === "challenge" ?
-        <p>due date: {convertFromPOSIX(post.due_date)}</p> 
-        :null} */}
-        </div>
-        <a className="card-link" href="#"><h5 className="card-title">{post_obj.posts_data.title}</h5></a>
-        
-        <div>
-        {typeof post_obj.posts_data.img === "object" && post_obj.posts_data.img.length > 1 ? 
-        <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false" data-interval="false">
-        <div className="carousel-inner">
-        {post_obj.posts_data.img.map((image, ii) => {
-        if(ii === 0) {
-        return (<div className="carousel-item active">
-        <img src={image} className="imgofpost d-block w-100" />
-        </div>)
-        } else {
-        return (<div className="carousel-item">
-        <img src={image} className="imgofpost d-block w-100" />
-        </div>)
-        }
-        })}
-        </div>
-        <a className="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span className="sr-only">Previous</span>
-        </a>
-        <a className="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-        <span className="carousel-control-next-icon" aria-hidden="true"></span>
-        <span className="sr-only">Next</span>
-        </a>
-        </div>
-        : null}
-        {post_obj.posts_data.img.length === 1 ? 
-        <img src={post_obj.posts_data.img[0]} className="imgofpost d-block w-100" />
-        :null}
-        {!(typeof post_obj.posts_data.img === "object") ? 
-        <img src={post_obj.posts_data.img} className="imgofpost" />
-        : null}
-        </div> 
-        <p className="card-text"> {/**coudl possilby shorten by latexing here and writing only a single condition for hashes */}
-            { /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) && regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
-            <div>
-            <div><Latex displayMode={true}>{post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}</Latex></div>
-            {/* {console.log(post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i))} */}
-            {/* */}
-            {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
-            // console.log(i);
-                if(i %2===0) {
-                    if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
-            
-                        updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
-                        return (
-                            <div>
-                            <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
-                            {header: hash, 
-                            challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
-                            school_select: ctxprops.school_select,
-                            }}) }}>{hash}</span>
-                            </div>
-                         )
-                    } else {
-                        console.log("fake hash detected")
-                        return (
+        <div className="container-fluid gedf-wrapper">
+        <div className="row">
+            <div class="col-md-3">
+                    <div class="card">
+                    {polls.map((poll,index) => (
+                        <div className="card gedf-card poll_div">
+                        <h2>{poll.data.title}</h2>
+                       <h5>Expires: {convertFromPOSIX(poll.data.due_date)}</h5>
+
+                       {poll.data.answeredBy.includes(ctxprops.id) ? 
                         <div>
-                        <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                            <Bar options={options_bar} data={
+                                {
+                                    labels: Array.from(poll.data.options.map(v => v.opt)),
+                                    datasets: [
+                                        {
+                                            label: "Poll results",
+                                            data: Array.from(poll.data.options.map(v=> v.votes)),
+                                            backgroundColor: 'rgba(6, 185, 251, 0.8)'
+                                        }
+                                    ]
+                                }
+                            } />
                         </div>
-                        )
-                    }
-                }
-            })}
-            </div> 
-            : regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
-                <div>
-                    <Latex displayMode={true}>{post_obj.posts_data.text.replace(/\n/g, '').match(regexLatexBlock)[0]}</Latex>
+                       : poll.data.options.map(opt => (
+                           <button onClick={(e) => {updatePoll(e,poll.data.answeredBy,poll.data.options,opt,poll.pollid)}} className="btn wbtn">
+                               {opt.opt}
+                           </button>))}
+                   </div>
+                    ))}
+                    </div>
                 </div>
-            : /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ?
-            <div>
-            <div>
-            {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
-            {/* <div><Latex displayMode={true}>{post_obj.posts_data.text}</Latex></div> */}
-            {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
-            // console.log(i);
-            if(i %2===0) {
-                if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
-            
-                    updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.postid);
-                    return (
-                        <div>
-                        <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
-                        {header: hash, 
-                        challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
-                        school_select: ctxprops.school_select,
-                        uid: ctxprops.id
-                        }}) }}>{hash}</span>
+        <div className="col-md-6 gedf-main">
+            {filter.length === 0 ? selposts.map((post_obj, index) => { 
+                if(ctxprops.clubs.includes(post_obj.posts_data.from_club) || ctxprops.subjects.includes(post_obj.posts_data.from_club)) {
+                    return ( 
+                        <div >
+                            
+                        <div className="card gedf-card" id={"postid-"+post_obj.postid}>
+                            <div className="card-header">
+        
+                            <div className="d-flex justify-content-between align-items-center">
+                            <div key={index} className="d-flex justify-content-between align-items-center">
+                            {ctxprops.role === "site_admin" || ctxprops.id === post_obj.posts_data.author_id || ctxprops.role === "teacher" ? 
+                                <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <FaEllipsisH className="svg-menu" id={"btnid-"+index.toString()+":"+post_obj.postid} />
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <p>{post_obj.postid}</p>
+                                    <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
+                                    <button className="warning-hover" onClick={()=>deletePost("postid-"+index.toString()+":"+post_obj.postid)}>Delete</button>
+                                </div>
+                                 {/* <button className=" cbtn btn-link dropdown-toggle" id={"btnid-"+index.toString()+":"+post_obj.postid} onClick={indToggle} > 
+                                        <FaEllipsisH className="svg-menu" id={"btnid-"+index.toString()+":"+post_obj.postid} onClick={indToggle} />
+                                    </button> */}
+                                    {/* {toggle === ("btnid-"+index.toString()+":"+post_obj.postid) ? 
+                                        // <div className="dropdown dropdown-menu-right">
+                                        //     <div className="h6 dropdown-header">Configuration</div>
+                                        //     <p>{post_obj.postid}</p>
+                                        //     <button className="dropdown-item btnedit" data-toggle="modal" data-target="#editpost" onClick={() => editPost("postid-"+index.toString()+":"+post_obj.postid)}>Edit</button>
+                                        //     <button className="warning-hover" onClick={()=>deletePost("postid-"+index.toString()+":"+post_obj.postid)}>Delete</button>
+                                        // </div>
+                                    : null} */}
+                                </div>
+
+                                   
+                            : null}
+                            
+                            <div class="mr-2">
+                            <img className="rounded-circle" width="45" src={post_obj.posts_data.author_pfp} alt=""/>
+                            </div>
+                            <div className="ml-2"> 
+                            <div className="h5 m-0">{post_obj.posts_data.author}</div>
+                            <div className="h7">From {post_obj.posts_data.from_club} club </div>
+                            </div>
+                            </div>
+                            </div>
+                            {ctxprops.role === "teacher"  ? 
+                                <div className="hier-post-verify">
+                                    <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <RxHamburgerMenu style={{width: '20px', height: '20px', cursor: 'pointer'}}  />
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <button class="dropdown-item" onClick={()=>teacherVerify(post_obj.posts_data, post_obj.postid,post_obj.posts_data.author_id)}>Teacher Verify</button>
+                                    </div>
+                                    </div>
+                                    
+                                </div>
+                            :null}
+                           {post_obj.posts_data.accepted !== undefined ?
+                           <>
+                           {post_obj.posts_data.accepted ? 
+                           <span title="correct" style={{fill: "#34eb77", color: "#34eb77"}}><FaRegCheckCircle style={{ width: '20px', height: '20px'}} /></span>
+                        : post_obj.posts_data.accepted === "" ? 
+                        <span title="in review" style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span>
+                        : <span title="incorrect" style={{fill: "#eb1c1c", color: "#eb1c1c"}}><CiCircleRemove style={{ width: '20px', height: '20px'}} /></span>
+                        }
+                        
+                           </>
+                           : null}
+                           {post_obj.posts_data.teacherVerified ? 
+                        <div className="post_tags" title="A teacher has verified this post to be good">
+                            <FaCheck style={{width: 'auto', height: '17px', marginRight: '8px'}} />Teacher verified
                         </div>
-                    )
-                 } else {
-                    return (
-                        <div>
-                            <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                    : null}
+                            </div>
+                            <div className="card-body cbg">
+                                <div className="cmute-text h7 mb-2"> <i className="fa fa-clock-o"></i>{convertFromPOSIX(post_obj.posts_data.date)}
+                        {/* {post.type === "challenge" ?
+                        <p>due date: {convertFromPOSIX(post.due_date)}</p> 
+                        :null} */}
+                                </div>
+                                <a className="card-link" href="#"><h5 className="card-title">{post_obj.posts_data.title}</h5></a>
+                        
+                                <div>
+                                {typeof post_obj.posts_data.img === "object" && post_obj.posts_data.img.length > 1 ? 
+                                <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false" data-interval="false">
+                                <div className="carousel-inner">
+                                {post_obj.posts_data.img.map((image, ii) => {
+                                    if(ii === 0) {
+                                        return (<div className="carousel-item active">
+                                                <img src={image} className="imgofpost d-block" data-toggle="modal" data-target="#imgsizer" onClick={()=>setImgSizeURL(image)}  />
+                                            </div>)
+                                    } else {
+                                        return (<div className="carousel-item">
+                                            <img src={image} className="imgofpost d-block" data-toggle="modal" data-target="#imgsizer" onClick={()=>setImgSizeURL(image)}  />
+                                        </div>)
+                                    }
+                                })}
+                                </div>
+                                <a className="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span className="sr-only">Previous</span>
+                                </a>
+                                <a className="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                                <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span className="sr-only">Next</span>
+                                </a>
+                                </div>
+                                : null}
+                                {post_obj.posts_data.img.length === 1 ? 
+                                <img src={post_obj.posts_data.img[0]} className="imgofpost d-block"  data-toggle="modal" data-target="#imgsizer" onClick={()=>setImgSizeURL(post_obj.posts_data.img[0])}   />
+                                :null}
+                                {!(typeof post_obj.posts_data.img === "object") ? 
+                                <img src={post_obj.posts_data.img} className="imgofpost" data-toggle="modal" data-target="#editpost" onClick={()=>setImgSizeURL(post_obj.posts_data.img)} />
+                                : null}
+                                </div> 
+                                <p className="card-text"> {/**coudl possilby shorten by latexing here and writing only a single condition for hashes */}
+                                    
+                                    { /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) && regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
+                                    <div>
+                                    <div><Latex displayMode={true}>{post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '')}</Latex></div>
+                                    {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+                                        if(i %2===0) {
+                                            if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+                                    
+                                                updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.posts_data, post_obj.postid);
+                                                return (
+                                                    <div>
+                                                    <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
+                                                    {header: hash, 
+                                                    challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
+                                                    school_select: ctxprops.school_select,
+                                                    }}) }}>{hash}</span>
+                                                    </div>
+                                                )
+                                            } else {
+                                                // console.log("fake hash detected")
+                                                return (
+                                                <div>
+                                                <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                                                </div>
+                                                )
+                                            }
+                                        }
+                                    })}
+                                    </div> 
+                                    : regexLatexBlock.test(post_obj.posts_data.text.replace(/\n/g, '')) ? 
+                                        <div>
+                                            <Latex displayMode={true}>{post_obj.posts_data.text}</Latex>
+                                        </div>
+                                    : /\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i.test(post_obj.posts_data.text) ?
+                                    <div>
+                                    <div>
+                                    {post_obj.posts_data.text.replace(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i, '').replace(regexLatexBlock, '')}
+                                    {/* <div><Latex displayMode={true}>{post_obj.posts_data.text}</Latex></div> */}
+                                    {post_obj.posts_data.text.match(/\B#([A-Za-z0-9]{2,})(?![~!@#$%^&*()=+_`\-\|\\/'\[\]\{\}]|[?.,]*\w)/i).map((hash,i) => {
+                                    // console.log(i);
+                                    if(i %2===0) {
+                                        if(!g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1)).every((val,i,arr) => val === arr[0])) {
+                                    
+                                            updateChallengesWithPostID((g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.challenge_id : null)), post_obj.posts_data, post_obj.postid);
+                                            return (
+                                                <div>
+                                                <span style={{color: '#72bcd4',cursor:'pointer'}} onClick={() => {pass(`/submissions`, {state: 
+                                                {header: hash, 
+                                                challenge_data: (g_c.map(c => c.chal_data.title.replace(/ /g, '') === hash.substring(1) ? c.chal_data : null)), 
+                                                school_select: ctxprops.school_select,
+                                                uid: ctxprops.id
+                                                }}) }}>{hash}</span>
+                                                </div>
+                                            )
+                                        } else {
+                                            return (
+                                                <div>
+                                                    <span style={{color: '#D74C4C',cursor:'not-allowed'}}>{hash}</span>
+                                                </div>
+                                            )
+                                        }
+                                    }
+                                    
+                                    })}</div>
+                                    </div>
+                                    
+                                    : <div>{post_obj.posts_data.text}</div>}
+                                </p>
+                            </div>
+                            <div className="card-footer">
+        
+                            </div>
+                        </div> 
+                        
                         </div>
                     )
                 }
-            }
-            
-            })}</div>
-            </div>
-            
-            : <div>{post_obj.posts_data.text}</div>}
-        </p>
+            }) : 
+            <div>
+            {filter.map(post => (
+            <p>{post.post_id}</p>
+            ))}
+            </div>}
         </div>
-        <div className="card-footer">
-        </div>
-        </div> 
-        
-        </div>
-        )
-        }) : 
-        <div>
-        {filter.map(post => (
-        <p>{post.post_id}</p>
-        ))}
-        </div>}
         
         </div>
         
         <div className="override-flex">
-        <div id="makepost" className="modal " tabIndex="-1" role="dialog">
-        <div className="modal-dialog modal-dialog-centered" role="document">
-        <div className="modal-content cmodal-content cmodal">
-        <div className="modal-header">
-        <h5 className="modal-title cmodal-title">Make post</h5>
-        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div className="modal-body">
-        <label className="ctext-primary">Title</label>
-        <input type="text" className="form-control" placeholder="title" ref={titleRef} />
-        <label className="ctext-primary">Content</label>
-        <textarea ref={contentRef} className="form-control" placeholder="write here..."></textarea>
-        <input type="file" onChange={uploadImage} className="form-control" multiple />
-        <label className="ctext-primary">Post to</label>
-        {Array.from(ctxprops.clubs).sort().map((club, index) => ( //clubs need to be alphabetically ordered to sync with firebase
-        <div className="ctext-primary"><input key={index} type="checkbox" className="posttoclub" id={club} /><label>{club}</label></div>
-        ))}
-        <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label className="ctext-primary" htmlFor="challenge-checkbox">Challenge</label>
-        {check ?
-        <div>
-        <input type="date" className="challenge_datetimelocal"  />
-        </div>
-        : null}
-        
-        </div>
-        <div className="modal-footer">
-        <button type="button" className="btn btnpost" onClick={(e) => mkPost(e)}><FaPlus className="faplus" /> Post</button>
-        <button type="button" className="btn" data-dismiss="modal">Close</button>
-        </div>
-        </div>
-        </div>
-        </div>
+            <div id="imgsizer" className="modal" tabindex="-1" role="dialog">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 class="modal-title">Increased size image</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <img src={imgSizeURL} className="w-100" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="makepost" className="modal " tabIndex="-1" role="dialog">
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content cmodal-content cmodal">
+                        <div className="modal-header">
+                            <h5 className="modal-title cmodal-title">Make post</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    <div className="modal-body">
+                    <label className="ctext-primary">Title</label>
+                    <input type="text" className="form-control" placeholder="title" ref={titleRef} />
+                    <label className="ctext-primary">Content</label>
+                    <textarea ref={contentRef} className="form-control" placeholder="write here..."></textarea>
+                    <input type="file" onChange={uploadImage} className="form-control" multiple />
+                    <label className="ctext-primary">Post to</label>
+                    {Array.from(ctxprops.clubs).sort().map((club, index) => ( //clubs need to be alphabetically ordered to sync with firebase
+                        <div className="ctext-primary"><input key={index} type="checkbox" className="posttoclub" id={club} /><label>{club}</label></div>
+                    ))}
+                    <input type="checkbox" id="challenge-checkbox" onChange={showCalendar} /><label className="ctext-primary" htmlFor="challenge-checkbox">Challenge</label>
+                    {check ?
+                    <div>
+                    <input type="date" className="challenge_datetimelocal"  />
+                    </div>
+                    : null}
+                    
+                    </div>
+                    <div className="modal-footer">
+                    <button type="button" className="btn btnpost" onClick={(e) => mkPost(e)}><FaPlus className="faplus" /> Post</button>
+                    <button type="button" className="btn" data-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
         <div id="editpost" className="modal" tabIndex="-1" role="dialog">
             <div className="modal-dialog modal-dialog-centered" role="document">
                 <div className="modal-content cmodal "> 
@@ -686,6 +807,8 @@ return (
         </div>
         
         </div>
+    </div>
+    </div>
     </div>
     )
 }

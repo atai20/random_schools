@@ -6,6 +6,7 @@ import { db } from "../firebase-config";
 import { JSEncrypt } from 'jsencrypt';
 import { getApp } from "firebase/app";
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
+import $ from 'jquery';
 
 
 import "./styles/profiles.css";
@@ -34,6 +35,7 @@ export default function Profile(props) {
         });
     }
     const state_ctx_props = useOutletContext(); //all our data here basically
+    // console.log(state_ctx_props);
     function decrypt(msg) {
         const decrypt = new JSEncrypt();
         decrypt.setPrivateKey(process.env.REACT_APP_RSA_PRIVATE_KEY);
@@ -102,13 +104,22 @@ export default function Profile(props) {
       schoolInfo();
     },[]);
 
+    function scrollToClick(target) {
+      const scrollToEl = $(target.toString());
+        $('html').animate({scrollTop: scrollToEl.offset().top,},800);
+    };
+    
 
     return (
         <div className="profile">
 
     <div className="container py-5"> 
       <div className="row">
-        <div className="col-lg-4">
+        <div className="col-lg-2">
+          <button style={{cursor: 'pointer'}} id="profile_settings" onClick={() => scrollToClick(".settings")}>Settings</button><br/>
+          <button style={{cursor: 'pointer'}} id="profile_posts" onClick={()=>scrollToClick(".urposts")}>Your Posts</button>
+        </div>
+        <div className="col-lg-2">
           <div className="card mb-4">
             <div className="card-body text-center">
             <img className="rounded-circle img-fluid" id="avatar_acc"src={state_ctx_props.pfp} />
@@ -150,9 +161,9 @@ export default function Profile(props) {
                   <p className="mb-0">Clubs</p>
                 </div>
                 <div className="col-sm-9">
-                  <p className="mb-0 theme-text">{state_ctx_props.clubs.map((club, index) => (
+                  <div className="mb-0 theme-text"><ol>{state_ctx_props.clubs.map((club, index) => (
                     <li key={index}>{club}</li>
-                ))}</p>
+                ))}</ol></div>
                 </div>
               </div>
               
@@ -162,6 +173,16 @@ export default function Profile(props) {
                 </div>
                 <div className="col-sm-9">
                   <p className="mb-0 theme-text">{school.name}</p>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-sm-3">
+                  <p className="mb-0">Subjects</p>
+                </div>
+                <div className="col-sm-9">
+                  <div className="mb-0 theme-text"><ul>{state_ctx_props.subjects.map((club, index) => (
+                    <li key={index}>{club}</li>
+                ))}</ul></div>
                 </div>
               </div>
               
@@ -214,6 +235,61 @@ export default function Profile(props) {
                 ) : null}
                 <button onClick={logout} className="btn cbtn">Logout</button>
             </div>
+
+          <div className="urposts">
+          <h4>Your posts</h4>
+          <div className="row">
+            <div className="col-md-6">
+              <div className="card mb-4 mb-md-0">
+                <div className="card-body">
+                  <p className="mb-4"><span className="font-italic me-1 ctext-primary"></span> Your posts will also be visible here.... one day...
+                  </p>
+            
+                </div>
+              </div>
+            </div>
+           
+          </div>
+          </div>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+
 
     </div>
         </div>

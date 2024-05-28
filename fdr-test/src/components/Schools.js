@@ -92,7 +92,7 @@ export default function Schools(props) {
       <div class="row mb-2">
         {news_text.map((data) => (
         <div class="col-md-6 text-block">
-          <div class="card flex-md-row mb-4 box-shadow h-md-250">
+          <div class="card flex-md-row mb-4 box-shadow h-md-250 card-news-intro">
             <div class="card-body d-flex flex-column align-items-start">
               <strong class="d-inline-block mb-2 text-success">New</strong>
     <div>

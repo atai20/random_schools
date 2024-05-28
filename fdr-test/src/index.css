@@ -67,7 +67,7 @@ code {
 }
 
 .chat{
-margin-top:60%;
+  margin-top:60%;
   background-color:rgb(255, 255, 255);
   border-bottom-color: #FF9600;
   border-left-color: #FFC800;
@@ -75,13 +75,13 @@ margin-top:60%;
   border-top-color: #FFC800;
   border-style: solid;
   padding:20px 30px;
-  width:175px;
+  width:auto;
   color:#1CB0F6;
   font-weight:bold;
   font-size:large;
   border-radius:20px;
   border-bottom-left-radius:0;
-  }
+}
  
   .name_col1{
     border-top-left-radius:12px;

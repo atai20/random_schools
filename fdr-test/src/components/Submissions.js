@@ -2,6 +2,10 @@ import React, {useState, useEffect} from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { db } from "../firebase-config";
 import { doc, deleteDoc, getDoc, addDoc, updateDoc, query, where, collection, getDocs, serverTimestamp, documentId } from "firebase/firestore";
+import $ from 'jquery';
+import { FaCheck } from "react-icons/fa";
+import { RxCross2 } from "react-icons/rx";
+
 import "../App.css";
 
 export default function Submissions(props) {
@@ -14,36 +18,40 @@ export default function Submissions(props) {
         const q_g = await getDocs(q);
         let rp_t = [];
         q_g.forEach(element => {
-            rp_t.push(element.data());
+            rp_t.push({"pdata": element.data(), "pid": element.id});
         });
         setRefPost(rp_t);
     }
     useEffect(() => {
         getRefPosts(); //ummmm get challenge posts
+        // $("sub-select").val()
     },[]);
-    // console.log(refPost);
+    async function updatePostSubmissionStatus(accept, post_id) {
+        await updateDoc(doc(db, `schools/${loc.state.school_select}/posts/${post_id}`), {
+            "accepted": accept
+        })
+    }
     return (
         <div className="ctext-primary center-text">
           <h1 className="newsreader-title">{loc.state.header}</h1>
-        
-          {loc.state.challenge_data.map(challenge => {
-            if(challenge !== null) {
-                if(loc.state.uid === challenge.creator) {
-                    console.log("gotem")
-                }
-            }
-          })}
+
             <div className="mini-view-grid">
 
           {refPost.map(post => (
                 <div className="mini-view-card">
-                    <p>{post.title}</p><br/>
-                    <p>{post.text}</p>
+                    {loc.state.challenge_data.filter(c => c !== null)[0].creator === loc.state.uid ? 
+                        <div>
+                            <button className="btn btn-success" onClick={() => updatePostSubmissionStatus(true, post.pid)}><FaCheck /></button>
+                            <button className="btn btn-danger" onClick={() => updatePostSubmissionStatus(false, post.pid)}><RxCross2 /></button>
+                        </div>
+                    :null}
+                    <p>{post.pdata.title}</p><br/>
+                    <p>{post.pdata.text}</p>
                     <div>
-                    {typeof post.img === "object" && post.img.length > 1 ? 
+                    {typeof post.pdata.img === "object" && post.pdata.img.length > 1 ? 
                     <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false" data-interval="false">
                         <div className="carousel-inner">
-                            {post.img.map((image, ii) => {
+                            {post.pdata.img.map((image, ii) => {
                                 if(ii === 0) {
                                     return (<div className="carousel-item active">
                                         <img style={{width: 'auto', height: 'auto'}} src={image} className="imgofpost d-block w-100" />
@@ -65,11 +73,11 @@ export default function Submissions(props) {
                         </a>
                     </div>
                     : null}
-                    {post.img.length === 1 ? 
-                    <img src={post.img[0]} className="imgofpost d-block w-100" style={{width: 'auto', height: 'auto'}}  />
+                    {post.pdata.img.length === 1 ? 
+                    <img src={post.pdata.img[0]} className="imgofpost d-block w-100" style={{width: 'auto', height: 'auto'}}  />
                 :null}
-                    {!(typeof post.img === "object") ? 
-                    <img src={post.img} className="imgofpost" style={{width: 'auto', height: 'auto'}} />
+                    {!(typeof post.pdata.img === "object") ? 
+                    <img src={post.pdata.img} className="imgofpost" style={{width: 'auto', height: 'auto'}} />
                 : null}
                     </div>  
                 </div>
