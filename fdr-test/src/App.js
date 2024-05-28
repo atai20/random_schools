@@ -184,8 +184,17 @@ export default class App extends React.Component {
           logged: true,
         });
         this.fetchData();
+        fetch("https://data.cityofnewyork.us/resource/8b6c-7uty.json", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        }).then((resp) => resp.json()).then(data => {
+          this.setState({all_schools_data: data})
+        } )
       }
     });
+
   }
 
   async handleSchoolSelection(e) {
@@ -246,7 +255,7 @@ export default class App extends React.Component {
     } else {
       alert(this.state.school_select);
     }
-    this.setState({loaded: false});
+    this.setState({loaded: false, all_schools_data: []}); //EMPTY IT BECAUSE 442 freakin elements
     setTimeout(() => {
       window.location.reload();
       this.setState({loaded: true})
@@ -357,69 +366,19 @@ export default class App extends React.Component {
     }
     function QuestionSchool(props) {
       
+      
       return (<div>
         <p>what school are you attending?</p>
-        <div className="selectors-custom">
-        <input class="chosen-value" type="text" placeholder="Type to filter"/>
-        <ul className="value-list">
-        <li>Alabama</li>  
-    <li>Alaska</li>
-    <li>Arizona</li>
-    <li>Arkansas</li>
-    <li>California</li>
-    <li>Colorado</li>
-    <li>Connecticut</li>
-    <li>Delaware</li>
-    <li>Florida</li>
-    <li>Georgia</li>
-    <li>Hawaii</li>
-    <li>Idaho</li>
-    <li>Illinois</li>
-    <li>Indiana</li>
-    <li>Iowa</li>
-    <li>Kansas</li>
-    <li>Kentucky</li>
-    <li>Louisiana</li>
-    <li>Maine</li>
-    <li>Maryland</li>
-    <li>Massachusetts</li>
-    <li>Michigan</li>
-    <li>Minnesota</li>
-    <li>Mississippi</li>
-    <li>Missouri</li>
-    <li>Montana</li>
-    <li>Nebraska</li>
-    <li>Nevada</li>
-    <li>New Hampshire</li>
-    <li>New Jersey</li>
-    <li>New Mexico</li>
-    <li>New York</li>
-    <li>North Carolina</li>
-    <li>North Dakota</li>
-    <li>Ohio</li>
-    <li>Oklahoma</li>
-    <li>Oregon</li>
-    <li>Pennsylvania</li>
-    <li>Rhode Island</li>
-    <li>South Carolina</li>
-    <li>South Dakota</li>
-    <li>Tennessee</li>
-    <li>Texas</li>
-    <li>Utah</li>
-    <li>Vermont</li>
-    <li>Virginia</li>
-    <li>Washington</li>
-    <li>West Virginia</li>
-    <li>Wisconsin</li>
-    <li>Wyoming</li>
-        </ul>
-        </div>
-          {/* <select onChange={(e) => props.schoolSelector(e)} id="school_select">
+          <select onChange={(e) => props.schoolSelector(e)} id="school_select">
             <option value={0}></option>
-            <option value={1}>FDR</option>
-            <option value={2}>Lagrange James</option>  
-          </select> */}
+            {props.schoolData && props.schoolData.map((schools, index) => (
+              <option value={index}>{schools.school_name}</option>
+            ))}
+            {/* <option value={1}>FDR</option>
+            <option value={2}>Lagrange James</option>   */}
+          </select>
       </div>)
+      
     }
     const InputRequired = React.forwardRef((props,ref) => {
       if(props.type === "text") {
@@ -461,7 +420,6 @@ export default class App extends React.Component {
 
     if(this.state.loaded) {
       if(!this.state.logged) {
-        
         return (
           <div className="register" >
             <div className="overlay">
@@ -534,7 +492,7 @@ export default class App extends React.Component {
             'jsx': <QuestionTS question="Student or teacher?" setUserPosition={this.setUserRole.bind(this)} />,
           },
           {
-            'jsx': <QuestionSchool schoolSelector={this.handleSchoolSelection.bind(this)} />
+            'jsx': <QuestionSchool schoolSelector={this.handleSchoolSelection.bind(this)} schoolData={this.state.all_schools_data} />
           },
           {
             'jsx': <InputRequired header="ur name?" type="text" placeholder="Name..." ref={this.getuname} />
@@ -597,7 +555,7 @@ export default class App extends React.Component {
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
               <div>
-                {console.log(this.state)}
+                
                 <Outlet context={this.state} />
               </div>
             )

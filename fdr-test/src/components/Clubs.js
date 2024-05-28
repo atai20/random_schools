@@ -456,7 +456,7 @@ return (
             <div class="col-md-3">
                     <div class="card">
                     {polls.map((poll,index) => (
-                        <div className="card gedf-card poll_div">
+                        <div className="gedf-card poll_div">
                         <h2>{poll.data.title}</h2>
                        <h5>Expires: {convertFromPOSIX(poll.data.due_date)}</h5>
 
@@ -479,6 +479,7 @@ return (
                            <button onClick={(e) => {updatePoll(e,poll.data.answeredBy,poll.data.options,opt,poll.pollid)}} className="btn wbtn">
                                {opt.opt}
                            </button>))}
+                        <hr />
                    </div>
                     ))}
                     </div>

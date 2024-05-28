@@ -35,7 +35,7 @@ export default function Profile(props) {
         });
     }
     const state_ctx_props = useOutletContext(); //all our data here basically
-    // console.log(state_ctx_props);
+    console.log(state_ctx_props);
     function decrypt(msg) {
         const decrypt = new JSEncrypt();
         decrypt.setPrivateKey(process.env.REACT_APP_RSA_PRIVATE_KEY);
@@ -180,9 +180,9 @@ export default function Profile(props) {
                   <p className="mb-0">Subjects</p>
                 </div>
                 <div className="col-sm-9">
-                  <div className="mb-0 theme-text"><ul>{state_ctx_props.subjects.map((club, index) => (
+                  <div className="mb-0 theme-text"><ul>{state_ctx_props.subjects !==null ? state_ctx_props.subjects.map((club, index) => (
                     <li key={index}>{club}</li>
-                ))}</ul></div>
+                )):null}</ul></div>
                 </div>
               </div>
               
