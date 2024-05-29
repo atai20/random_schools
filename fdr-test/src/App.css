@@ -428,9 +428,11 @@ body {
 }
 canvas {
   width: 100% !important;
-  height: auto !important;
+  height: 100% !important;
+  display: block !important;
 }
 .canvas-connections {
+  overflow: scroll !important;
   color: blue !important;
 }
 nav {
@@ -517,6 +519,9 @@ nav {
 }
 .card-title {
   color: var(--desc-color) !important;
+}
+.card-header {
+  background-color: var(--bg-color) !important;
 }
 .card-body {
   background-color: var(--other-color) !important;

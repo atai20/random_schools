@@ -12,11 +12,12 @@ import "./App.css";
 
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
-
+let conns_arr = [];
 
 function Landing() {
     const ctxprops = useOutletContext();
     const [clubdir, setClubdir] = useState([]);
+    const [school, setSchool] = useState("");
     function logout() {
         const auth = getAuth();
         signOut(auth).then(() => {
@@ -24,32 +25,61 @@ function Landing() {
           window.location.reload();
         }).catch((error) => {console.log("no error")})
     }
-    async function getClubs() {
-        const q = query(collection(db, `schools/${ctxprops.school_select}/clubs`));
+    async function getClubs(school_number) {
+        schoolInfo(school_number);
+        const q = query(collection(db, `schools/${school_number}/clubs`));
         const g = await getDocs(q);
-        let i_t = [];g.forEach(doc => {i_t.push({"club_data": doc.data(), "club_id": doc.id});})
-        setClubdir(i_t);
+        let i_t = [];g.forEach(doc => {i_t.push({"club_data": doc.data(), "club_id": doc.id});});
+        conns_arr.push(i_t);
     } 
-    async function getConns() {
-
-    }
     function drawingCanvas() {
+        // console.log(conns_arr.flat());
         const canvas = document.querySelector(".canvas-connections");
         const ctx = canvas.getContext("2d");
-        const img = document.getElementById("glogo");
-        ctx.drawImage(img, 10, 10);
+        ctx.font = "10px Arial";
+        // console.log(clubdir);
+        conns_arr.flat().map((club_obj, i) => {
+            // console.log(club_obj)
+            ctx.fillText(school.name+"/"+club_obj.club_id,club_obj.club_data.element_position.x,club_obj.club_data.element_position.y);
+            club_obj.club_data.connections.map((conn, j) => {
+                console.log(conn);
+                // // just draw the connections names and stuff, then draw sum lines lol
+                
+            })
+            if(i+1 < clubdir.length) { //however, we can only have the set of connections
+                    // ctx.fillText(conn, clubdir[i+1].club_data.element_position.x, clubdir[i+1].club_data.element_position.y);
+                    ctx.beginPath();
+                    ctx.moveTo(club_obj.club_data.element_position.x,club_obj.club_data.element_position.y);
+                    ctx.lineTo(clubdir[i+1].club_data.element_position.x, clubdir[i+1].club_data.element_position.y);
+                    ctx.strokeStyle = '#000';
+                    ctx.stroke();
+                }
+            
+        })
+    }
+    async function schoolInfo(school_number) {
+        const schoolRef = doc(db, `schools/${school_number}`);
+        await getDoc(schoolRef).then((school_data) => {
+          setSchool(school_data.data());
+        });
+
     }
     useEffect(() => {
-        getClubs();
-        drawingCanvas();
+        getClubs(1);
+        getClubs(2);
     }, []);
+    useEffect(() => {
+        const canvas = document.querySelector(".canvas-connections");
+        if(conns_arr.length > 0) {
+            conns_arr.flat().map((club_obj, i) => {
+                club_obj.club_data.element_position = {"x": Math.floor(Math.random()*(canvas.width-20)), "y": Math.floor(Math.random()*(canvas.height-20))};
+            })
+            drawingCanvas();
+        }
+    }, [school]);
     return (
         <div className="landing">
-            <img src={Glogo} width="50px" height="50px" id="glogo"/>
             <canvas className="canvas-connections">
-                {clubdir ? clubdir.map((club_obj, i) => (
-                        <a key={i} style={{textDecoration: 'underline', color: 'blue', cursor: 'pointer'}}>{club_obj.club_id}</a>
-                )) : null}
             </canvas>
         </div>
     )

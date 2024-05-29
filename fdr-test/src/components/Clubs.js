@@ -528,6 +528,17 @@ return (
                             <div className="h5 m-0">{post_obj.posts_data.author}</div>
                             <div className="h7">From {post_obj.posts_data.from_club} club </div>
                             </div>
+                            {post_obj.posts_data.accepted !== undefined ?
+                           <>
+                           {post_obj.posts_data.accepted ? 
+                           <div title="correct" style={{fill: "#34eb77", color: "#34eb77",display: 'inline'}}><FaRegCheckCircle style={{ width: '20px', height: '20px'}} /></div>
+                        : post_obj.posts_data.accepted === "" ? 
+                        <div title="in review" style={{fill: "#eba21c", color: "#eba21c",display: 'inline'}}><GoDotFill style={{ width: '20px', height: '20px'}} /></div>
+                        : <div title="incorrect" style={{fill: "#eb1c1c", color: "#eb1c1c",display: 'flex', justifyContent: 'end'}}><CiCircleRemove style={{ width: '20px', height: '20px'}} /></div>
+                        }
+                        
+                           </>
+                           : null}
                             </div>
                             </div>
                             {ctxprops.role === "teacher"  ? 
@@ -543,17 +554,7 @@ return (
                                     
                                 </div>
                             :null}
-                           {post_obj.posts_data.accepted !== undefined ?
-                           <>
-                           {post_obj.posts_data.accepted ? 
-                           <span title="correct" style={{fill: "#34eb77", color: "#34eb77"}}><FaRegCheckCircle style={{ width: '20px', height: '20px'}} /></span>
-                        : post_obj.posts_data.accepted === "" ? 
-                        <span title="in review" style={{fill: "#eba21c", color: "#eba21c"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span>
-                        : <span title="incorrect" style={{fill: "#eb1c1c", color: "#eb1c1c"}}><CiCircleRemove style={{ width: '20px', height: '20px'}} /></span>
-                        }
-                        
-                           </>
-                           : null}
+                         
                            {post_obj.posts_data.teacherVerified ? 
                         <div className="post_tags" title="A teacher has verified this post to be good">
                             <FaCheck style={{width: 'auto', height: '17px', marginRight: '8px'}} />Teacher verified
