@@ -426,7 +426,7 @@ body[data-theme="night theme"] {
 body {
   background: var(--bg-color) !important;
 }
-canvas {
+.barchart {
   width: 100% !important;
   height: 100% !important;
   display: block !important;
@@ -434,7 +434,7 @@ canvas {
 .canvas-connections {
   overflow: scroll !important;
   color: blue !important;
-}
+} 
 nav {
   background-color: var(--other-color) !important;
   color: var(--desc-color) !important;

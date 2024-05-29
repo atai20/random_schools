@@ -462,7 +462,7 @@ return (
 
                        {poll.data.answeredBy.includes(ctxprops.id) ? 
                         <div>
-                            <Bar options={options_bar} data={
+                            <Bar className="barchart" options={options_bar} data={
                                 {
                                     labels: Array.from(poll.data.options.map(v => v.opt)),
                                     datasets: [
