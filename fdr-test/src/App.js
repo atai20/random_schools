@@ -17,6 +17,12 @@ import "./Appc.scss";
 import './App.css';
 import "./FireLoad.css";
 
+
+
+
+
+
+
 const gp = new GoogleAuthProvider();
 const auth = getAuth();
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
@@ -185,14 +191,14 @@ export default class App extends React.Component {
           logged: true,
         });
         this.fetchData();
-        fetch("https://data.cityofnewyork.us/resource/8b6c-7uty.json", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          }
-        }).then((resp) => resp.json()).then(data => {
-          this.setState({all_schools_data: data})
-        } )
+        // fetch("https://data.cityofnewyork.us/resource/8b6c-7uty.json", {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   }
+        // }).then((resp) => resp.json()).then(data => {
+        //   this.setState({all_schools_data: data})
+        // } )
       }
     });
 
@@ -372,11 +378,11 @@ export default class App extends React.Component {
         <p>what school are you attending?</p>
           <select onChange={(e) => props.schoolSelector(e)} id="school_select">
             <option value={0}></option>
-            {props.schoolData && props.schoolData.map((schools, index) => (
+           {/* {props.schoolData && props.schoolData.map((schools, index) => (
               <option value={index}>{schools.school_name}</option>
-            ))}
-            {/* <option value={1}>FDR</option>
-            <option value={2}>Lagrange James</option>   */}
+           ))} */}
+            <option value={1}>FDR</option>
+            <option value={2}>Lagrange James</option>  
           </select>
       </div>)
       
@@ -514,6 +520,9 @@ export default class App extends React.Component {
           
           <div>
                              <link rel="preconnect" href="https://fonts.googleapis.com"/>
+                             <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Varela+Round&display=swap" rel="stylesheet"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,678;1,678&display=swap" rel="stylesheet"></link>         <nav className="navbar navbar-expand-lg navbar-light custom">
   <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
@@ -654,6 +663,16 @@ export default class App extends React.Component {
             
             
             }
+
+
+
+
+
+
+
+
+
+
           </div>
         )
       }

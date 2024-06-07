@@ -11,8 +11,24 @@ import Glogo from "./logo.svg";
 import "./App.css";
 import "./FireLoad.css";
 
+import Tree from 'react-d3-tree';
+
+
+
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let conns_arr = [];
+let if_tr = false;
+let na = "";
+const orgChart = {
+    name: 'You',
+    children: [],
+  };
+  
+
+
+  
+
+
 
 function Landing() {
     const ctxprops = useOutletContext();
@@ -39,35 +55,19 @@ function Landing() {
     }
     function drawingCanvas() {
         // console.log(conns_arr.flat());
-        const canvas = document.querySelector(".canvas-connections");
-        const ctx = canvas.getContext("2d");
-        window.devicePixelRatio=4;
-        var size = 1250;
-        canvas.style.width = size + "px"; 
-        canvas.style.height = size + "px"; 
-        var scale = window.devicePixelRatio;  
-        canvas.width = Math.floor(size * scale); 
-        canvas.height = Math.floor(size * scale); 
-        ctx.scale(scale, scale);
-
-        ctx.font = "15px Arial";
-
+     
         conns_arr.flat().map((club_obj, i) => {
             // console.log(club_obj)
-            ctx.fillText(club_obj.school_name+"/"+club_obj.club_id,club_obj.club_data.element_position.x,club_obj.club_data.element_position.y);
-            club_obj.club_data.connections.map((conn, j) => {
-                if(conn !== "") {
-                    let conn_obj = connSearch(conns_arr, conn);
-                    if(conn_obj.length > 0 ) {
-                        ctx.beginPath();
-                        ctx.moveTo(club_obj.club_data.element_position.x,club_obj.club_data.element_position.y);
-                        ctx.lineTo(conn_obj[0].club_data.element_position.x, conn_obj[0].club_data.element_position.y);
-                        ctx.stroke();
-                    }
-                }
-                
-            })
-        })
+            na = club_obj.club_id;
+            orgChart["children"].push({name:na});
+          
+        });
+       
+        return(<div id="treeWrapper">
+        <Tree data={orgChart} />
+      </div>);
+       
+        
     }
     async function schoolInfo(school_number) {
         const schoolRef = doc(db, `schools/${school_number}`);
@@ -93,8 +93,35 @@ function Landing() {
             drawingCanvas();
         } 
     },[school,clubdir])
+  
+   
     return (
         <div className="landing">
+
+{drawingCanvas()}
+
+
+<div class="card purple">
+    <div class="rubik-mono-one-regular">
+    <h1>Careers</h1>
+</div>
+<div class="varela-round-regular">
+    <p>Here is a paragraph of text than</p><button className = "butt_on">Sign Up</button>
+</div>
+</div>
+  <div class="card green">
+    <div class="rubik-mono-one-regular">
+    <h1>International students</h1>
+</div>
+<div class="varela-round-regular">
+    <p>Here is a paragraph of text than</p>
+<button className = "butt_on">Sign Up</button>
+</div>
+  </div>
+<div class="card"><h2>Lethal company internship</h2>You will die like in 5 minutes</div>
+
+
+
             <canvas className="canvas-connections">
             </canvas>
             {clubdir ? null : 
