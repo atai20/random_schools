@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState, useCallback} from "react";
 import { Link, Outlet, useOutletContext } from "react-router-dom"; 
 import firebase from 'firebase/compat/app';
 import { getApp } from "firebase/app";
@@ -8,32 +8,34 @@ import { getFirestore, collection, getDocs, addDoc, query,getDoc, doc, setDoc, u
 import {getAuth,signOut} from "firebase/auth";
 import {db} from "./firebase-config";
 import Glogo from "./logo.svg";
+import "reactflow/dist/style.css";
 import "./App.css";
 import "./FireLoad.css";
+import "./Fire2d.scss";
 
-import Tree from 'react-d3-tree';
-
+// import Tree from 'react-d3-tree'; //we dont need tree structure: if clubs share multiple connections we will have inefficiency (repetition/infinite loop)
+import ReactFlow, {
+    MiniMap,
+    Controls,
+    Background,
+    useNodesState,
+    useEdgesState,
+    addEdge,
+} from "reactflow";
 
 
 const storage = getStorage(getApp(), "gs://web-fdr-notification.appspot.com");
 let conns_arr = [];
-let if_tr = false;
-let na = "";
-const orgChart = {
-    name: 'You',
-    children: [],
-  };
-  
 
-
-  
-
+let initialNodes = [];
+let initialEdges = [];
 
 
 function Landing() {
     const ctxprops = useOutletContext();
     const [clubdir, setClubdir] = useState([]);
     const [school, setSchool] = useState("");
+    const [loaded, setLoaded] = useState(false);
     function logout() {
         const auth = getAuth();
         signOut(auth).then(() => {
@@ -53,22 +55,6 @@ function Landing() {
     function connSearch(arr, searchKey) {
         return arr.flat().filter(obj => obj.school_name+"/"+obj.club_id === searchKey);
     }
-    function drawingCanvas() {
-        // console.log(conns_arr.flat());
-     
-        conns_arr.flat().map((club_obj, i) => {
-            // console.log(club_obj)
-            na = club_obj.club_id;
-            orgChart["children"].push({name:na});
-          
-        });
-       
-        return(<div id="treeWrapper">
-        <Tree data={orgChart} />
-      </div>);
-       
-        
-    }
     async function schoolInfo(school_number) {
         const schoolRef = doc(db, `schools/${school_number}`);
         await getDoc(schoolRef).then((school_data) => {
@@ -81,26 +67,72 @@ function Landing() {
     useEffect(() => {
         schoolInfo(1); //FDR
         schoolInfo(2); //Fake Stuyvesant
-        
     }, []);
-    useEffect(() => {
-        const canvas = document.querySelector(".canvas-connections");
-        // console.log(canvas);
+    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const onConnect = useCallback(
+        (params) => setEdges((eds) => addEdge(params, eds)),
+        [setEdges]
+    );
+    function displayMap() {
+        setLoaded(true);
+    }
+    useEffect(() => { //TODO: make more efficient!
         if(conns_arr.length > 0) {
             conns_arr.flat().map((club_obj, i) => {
-                club_obj.club_data.element_position = {"x": Math.floor(Math.random()*(canvas.clientWidth-20)), "y": Math.floor(Math.random()*(canvas.clientHeight-20))};
+                initialNodes.push({
+                    id: club_obj.school_name+"/"+club_obj.club_id, 
+                    position: {x: Math.floor(Math.random()*(0.9*window.innerWidth)), y: Math.floor(Math.random()*(0.9*window.innerHeight))},
+                    data: {label: club_obj.school_name+"/"+club_obj.club_id}
+                });
+                if(club_obj.club_data.connections) {
+                    club_obj.club_data.connections.map((conn, j) => {
+                        let conn_obj = connSearch(conns_arr, conn);
+                        if(conn_obj.length > 0 ) {
+                            initialEdges.push({
+                                id: 'e'+(club_obj.school_name+"/"+club_obj.club_id)+'-'+conn_obj[0].school_name+"/"+conn_obj[0].club_id,
+                                source: club_obj.school_name+"/"+club_obj.club_id,
+                                target: conn_obj[0].school_name+"/"+conn_obj[0].club_id,
+                            })
+                        }       
+                    })
+                }
             })
-            drawingCanvas();
-        } 
-    },[school,clubdir])
-  
-   
+            displayMap();
+        }
+    },[school,clubdir]); //should execute when the states load
     return (
         <div className="landing">
+            {loaded ? 
+            <div style={{ width: "100%", height: "80vh" }}>
+              <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              fitView
+            >
+              <Controls />
+              <MiniMap />
+              <Background gap={12} size={1} />
+            </ReactFlow> </div> : 
+            
 
-{drawingCanvas()}
+<div className="fireloading-body-wrap">
+    <h1 style={{fontSize: '50px', color: "#fff"}}>Map rendering...</h1>
+    <div className="fireloading-2d">
+    <div className="flames-2d">
+        <div className="flame-2d"></div>
+        <div className="flame-2d"></div>
+        <div className="flame-2d"></div>
+        <div className="flame-2d"></div>
+    </div>
+    </div>
+</div>
 
 
+            }
 <div class="card purple">
     <div class="rubik-mono-one-regular">
     <h1>Careers</h1>

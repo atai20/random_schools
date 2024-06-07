@@ -21,10 +21,9 @@ font-weight: 400;
 font-style: normal;
 }
 
-#treeWrapper{
-  width: '50em'; 
-  height: '20em';
-  margin-top: '300px';
+.treeproper {
+  width: 100% !important;
+  height: 90vh !important;
 }
 .card.purple {
   width: 300px;
@@ -474,8 +473,6 @@ body[data-theme="summer theme"] {
   --mute-text: #000;
   --lighter-bgs: #e9e9e9;
   --leaderboard: #212529;
-
-  border: none !important;
 }
 
 body[data-theme="night theme"] {
@@ -494,12 +491,17 @@ body[data-theme="night theme"] {
 body {
   background: var(--bg-color) !important;
 }
+.react-flow {
+  z-index: 9999 !important;
+}
 .barchart {
   width: 100% !important;
   height: 100% !important;
   display: block !important;
 }
 .canvas-connections {
+  width: 100% !important;
+  height: auto !important;
   overflow: scroll !important;
   color: blue !important;
 } 
