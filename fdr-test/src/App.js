@@ -12,6 +12,7 @@ import Glogo from "./glogo.png";
 import Transplogo from "./transplogo.webp";
 import { JSEncrypt } from "jsencrypt"; 
 import $ from 'jquery'; 
+// import dotenv from "dotenv";
 
 import "./Appc.scss";
 import './App.css';
@@ -19,7 +20,7 @@ import "./FireLoad.css";
 
 
 
-
+// dotenv.config();
 
 
 
@@ -187,10 +188,9 @@ export default class App extends React.Component {
           logged: false,
         });
       } else { //TODO: fix the state update and stuff
-        this.setState({
-          logged: true,
+        this.setState({logged: true}, () => {
+          this.fetchData();
         });
-        this.fetchData();
         // fetch("https://data.cityofnewyork.us/resource/8b6c-7uty.json", {
         //   method: "GET",
         //   headers: {
@@ -209,7 +209,6 @@ export default class App extends React.Component {
       school_select: e.target.value,
     });
     document.getElementById("school_select").value = e.target.value;
-    // console.log(this.state);
   }
   handleImage = (event) => {
     const storageRef = ref(storage, `images/${this.state.id}/${event.target.files[0].name}`);
@@ -234,7 +233,6 @@ export default class App extends React.Component {
   }
 
   updateUserInfo = () => {
-    console.log(this.state.subject_set);
     const checkboxes = document.querySelectorAll(".clubcheck");
     let clubsArr = [];
     for(let i = 0; i < checkboxes.length; i++) {
@@ -243,8 +241,9 @@ export default class App extends React.Component {
       }
     }
     // console.log(clubsArr);
-    if(parseInt((this.state.school_select)) > 0) {
+    if(this.state !== undefined && parseInt((this.state.school_select)) > 0) {
       const docRef = doc(db, `users`, this.state.id);
+      // console.log(this.state);
       updateDoc(docRef, {
         name:( this.state.username !== null ? this.state.username : this.state.uname_ref_t),
         osis: this.encrypt(this.state.osis_t), 
@@ -252,12 +251,17 @@ export default class App extends React.Component {
         pfp: this.state.pfp,
         school: parseInt((this.state.school_select)),
         role: this.state.role,
-        subjects: this.state.subject_set
+        subjects: this.state.subject_set || null
+      }).then(() => {
+        this.setState({loaded: true});
+        // setTimeout(() => {window.location.reload()}, 3000);
+
+      }).catch((err) => {
+        console.log(err);
       });
-      this.setState({
-        loaded: true,
-      });
-      // setTimeout(() => {window.location.reload()}, 3000);
+      // this.setState({
+      //   loaded: true,
+      // });
       
     } else {
       alert(this.state.school_select);
@@ -292,46 +296,46 @@ export default class App extends React.Component {
   }
   nextSlide() {
     if(this.getuname.current!== null && this.getuname.current.value.replace(/ /g, '') !== "" ) {
-      this.setState({
+      this.setState((prevState) => ({
         uname_ref_t: this.getuname.current.value,
-        currentSlide: this.state.currentSlide + 1,
-      })
+        currentSlide: prevState.currentSlide + 1,
+      }));
     } else {
       if(this.getosis.current !== null && this.getosis.current.value.length > 0 ) {
         if(this.getosis.current.value.length === 9 && (/^\d+$/.test(this.getosis.current.value))) {
-          this.setState({
+          this.setState((prevState) => ({
             osis_t: this.getosis.current.value,
-            currentSlide: this.state.currentSlide + 1,
-          });
+            currentSlide: prevState.currentSlide + 1,
+          }));
         } else {
           alert("enter proepr osis");
         }
       } else {
-        this.setState({
-          currentSlide: this.state.currentSlide + 1,
-        });
+        this.setState((prevState) => ({
+          currentSlide: prevState.currentSlide + 1,
+        }));
       }
     }
   }
   prevSlide() {
-    this.setState({
-      currentSlide: this.state.currentSlide - 1,
-    })
+    this.setState((prevState) => ({
+      currentSlide: prevState.currentSlide - 1,
+    }));
   }
   makeAlert(value) {
     alert(value);
   }
   setUserRole(value) {
     if(value === "student") {
-      this.setState({
+      this.setState((prevState) => ({
         role: "regular",
-        currentSlide: this.state.currentSlide + 1
-      })
+        currentSlide: prevState.currentSlide + 1
+      }));
     } else {
-      this.setState({
+      this.setState((prevState) => ({
         role: "teacher",
-        currentSlide: this.state.currentSlide + 1,
-      })
+        currentSlide: prevState.currentSlide + 1,
+      }));
     }
   }
   subjectInjection() {
@@ -342,8 +346,10 @@ export default class App extends React.Component {
         iz_t.push(d[i].id.toString());
       }
     }
-    this.setState({subject_set: iz_t, 
-      currentSlide: this.state.currentSlide + 1})
+    this.setState((prevState) => ({
+      subject_set: iz_t, 
+      currentSlide: prevState.currentSlide + 1
+    }));
   }
 
   render() {
@@ -519,54 +525,54 @@ export default class App extends React.Component {
         return (
           
           <div>
-                             <link rel="preconnect" href="https://fonts.googleapis.com"/>
-                             <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Varela+Round&display=swap" rel="stylesheet"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,678;1,678&display=swap" rel="stylesheet"></link>         <nav className="navbar navbar-expand-lg navbar-light custom">
-  <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
-  <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span className="navbar-toggler-icon"></span>
-  </button>
+                 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+                 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+      <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Varela+Round&display=swap" rel="stylesheet"/>
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+      <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,678;1,678&display=swap" rel="stylesheet"></link>         <nav className="navbar navbar-expand-lg navbar-light custom">
+        <a className="navbar-brand" href="#"><img class="nav-logo" src={require('./main_pub/logo_text.png')}/></a>
+        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-  <div className="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul className="navbar-nav mr-auto">
-      <li className="nav-item active">
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul className="navbar-nav mr-auto">
+            <li className="nav-item active">
         <Link className="nav-link ctext-primary" to={"/"}><div className="nunito-header">Home</div> <span className="sr-only">(current)</span></Link>
-      </li>
-      <li className="nav-item">
+            </li>
+            <li className="nav-item">
         <Link className="nav-link ctext-primary" to={"/clubs"}>Clubs</Link>
-      </li>
-      <li className="nav-item">
-      <Link className="nav-link ctext-primary" to={"/schools"}>School</Link>
-      </li>
-      <li className="nav-item">
-      <Link className="nav-link ctext-primary" to={"/calendar"}>Calendar</Link>
-      </li>
-      <li className="nav-item">
-      <Link className="nav-link ctext-primary" to={"/about"}>About</Link>
-      </li>
-      <li className="nav-item">
+            </li>
+            <li className="nav-item">
+            <Link className="nav-link ctext-primary" to={"/schools"}>School</Link>
+            </li>
+            <li className="nav-item">
+            <Link className="nav-link ctext-primary" to={"/calendar"}>Calendar</Link>
+            </li>
+            <li className="nav-item">
+            <Link className="nav-link ctext-primary" to={"/about"}>About</Link>
+            </li>
+            <li className="nav-item">
         <Link className="nav-link ctext-primary" to={"/profile"}>Profile</Link>
-      </li>
+            </li>
 
-    </ul>
-    <form classNameName="form-inline my-2 my-lg-0">
-    
-    
-      <span className="nav-talents">{this.state.talents}</span>
-      <img className ="nav-coin" src={require('./main_pub/star.png')}/>
-    </form>
-  </div>
-</nav>
-{/* {console.log(this.state)} */}
+          </ul>
+          <form classNameName="form-inline my-2 my-lg-0">
+          
+          
+            <span className="nav-talents">{this.state.talents}</span>
+            <img className ="nav-coin" src={require('./main_pub/star.png')}/>
+          </form>
+        </div>
+      </nav>
+      {/* {console.log(this.state)} */}
           {this.state.clubs ? 
             this.state.username !== null && this.state.osis !== null && this.state.clubs.length !== 0 ?
             (
               <div>
-                
-                <Outlet context={this.state} />
+          
+          <Outlet context={this.state} />
               </div>
             )
             :
@@ -579,33 +585,36 @@ export default class App extends React.Component {
             (this.state.clubs.length === 0) ? 
             (
             <div id="popup-questions" className="ctext-primary">
-                <div className="d-flex">
-                <div className="d-inline-block riv-anim" >
-                  {/* {console.log(this.state.role)} */}
-                  {this.state.role === "teacher" ? 
-                  <Rive src='firey_reg.riv' style={{height: "400px", width: "300px"}} />
-                  : null
-                }
-                {this.state.role === "regular" ? 
-                <Rive src='firey.riv' style={{height:"400px", width:"300px"}}/> : null}
-                </div>
-                <div className="d-inline-block">
-                <div className="chat" id="firey-chat" >
-                  {this.state.currentSlide < steps.length ? 
-                  <div>
-                  <div>{steps[this.state.currentSlide].jsx}</div>
-                  {this.state.currentSlide > 0 ? 
-                  <div>
-                    <button className="prevslidebtn"  onClick={this.prevSlide.bind(this)}>Previous</button>
-                    <button className="nextslidebtn" onClick={this.nextSlide.bind(this)}>Next</button>
-                  </div>
-                
-                : <button className="nextslidebtn" onClick={this.nextSlide.bind(this)}>Next</button>} {/**<button onClick={this.nextSlide.bind(this)}>Next</button> */}
-                </div>:
-                null}
-                </div>
-                </div>
-                </div>
+          <div className="d-flex">
+          <div className="d-inline-block riv-anim" >
+            {/* {console.log(this.state.role)} */}
+            {this.state.role === "teacher" ? 
+            <Rive src='firey_reg.riv' style={{height: "400px", width: "300px"}} />
+            : null
+          }
+          {this.state.role === "regular" ? 
+          <Rive src='firey.riv' style={{height:"400px", width:"300px"}}/> : null}
+          </div>
+          <div className="d-inline-block">
+          <div className="chat" id="firey-chat" >
+            {this.state.currentSlide < steps.length ? 
+            <div>
+            <div>{steps[this.state.currentSlide].jsx}</div>
+            {this.state.currentSlide > 0 ? 
+            <div>
+              <button className="prevslidebtn"  onClick={this.prevSlide.bind(this)}>Previous</button>
+              {this.state.currentSlide < steps.length - 1 ? 
+                <button className="nextslidebtn" onClick={this.nextSlide.bind(this)}>Next</button>
+                : null
+              }
+            </div>
+          
+          : <button className="nextslidebtn" onClick={this.nextSlide.bind(this)}>Next</button>} {/**<button onClick={this.nextSlide.bind(this)}>Next</button> */}
+          </div>:
+          <button className="prevslidebtn"  onClick={this.prevSlide.bind(this)}>Previous</button>}
+          </div>
+          </div>
+          </div>
 
             </div>
             )
@@ -613,9 +622,9 @@ export default class App extends React.Component {
             <div>
             <div class="tatar"></div>
             <p>all questions have been anwered</p>
-<h1>Upload posts</h1>
+      <h1>Upload posts</h1>
 
-</div>
+      </div>
             : <button onClick={this.logout}>logout 1</button>}
             </div>
             : 
@@ -623,40 +632,40 @@ export default class App extends React.Component {
             <div class="container-animation">
             <button onClick={this.logout}>logout 2</button>
             <div class="campfire-wrapper">
-                <div class="tree-container-back">
-                    <div class="tree-8"></div>
-                    <div class="tree-9"></div>
-                    <div class="tree-10"></div>
-                </div>
-                <div class="rock-container">
-                    <div class="rock-big"></div>
-                    <div class="rock-small">
-                        <div class="rock-1"></div>
-                        <div class="rock-2"></div>
-                        <div class="rock-3"></div>
-                        <div class="rock-4"></div>
-                    </div>
-                </div>
-                <div class="smoke-container">
-                    <svg className="smokey-smoke">
-                    <path className="path-smoke" d="M 150 0 Q 200 100 100 250 C 0 450 120 400 50 600  " />
-                </svg>
-                    <div class="fire-container">
+          <div class="tree-container-back">
+              <div class="tree-8"></div>
+              <div class="tree-9"></div>
+              <div class="tree-10"></div>
+          </div>
+          <div class="rock-container">
+              <div class="rock-big"></div>
+              <div class="rock-small">
+            <div class="rock-1"></div>
+            <div class="rock-2"></div>
+            <div class="rock-3"></div>
+            <div class="rock-4"></div>
+              </div>
+          </div>
+          <div class="smoke-container">
+              <svg className="smokey-smoke">
+              <path className="path-smoke" d="M 150 0 Q 200 100 100 250 C 0 450 120 400 50 600  " />
+          </svg>
+              <div class="fire-container">
         
-                        <div class="flame-1"></div>
-                        <div class="flame-2"></div>
-                        <div class="flame-3"></div>
-                    </div>
-                </div>
-                <div class="tree-container-front">
-                    <div class="tree-1"></div>
-                    <div class="tree-2"></div>
-                    <div class="tree-3"></div>
-                    <div class="tree-4"></div>
-                    <div class="tree-5"></div>
-                    <div class="tree-6"></div>
-                    <div class="tree-7"></div>
-                </div>
+            <div class="flame-1"></div>
+            <div class="flame-2"></div>
+            <div class="flame-3"></div>
+              </div>
+          </div>
+          <div class="tree-container-front">
+              <div class="tree-1"></div>
+              <div class="tree-2"></div>
+              <div class="tree-3"></div>
+              <div class="tree-4"></div>
+              <div class="tree-5"></div>
+              <div class="tree-6"></div>
+              <div class="tree-7"></div>
+          </div>
             </div>
         </div>
             

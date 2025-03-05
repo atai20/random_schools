@@ -406,6 +406,15 @@ async function teacherVerify(pd, post_id, user_id) {
         })
     }
 }
+async function giveAward(awardType, target_user_id) {
+    await getDoc(doc(db, `users/${target_user_id}`)).then((user) => {
+        //get array of objects: {award, count}...
+        
+    })
+    updateDoc(doc(db, `users/${target_user_id}`), {
+        "awards": awardType
+    })
+}
 
 const regexLatexBlock = /\$\$.*\$\$/i;
 const options_bar = {
@@ -486,7 +495,7 @@ return (
                 </div>
         <div className="col-md-6 gedf-main">
             {filter.length === 0 ? selposts.map((post_obj, index) => { 
-                if(ctxprops.clubs.includes(post_obj.posts_data.from_club) || ctxprops.subjects.includes(post_obj.posts_data.from_club)) {
+                if(ctxprops.clubs.includes(post_obj.posts_data.from_club) || (ctxprops.subjects ? ctxprops.subjects.includes(post_obj.posts_data.from_club):false)) {
                     return ( 
                         <div >
                             

@@ -79,15 +79,15 @@ function Landing() {
     }
     useEffect(() => { //TODO: make more efficient!
         if(conns_arr.length > 0) {
-            conns_arr.flat().map((club_obj, i) => {
+            conns_arr.flat().map((club_obj, i) => { //O(n)
                 initialNodes.push({
                     id: club_obj.school_name+"/"+club_obj.club_id, 
                     position: {x: Math.floor(Math.random()*(0.9*window.innerWidth)), y: Math.floor(Math.random()*(0.9*window.innerHeight))},
                     data: {label: club_obj.school_name+"/"+club_obj.club_id}
                 });
-                if(club_obj.club_data.connections) {
+                if(club_obj.club_data.connections.length>0) {
                     club_obj.club_data.connections.map((conn, j) => {
-                        let conn_obj = connSearch(conns_arr, conn);
+                        let conn_obj = connSearch(conns_arr, conn); //O(2n^2) total
                         if(conn_obj.length > 0 ) {
                             initialEdges.push({
                                 id: 'e'+(club_obj.school_name+"/"+club_obj.club_id)+'-'+conn_obj[0].school_name+"/"+conn_obj[0].club_id,

@@ -10,7 +10,6 @@ import Clubs from "./components/Clubs";
 import Intro from "./components/Intro";
 import Map from "./components/Map";
 
-
 import NewsTemplate from './components/NewsTemplate';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Scheduler from './components/Scheduler';
@@ -22,6 +21,8 @@ import Newsform from './components/Newsform';
 import 'intro.js/introjs.css';
 import './index.css';
 import  Nsfw  from './components/Nsfw';
+
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

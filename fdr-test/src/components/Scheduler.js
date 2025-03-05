@@ -134,8 +134,8 @@ function Scheduler() {
           <div className='render-challenge-temp' >
             {currChallenge.length !== 0 ? 
             <div>
-              {currChallenge.map((t_c) => (
-                <div className='render-challenge' id="challenge-display" style={{position: 'absolute', left: t_c.offsetleft, top: (t_c.offsettop+100)}}>
+              {currChallenge.map((t_c, i) => (
+                <div className='render-challenge' id="challenge-display" style={{position: 'absolute', left: t_c.offsetleft, top: (i > 0 ? t_c.offsettop+(currChallenge[i-1].offsettop-100) : t_c.offsettop+100)}}>
                   {/* <p className='ctext-primary'>{t_c.title}</p> */}
                   {t_c.status === "active" ?
                   <span title="active" style={{fill: "#34eb77", color: "#34eb77"}}><GoDotFill style={{ width: '20px', height: '20px'}} /></span> 
@@ -148,10 +148,10 @@ function Scheduler() {
                   <p className='ctext-primary'>{t_c.title}</p>
                   <p className='ctext-primary'><Latex displayMode={true}>{t_c.content || "poll here"}</Latex></p>
                   <p className='ctext-primary'>{t_c.origin ? t_c.origin.replace(`${ctxprops.school_select}`, `${school.name}`) : "poll type"}</p>
+              <button onClick={() => setCurrChallenge(currChallenge.splice(i,1))} className='cbtn btn' style={{}}>Close</button>
                   
                 </div>
               ))}
-              <button onClick={() => setCurrChallenge([])} className='cbtn btn' style={{position: 'absolute'}}>Close</button>
             </div>
             :null}
           </div>
